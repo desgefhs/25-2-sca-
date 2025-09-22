@@ -5,5 +5,6 @@ public class Main {
         System.out.println("Hello, World!!");
         System.out.println("민지호야 나만 빼고 술 먹으니 행복하니 정말 서운하다");
         System.out.println("화이팅~~~~~~~~~~₩");
+        System.out.println("DDDDD");
     }
 }
