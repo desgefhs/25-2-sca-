@@ -1,6 +1,6 @@
 package org.newdawn.spaceinvaders.entity;
 
-import org.newdawn.spaceinvaders.Game;
+import org.newdawn.spaceinvaders.GameContext;
 import org.newdawn.spaceinvaders.Sprite;
 import org.newdawn.spaceinvaders.SpriteStore;
 
@@ -12,8 +12,8 @@ import org.newdawn.spaceinvaders.SpriteStore;
 public class AlienEntity extends Entity {
 	/** The speed at which the alient moves horizontally */
 	private double moveSpeed = 75;
-	/** The game in which the entity exists */
-	private Game game;
+	/** The game context in which the entity exists */
+	private GameContext context;
 	/** The animation frames */
 	private Sprite[] frames = new Sprite[4];
 	/** The time since the last frame change took place */
@@ -22,24 +22,25 @@ public class AlienEntity extends Entity {
 	private long frameDuration = 250;
 	/** The current frame of animation being displayed */
 	private int frameNumber;
+	private static final int MAX_HEALTH = 2;
 	
 	/**
 	 * Create a new alien entity
 	 * 
-	 * @param game The game in which this entity is being created
+	 * @param context The game context in which this entity is being created
 	 * @param x The intial x location of this alien
 	 * @param y The intial y location of this alient
 	 */
-	public AlienEntity(Game game,int x,int y) {
+	public AlienEntity(GameContext context,int x,int y) {
 		super("sprites/alien.gif",x,y);
-		
+		this.health = new HealthComponent(MAX_HEALTH);
 		// setup the animatin frames
 		frames[0] = sprite;
 		frames[1] = SpriteStore.get().getSprite("sprites/alien2.gif");
 		frames[2] = sprite;
 		frames[3] = SpriteStore.get().getSprite("sprites/alien3.gif");
 		
-		this.game = game;
+		this.context = context;
 		dx = -moveSpeed;
 	}
 
@@ -72,12 +73,12 @@ public class AlienEntity extends Entity {
 		// if we have reached the left hand side of the screen and
 		// are moving left then request a logic update 
 		if ((dx < 0) && (x < 10)) {
-			game.updateLogic();
+			context.updateLogic();
 		}
 		// and vice vesa, if we have reached the right hand side of 
 		// the screen and are moving right, request a logic update
 		if ((dx > 0) && (x > 750)) {
-			game.updateLogic();
+			context.updateLogic();
 		}
 		
 		// proceed with normal move
@@ -96,7 +97,7 @@ public class AlienEntity extends Entity {
 		// if we've reached the bottom of the screen then the player
 		// dies
 		if (y > 570) {
-			game.notifyDeath();
+			context.notifyDeath();
 		}
 	}
 	
@@ -106,6 +107,23 @@ public class AlienEntity extends Entity {
 	 * @param other The other entity
 	 */
 	public void collidedWith(Entity other) {
-		// collisions with aliens are handled elsewhere
+		// 우주선과 충돌한 경우 아무것도 하지 않는다 (우주선 쪽에서만 충돌을 처리).
+		if (other instanceof ShipEntity) {
+			return;
+		}
+
+		// 총알과 충돌한 경우
+		if (other instanceof ShotEntity) {
+			if (!health.isAlive()) { return; } // 이미 죽은 상태면 아무것도 하지 않음
+
+			// 총알의 데미지만큼 체력을 감소시키고, 체력이 0 이하면 사망 처리
+			if (!health.decreaseHealth(((ShotEntity) other).getDamage())) {
+				// 외계인 자신을 게임에서 제거
+				context.removeEntity(this);
+				
+				// 외계인이 죽었음을 게임에 알림
+				context.notifyAlienKilled();
+			}
+		}
 	}
 }

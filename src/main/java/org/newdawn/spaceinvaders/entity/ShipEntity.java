@@ -1,6 +1,8 @@
 package org.newdawn.spaceinvaders.entity;
 
-import org.newdawn.spaceinvaders.Game;
+import org.newdawn.spaceinvaders.GameContext;
+
+import java.awt.*;
 
 /**
  * The entity that represents the players ship
@@ -9,20 +11,25 @@ import org.newdawn.spaceinvaders.Game;
  */
 public class ShipEntity extends Entity {
 	/** The game in which the ship exists */
-	private Game game;
+	private GameContext context;
+	private HpRender hpRender;
+	private static final int COLLISION_DAMAGE = 1;
+	private static final int MAX_HEALTH = 3;
 	
 	/**
 	 * Create a new entity to represent the players ship
 	 *  
-	 * @param game The game in which the ship is being created
+	 * @param context The game context in which the ship is being created
 	 * @param ref The reference to the sprite to show for the ship
 	 * @param x The initial x location of the player's ship
 	 * @param y The initial y location of the player's ship
 	 */
-	public ShipEntity(Game game,String ref,int x,int y) {
+	public ShipEntity(GameContext context,String ref,int x,int y) {
 		super(ref,x,y);
-		
-		this.game = game;
+		// 우주선은 체력을 가지므로, HealthComponent를 생성하여 초기화한다.
+		this.health = new HealthComponent(MAX_HEALTH);
+		this.context = context;
+		this.hpRender = new HpRender(health.getHp());
 	}
 	
 	/**
@@ -42,10 +49,24 @@ public class ShipEntity extends Entity {
 		if ((dx > 0) && (x > 750)) {
 			return;
 		}
+		// if we're moving up and have reached the top of the screen, don't move
+		if ((dy < 0) && (y < 0)) {
+			return;
+		}
+		// if we're moving down and have reached the bottom of the screen, don't move
+		if ((dy > 0) && (y > 600 - sprite.getHeight())) {
+			return;
+		}
 		
 		super.move(delta);
 	}
-	
+
+	@Override
+	public void draw(Graphics g) {
+		super.draw(g);
+		hpRender.hpRender((Graphics2D) g, this);
+	}
+
 	/**
 	 * Notification that the player's ship has collided with something
 	 * 
@@ -55,7 +76,10 @@ public class ShipEntity extends Entity {
 		// if its an alien, notify the game that the player
 		// is dead
 		if (other instanceof AlienEntity) {
-			game.notifyDeath();
+			context.removeEntity(other);
+			if(!health.decreaseHealth(COLLISION_DAMAGE)){
+				context.notifyDeath();
+			}
 		}
 	}
 }

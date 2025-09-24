@@ -34,6 +34,9 @@ public abstract class Entity {
 	private Rectangle me = new Rectangle();
 	/** The rectangle used for other entities during collision resolution */
 	private Rectangle him = new Rectangle();
+
+	/** 엔티티가 파괴될 수 있는 경우, 체력 관련 로직을 처리 (선택적) */
+	protected HealthComponent health;
 	
 	/**
 	 * Construct a entity based on a sprite image and a location.
@@ -46,6 +49,10 @@ public abstract class Entity {
 		this.sprite = SpriteStore.get().getSprite(ref);
 		this.x = x;
 		this.y = y;
+	}
+
+	public HealthComponent getHealth() {
+		return health;
 	}
 	
 	/**
@@ -101,7 +108,7 @@ public abstract class Entity {
 	 * @param g The graphics context on which to draw
 	 */
 	public void draw(Graphics g) {
-		sprite.draw(g,(int) x,(int) y);
+		sprite.draw(g, (int) x, (int) y);
 	}
 	
 	/**
