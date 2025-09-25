@@ -8,6 +8,8 @@ package org.newdawn.spaceinvaders;
  */
 public enum GameState {
     MAIN_MENU,
+    LOGIN,
+    RANKING,
     PLAYING,
     PAUSED,
     WAVE_CLEARED,

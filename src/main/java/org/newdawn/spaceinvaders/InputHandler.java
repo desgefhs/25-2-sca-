@@ -2,6 +2,8 @@ package org.newdawn.spaceinvaders;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 키보드 입력을 감지하고, 현재 키 상태를 저장하는 책임을 가지는 클래스.
@@ -22,6 +24,8 @@ public class InputHandler extends KeyAdapter {
     private boolean downKeyProcessed = false;
     private boolean fireKeyProcessed = false;
     private boolean pKeyProcessed = false;
+
+    private final List<Character> typedChars = new ArrayList<>();
 
     // --- 연속 입력이 필요한 경우를 위한 Getter --- //
     public boolean isLeftPressed() { return leftPressed; }
@@ -80,6 +84,15 @@ public class InputHandler extends KeyAdapter {
         return false;
     }
 
+    public char consumeTypedChar() {
+        synchronized (typedChars) {
+            if (typedChars.isEmpty()) {
+                return 0;
+            }
+            return typedChars.remove(0);
+        }
+    }
+
     @Override
     public void keyPressed(KeyEvent e) {
         updateKeyState(e.getKeyCode(), true);
@@ -136,6 +149,9 @@ public class InputHandler extends KeyAdapter {
         // ESC 키로 종료
         if (e.getKeyChar() == 27) {
             System.exit(0);
+        }
+        synchronized (typedChars) {
+            typedChars.add(e.getKeyChar());
         }
     }
 }
