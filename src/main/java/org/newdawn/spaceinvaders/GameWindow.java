@@ -1,6 +1,10 @@
 package org.newdawn.spaceinvaders;
 
 import org.newdawn.spaceinvaders.entity.Entity;
+import org.newdawn.spaceinvaders.view.MainMenu;
+import org.newdawn.spaceinvaders.GameState;
+import org.newdawn.spaceinvaders.SpriteStore;
+import org.newdawn.spaceinvaders.Sprite;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +21,13 @@ public class GameWindow extends Canvas {
     private final JFrame container;
     private final BufferStrategy strategy;
 
+    private final Sprite backgroundSprite; // 배경화면용 스프라이트
+
     public GameWindow(InputHandler inputHandler) {
+
+        // 배경 이미지를 미리 불러온다.
+        this.backgroundSprite = SpriteStore.get().getSprite("sprites/background.jpg");
+
         // 메인 창(프레임) 생성
         container = new JFrame("Space Invaders");
 
@@ -56,11 +66,14 @@ public class GameWindow extends Canvas {
     }
 
     /**
-     * 화면에 모든 엔티티와 메시지를 그립니다.
+     * 게임 플레이 화면을 그립니다.
      * @param entities 그릴 엔티티 목록
-     * @param message 화면에 표시할 메시지
+     * @param message 화면 중앙에 표시할 메시지
+     * @param score 현재 점수
+     * @param currentState 현재 게임 상태
+     * @param backgroundY 배경 스크롤 y좌표
      */
-    public void render(List<Entity> entities, String message) {
+    public void render(List<Entity> entities, String message, int score, GameState currentState, double backgroundY) {
         Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
         g.setColor(Color.black);
         g.fillRect(0, 0, 800, 600);
@@ -70,11 +83,19 @@ public class GameWindow extends Canvas {
             entity.draw(g);
         }
 
-        // 메시지가 있으면 그리기
+        // 점수 그리기
+        g.setColor(Color.white);
+        g.setFont(new Font("Dialog", Font.BOLD, 14));
+        g.drawString(String.format("score: %03d", score), 680, 30);
+
+        // 게임오버/승리 메시지가 있으면 그리기
         if (message != null && !message.isEmpty()) {
             g.setColor(Color.white);
+            g.setFont(new Font("Dialog", Font.BOLD, 20));
             g.drawString(message, (800 - g.getFontMetrics().stringWidth(message)) / 2, 250);
-            g.drawString("Press any key", (800 - g.getFontMetrics().stringWidth("Press any key")) / 2, 300);
+            if (currentState == GameState.GAME_OVER || currentState == GameState.GAME_WON) {
+                g.drawString("Press Enter to Continue", (800 - g.getFontMetrics().stringWidth("Press Enter to Continue")) / 2, 300);
+            }
         }
 
         g.dispose();
@@ -83,5 +104,40 @@ public class GameWindow extends Canvas {
 
     public void setTitle(String title) {
         container.setTitle(title);
+    }
+
+    /**
+     * 메인 메뉴를 화면에 그립니다.
+     * @param menu 그릴 메뉴 객체
+     */
+    public void renderMenu(MainMenu menu) {
+        Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+        // 배경 이미지 그리기 (화면 전체에 맞게)
+        g.drawImage(backgroundSprite.getImage(), 0, 0, 800, 600, null);
+
+        // 메뉴 아이템들을 화면 하단에 가로로 배열하여 그리기
+        g.setFont(new Font("Dialog", Font.BOLD, 24));
+        int totalWidth = 0;
+        int spacing = 40;
+
+        for (int i = 0; i < menu.getItemCount(); i++) {
+            totalWidth += g.getFontMetrics().stringWidth(menu.getItem(i));
+        }
+        totalWidth += (menu.getItemCount() - 1) * spacing;
+
+        int currentX = (800 - totalWidth) / 2;
+
+        for (int i = 0; i < menu.getItemCount(); i++) {
+            if (i == menu.getSelectedIndex()) {
+                g.setColor(Color.GREEN); // 선택된 아이템
+            } else {
+                g.setColor(Color.WHITE);
+            }
+            g.drawString(menu.getItem(i), currentX, 500);
+            currentX += g.getFontMetrics().stringWidth(menu.getItem(i)) + spacing;
+        }
+
+        g.dispose();
+        strategy.show();
     }
 }

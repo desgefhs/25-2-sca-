@@ -16,8 +16,6 @@ public class ShotEntity extends Entity {
 	private boolean used = false;
 	/** 이 총알이 가하는 데미지 양 */
 	private int damage;
-	/** 이 총알이 적을 관통하는지 여부 */
-	private boolean isPiercing = false;
 	
 	/**
 	 * Create a new shot from the player
@@ -27,14 +25,12 @@ public class ShotEntity extends Entity {
 	 * @param x The initial x location of the shot
 	 * @param y The initial y location of the shot
 	 * @param damage 이 총알이 가하는 데미지
-	 * @param isPiercing 이 총알의 관통 여부
 	 */
-	public ShotEntity(GameContext context,String sprite,int x,int y, int damage, boolean isPiercing) {
+	public ShotEntity(GameContext context,String sprite,int x,int y, int damage) {
 		super(sprite,x,y);
 		
 		this.context = context;
 		this.damage = damage;
-		this.isPiercing = isPiercing;
 		
 		dy = moveSpeed;
 	}
@@ -72,8 +68,8 @@ public class ShotEntity extends Entity {
 			return;
 		}
 		
-		// if this is a normal shot, it should be removed on impact with anything that has health
-		if (!isPiercing && other.getHealth() != null) {
+		// if this shot hits anything with health, it should be removed
+		if (other.getHealth() != null) {
 			context.removeEntity(this);
 			used = true;
 		}

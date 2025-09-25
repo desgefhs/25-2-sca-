@@ -50,7 +50,14 @@ public class Sprite {
 	 * @param x The x location at which to draw the sprite
 	 * @param y The y location at which to draw the sprite
 	 */
-	public void draw(Graphics g,int x,int y) {
-		g.drawImage(image,x,y,null);
-	}
-}
+	    public void draw(Graphics g,int x,int y) {
+	        g.drawImage(image,x,y,null);
+	    }
+	
+	    /**
+	     * 이 스프라이트의 원본 Image 객체를 반환합니다.
+	     * @return 원본 Image 객체
+	     */
+	    public Image getImage() {
+	        return image;
+	    }}
