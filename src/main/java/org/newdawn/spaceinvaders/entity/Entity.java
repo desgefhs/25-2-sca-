@@ -35,6 +35,9 @@ public abstract class Entity {
 	/** The rectangle used for other entities during collision resolution */
 	private Rectangle him = new Rectangle();
 
+	protected int width;
+	protected int height;
+
 	/** 엔티티가 파괴될 수 있는 경우, 체력 관련 로직을 처리 (선택적) */
 	protected HealthComponent health;
 	
@@ -49,6 +52,8 @@ public abstract class Entity {
 		this.sprite = SpriteStore.get().getSprite(ref);
 		this.x = x;
 		this.y = y;
+		this.width = sprite.getWidth();
+		this.height = sprite.getHeight();
 	}
 
 	public HealthComponent getHealth() {
@@ -143,8 +148,8 @@ public abstract class Entity {
 	 * @return True if the entities collide with each other
 	 */
 	public boolean collidesWith(Entity other) {
-		me.setBounds((int) x,(int) y,sprite.getWidth(),sprite.getHeight());
-		him.setBounds((int) other.x,(int) other.y,other.sprite.getWidth(),other.sprite.getHeight());
+		me.setBounds((int) x, (int) y, this.width, this.height);
+		him.setBounds((int) other.x, (int) other.y, other.width, other.height);
 
 		return me.intersects(him);
 	}

@@ -13,6 +13,7 @@ public class InputHandler extends KeyAdapter {
     private boolean upPressed = false;
     private boolean downPressed = false;
     private boolean firePressed = false;
+    private boolean pPressed = false;
 
     // 키 한 번 누름을 처리하기 위한 플래그들
     private boolean leftKeyProcessed = false;
@@ -20,6 +21,7 @@ public class InputHandler extends KeyAdapter {
     private boolean upKeyProcessed = false;
     private boolean downKeyProcessed = false;
     private boolean fireKeyProcessed = false;
+    private boolean pKeyProcessed = false;
 
     // --- 연속 입력이 필요한 경우를 위한 Getter --- //
     public boolean isLeftPressed() { return leftPressed; }
@@ -70,6 +72,14 @@ public class InputHandler extends KeyAdapter {
         return false;
     }
 
+    public boolean isPPressedAndConsume() {
+        if (pPressed && !pKeyProcessed) {
+            pKeyProcessed = true;
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void keyPressed(KeyEvent e) {
         updateKeyState(e.getKeyCode(), true);
@@ -95,6 +105,9 @@ public class InputHandler extends KeyAdapter {
         if (keyCode == KeyEvent.VK_SPACE || keyCode == KeyEvent.VK_ENTER) {
             fireKeyProcessed = false;
         }
+        if (keyCode == KeyEvent.VK_P) {
+            pKeyProcessed = false;
+        }
     }
 
     private void updateKeyState(int keyCode, boolean pressed) {
@@ -112,6 +125,9 @@ public class InputHandler extends KeyAdapter {
         }
         if (keyCode == KeyEvent.VK_SPACE || keyCode == KeyEvent.VK_ENTER) {
             firePressed = pressed;
+        }
+        if (keyCode == KeyEvent.VK_P) {
+            pPressed = pressed;
         }
     }
 

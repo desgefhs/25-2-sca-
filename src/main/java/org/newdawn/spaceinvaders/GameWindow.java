@@ -73,7 +73,7 @@ public class GameWindow extends Canvas {
      * @param currentState 현재 게임 상태
      * @param backgroundY 배경 스크롤 y좌표
      */
-    public void render(List<Entity> entities, String message, int score, GameState currentState, double backgroundY, int wave) {
+    public void render(List<Entity> entities, String message, int score, GameState currentState, double backgroundY, int wave, org.newdawn.spaceinvaders.view.PauseMenu pauseMenu) {
         Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
         g.setColor(Color.black);
         g.fillRect(0, 0, 800, 600);
@@ -90,12 +90,33 @@ public class GameWindow extends Canvas {
         g.drawString(String.format("Wave: %d", wave), 20, 30);
 
         // 게임오버/승리 메시지가 있으면 그리기
-        if (message != null && !message.isEmpty()) {
+        if (message != null && !message.isEmpty() && currentState != GameState.PAUSED) {
             g.setColor(Color.white);
             g.setFont(new Font("Dialog", Font.BOLD, 20));
             g.drawString(message, (800 - g.getFontMetrics().stringWidth(message)) / 2, 250);
             if (currentState == GameState.GAME_OVER || currentState == GameState.GAME_WON) {
                 g.drawString("Press Enter to Continue", (800 - g.getFontMetrics().stringWidth("Press Enter to Continue")) / 2, 300);
+            }
+        }
+
+        // 일시정지 메뉴 그리기
+        if (currentState == GameState.PAUSED) {
+            g.setColor(new Color(0, 0, 0, 150)); // Semi-transparent black
+            g.fillRect(0, 0, 800, 600);
+
+            g.setFont(new Font("Dialog", Font.BOLD, 24));
+            int itemHeight = 40;
+            int startY = (600 - (pauseMenu.getItemCount() * itemHeight)) / 2;
+
+            for (int i = 0; i < pauseMenu.getItemCount(); i++) {
+                if (i == pauseMenu.getSelectedIndex()) {
+                    g.setColor(Color.GREEN);
+                } else {
+                    g.setColor(Color.WHITE);
+                }
+                String itemText = pauseMenu.getItem(i);
+                int textWidth = g.getFontMetrics().stringWidth(itemText);
+                g.drawString(itemText, (800 - textWidth) / 2, startY + (i * itemHeight));
             }
         }
 

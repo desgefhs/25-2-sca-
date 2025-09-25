@@ -4,6 +4,7 @@ import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
 import org.newdawn.spaceinvaders.entity.ShotEntity;
 import org.newdawn.spaceinvaders.view.MainMenu;
+import org.newdawn.spaceinvaders.view.PauseMenu;
 
 /**
  * 게임의 핵심 로직과 상태를 관리하며, 다른 전문 관리 클래스들을 총괄하는 메인 컨트롤러.
@@ -15,6 +16,7 @@ public class GameManager implements GameContext {
     private final CollisionDetector collisionDetector;
     private final GameWindow gameWindow;
     private final MainMenu mainMenu;
+    private final PauseMenu pauseMenu;
 
     private GameState currentState;
     private boolean gameRunning = true;
@@ -40,6 +42,7 @@ public class GameManager implements GameContext {
         this.collisionDetector = new CollisionDetector();
         this.gameWindow = new GameWindow(inputHandler);
         this.mainMenu = new MainMenu();
+        this.pauseMenu = new PauseMenu();
         this.currentState = GameState.MAIN_MENU; // 초기 상태를 메인 메뉴로 설정
     }
 
@@ -75,6 +78,10 @@ public class GameManager implements GameContext {
                     gameWindow.renderMenu(mainMenu);
                     break;
                 case PLAYING:
+                    if (inputHandler.isPPressedAndConsume()) {
+                        currentState = GameState.PAUSED;
+                        break;
+                    }
                     if (wave % 5 == 0) { // Boss Wave
                         if (lineCount == 0) {
                             entityManager.spawnNext(wave, lineCount);
@@ -97,22 +104,49 @@ public class GameManager implements GameContext {
                         entityManager.doLogicAll();
                         logicRequiredThisLoop = false;
                     }
-                    gameWindow.render(entityManager.getEntities(), message, score, currentState, backgroundY, wave);
+                    gameWindow.render(entityManager.getEntities(), message, score, currentState, backgroundY, wave, pauseMenu);
                     break;
                 case WAVE_CLEARED:
                     startNextWave();
                     currentState = GameState.PLAYING;
+                    break;
+                case PAUSED:
+                    handlePauseMenuInput();
+                    gameWindow.render(entityManager.getEntities(), message, score, currentState, backgroundY, wave, pauseMenu);
                     break;
                 case GAME_OVER:
                 case GAME_WON: // GAME_OVER와 GAME_WON 상태는 동일한 로직을 공유
                     if (inputHandler.isFirePressedAndConsume()) {
                         currentState = GameState.MAIN_MENU;
                     }
-                    gameWindow.render(entityManager.getEntities(), message, score, currentState, backgroundY, wave);
+                    gameWindow.render(entityManager.getEntities(), message, score, currentState, backgroundY, wave, pauseMenu);
                     break;
             }
 
             SystemTimer.sleep(lastLoopTime + 10 - SystemTimer.getTime());
+        }
+    }
+
+    private void handlePauseMenuInput() {
+        if (inputHandler.isUpPressedAndConsume()) {
+            pauseMenu.moveUp();
+        }
+        if (inputHandler.isDownPressedAndConsume()) {
+            pauseMenu.moveDown();
+        }
+        if (inputHandler.isFirePressedAndConsume()) {
+            String selected = pauseMenu.getSelectedItem();
+            switch (selected) {
+                case "재개하기":
+                    currentState = GameState.PLAYING;
+                    break;
+                case "메인메뉴로 나가기":
+                    currentState = GameState.MAIN_MENU;
+                    break;
+                case "종료하기":
+                    System.exit(0);
+                    break;
+            }
         }
     }
 
@@ -139,7 +173,7 @@ public class GameManager implements GameContext {
         wave = 1;
         lineCount = 0;
         lastLineSpawnTime = System.currentTimeMillis();
-        entityManager.initShip(); // Will create this method
+        entityManager.initShip();
         currentState = GameState.PLAYING;
         message = "";
     }
@@ -157,7 +191,8 @@ public class GameManager implements GameContext {
 
         if (inputHandler.isUpPressed() && !inputHandler.isDownPressed()) {
             ship.setVerticalMovement(-moveSpeed);
-        } else if (inputHandler.isDownPressed() && !inputHandler.isUpPressed()) {
+        }
+        if (inputHandler.isDownPressed() && !inputHandler.isUpPressed()) {
             ship.setVerticalMovement(moveSpeed);
         }
 
@@ -195,6 +230,7 @@ public class GameManager implements GameContext {
         lineCount = 0;
         lastLineSpawnTime = System.currentTimeMillis();
         message = "Wave " + wave;
+        entityManager.initShip();
     }
 
     @Override

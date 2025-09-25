@@ -17,6 +17,8 @@ public class BossEntity extends Entity {
         this.health = new HealthComponent(health);
         this.hpRender = new HpRender(this.health.getHp());
         dx = -moveSpeed;
+        this.width = sprite.getWidth() * 2;
+        this.height = sprite.getHeight() * 2;
     }
 
     public BossEntity(GameContext context, int x, int y) {
@@ -25,7 +27,7 @@ public class BossEntity extends Entity {
 
     @Override
     public void draw(java.awt.Graphics g) {
-        super.draw(g);
+        g.drawImage(sprite.getImage(), (int) x, (int) y, this.width, this.height, null);
         hpRender.hpRender((java.awt.Graphics2D) g, this);
     }
 
