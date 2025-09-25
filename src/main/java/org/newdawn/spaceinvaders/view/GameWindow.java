@@ -1,8 +1,8 @@
-package org.newdawn.spaceinvaders;
+package org.newdawn.spaceinvaders.view;
 
+import org.newdawn.spaceinvaders.InputHandler;
 import org.newdawn.spaceinvaders.entity.Entity;
-import org.newdawn.spaceinvaders.view.MainMenu;
-
+import org.newdawn.spaceinvaders.GameState;
 import org.newdawn.spaceinvaders.SpriteStore;
 import org.newdawn.spaceinvaders.Sprite;
 
