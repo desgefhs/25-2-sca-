@@ -21,11 +21,16 @@ public class GameManager implements GameContext {
     private boolean logicRequiredThisLoop = false;
     private String message = "";
     private long lastFire = 0;
-    private final long firingInterval = 500;
+    private final long firingInterval = 250;
     private final double moveSpeed = 300;
     private static final int SHOT_DAMAGE = 1;
     private static final int ALIEN_SCORE = 10;
     private int score = 0;
+    private int wave = 1;
+    private int lineCount = 0;
+    private long lastLineSpawnTime = 0;
+    private final long lineSpawnInterval = 3000; // 3 seconds
+    private final int LINES_PER_WAVE = 10;
     private double backgroundY = 0;
     private final double BACKGROUND_SCROLL_SPEED = 50;
 
@@ -70,6 +75,20 @@ public class GameManager implements GameContext {
                     gameWindow.renderMenu(mainMenu);
                     break;
                 case PLAYING:
+                    if (wave % 5 == 0) { // Boss Wave
+                        if (lineCount == 0) {
+                            entityManager.spawnNext(wave, lineCount);
+                            lineCount++; // Increment to prevent re-spawning
+                        }
+                    } else { // Normal Wave
+                        if (lineCount < LINES_PER_WAVE) {
+                            if (System.currentTimeMillis() - lastLineSpawnTime > lineSpawnInterval) {
+                                entityManager.spawnNext(wave, lineCount);
+                                lineCount++;
+                                lastLineSpawnTime = System.currentTimeMillis();
+                            }
+                        }
+                    }
                     handlePlayingInput(delta);
                     entityManager.moveAll(delta);
                     collisionDetector.checkCollisions(entityManager.getEntities());
@@ -78,14 +97,18 @@ public class GameManager implements GameContext {
                         entityManager.doLogicAll();
                         logicRequiredThisLoop = false;
                     }
-                    gameWindow.render(entityManager.getEntities(), message, score, currentState, backgroundY);
+                    gameWindow.render(entityManager.getEntities(), message, score, currentState, backgroundY, wave);
+                    break;
+                case WAVE_CLEARED:
+                    startNextWave();
+                    currentState = GameState.PLAYING;
                     break;
                 case GAME_OVER:
                 case GAME_WON: // GAME_OVER와 GAME_WON 상태는 동일한 로직을 공유
                     if (inputHandler.isFirePressedAndConsume()) {
                         currentState = GameState.MAIN_MENU;
                     }
-                    gameWindow.render(entityManager.getEntities(), message, score, currentState, backgroundY);
+                    gameWindow.render(entityManager.getEntities(), message, score, currentState, backgroundY, wave);
                     break;
             }
 
@@ -104,14 +127,21 @@ public class GameManager implements GameContext {
         if (inputHandler.isFirePressedAndConsume()) {
             String selected = mainMenu.getSelectedItem();
             if ("1. 게임시작".equals(selected)) {
-                resetScore();
-                entityManager.initEntities();
-                currentState = GameState.PLAYING;
-                message = "";
+                startGameplay();
             } else if ("4. 설정".equals(selected)){
                 System.exit(0);
             }
         }
+    }
+
+    private void startGameplay() {
+        resetScore();
+        wave = 1;
+        lineCount = 0;
+        lastLineSpawnTime = System.currentTimeMillis();
+        entityManager.initShip(); // Will create this method
+        currentState = GameState.PLAYING;
+        message = "";
     }
 
     private void handlePlayingInput(long delta) {
@@ -136,6 +166,11 @@ public class GameManager implements GameContext {
         }
     }
 
+    @Override
+    public void addEntity(Entity entity) {
+        entityManager.addEntity(entity);
+    }
+
     private void tryToFire() {
         // 발사 간격(연사 속도) 체크
         if (System.currentTimeMillis() - lastFire < firingInterval) {
@@ -155,6 +190,13 @@ public class GameManager implements GameContext {
         currentState = GameState.GAME_OVER;
     }
 
+    public void startNextWave() {
+        wave++;
+        lineCount = 0;
+        lastLineSpawnTime = System.currentTimeMillis();
+        message = "Wave " + wave;
+    }
+
     @Override
     public void notifyWin() {
         message = "Well done! You Win!";
@@ -162,13 +204,21 @@ public class GameManager implements GameContext {
     }
 
     @Override
+    public void notifyAlienEscaped(Entity entity) {
+        entityManager.removeEntity(entity);
+        entityManager.decreaseAlienCount();
+        if (entityManager.getAlienCount() == 0 && lineCount >= LINES_PER_WAVE) {
+            currentState = GameState.WAVE_CLEARED;
+        }
+    }
+
+    @Override
     public void notifyAlienKilled() {
         increaseScore(ALIEN_SCORE);
         entityManager.decreaseAlienCount();
-        if (entityManager.getAlienCount() == 0) {
-            notifyWin();
+        if (entityManager.getAlienCount() == 0 && lineCount >= LINES_PER_WAVE) {
+            currentState = GameState.WAVE_CLEARED;
         }
-        entityManager.speedUpAliens();
     }
 
     @Override

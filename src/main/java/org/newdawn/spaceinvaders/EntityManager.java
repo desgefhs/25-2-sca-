@@ -1,6 +1,7 @@
 package org.newdawn.spaceinvaders;
 
 import org.newdawn.spaceinvaders.entity.AlienEntity;
+import org.newdawn.spaceinvaders.entity.BossEntity;
 import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
 
@@ -15,6 +16,7 @@ public class EntityManager {
     private final GameContext context;
     private final List<Entity> entities = new ArrayList<>();
     private final List<Entity> removeList = new ArrayList<>();
+    private final List<Entity> addList = new ArrayList<>();
     private ShipEntity ship;
     private int alienCount;
 
@@ -22,28 +24,42 @@ public class EntityManager {
         this.context = context;
     }
 
-    /**
-     * 게임 시작 시 필요한 모든 엔티티(우주선, 외계인)를 생성하고 초기화합니다.
-     */
-    public void initEntities() {
+    public void initShip() {
+        if (ship == null) {
+            ship = new ShipEntity(context, "sprites/ship.gif", 370, 550);
+        }
         entities.clear();
-        // 플레이어 우주선 생성
-        ship = new ShipEntity(context, "sprites/ship.gif", 370, 550);
+        addList.clear();
+        removeList.clear();
         entities.add(ship);
-
-        // 외계인 무리 생성
         alienCount = 0;
-        for (int row = 0; row < 5; row++) {
-            for (int x = 0; x < 12; x++) {
-                Entity alien = new AlienEntity(context, 100 + (x * 50), (50) + row * 30);
-                entities.add(alien);
+    }
+
+    public void spawnNext(int wave, int lineCount) {
+        if (wave % 5 == 0) {
+            // Boss wave - spawn boss on the first line count
+            if (lineCount == 0) {
+                double healthModifier = 1.0 + (wave - 1) / 20.0;
+                int bossHealth = (int) (50 * healthModifier);
+                Entity boss = new BossEntity(context, 350, 50, bossHealth);
+                addList.add(boss);
+                alienCount++;
+            }
+        } else {
+            // Normal alien wave: spawn a single line
+            double healthModifier = 1.0 + (wave - 1) / 20.0;
+            int alienHealth = (int) (2 * healthModifier);
+            int aliensInLine = 10;
+            for (int i = 0; i < aliensInLine; i++) {
+                Entity alien = new AlienEntity(context, 50 + (i * 60), -50, alienHealth);
+                addList.add(alien);
                 alienCount++;
             }
         }
     }
 
     public void addEntity(Entity entity) {
-        entities.add(entity);
+        addList.add(entity);
     }
 
     public void removeEntity(Entity entity) {
@@ -55,7 +71,9 @@ public class EntityManager {
      */
     public void cleanup() {
         entities.removeAll(removeList);
+        entities.addAll(addList);
         removeList.clear();
+        addList.clear();
     }
 
     public List<Entity> getEntities() {
@@ -81,17 +99,6 @@ public class EntityManager {
     public void moveAll(long delta) {
         for (Entity entity : entities) {
             entity.move(delta);
-        }
-    }
-
-    /**
-     * 모든 외계인의 이동 속도를 증가시킵니다.
-     */
-    public void speedUpAliens() {
-        for (Entity entity : entities) {
-            if (entity instanceof AlienEntity) {
-                entity.setHorizontalMovement(entity.getHorizontalMovement() * 1.02);
-            }
         }
     }
 

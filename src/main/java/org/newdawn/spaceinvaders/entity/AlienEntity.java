@@ -13,7 +13,7 @@ public class AlienEntity extends Entity {
 	/**
 	 * The speed at which the alient moves horizontally
 	 */
-	private double moveSpeed = 75;
+	private double moveSpeed = 50;
 	/**
 	 * The game context in which the entity exists
 	 */
@@ -35,6 +35,25 @@ public class AlienEntity extends Entity {
 	 */
 	private int frameNumber;
 	private static final int MAX_HEALTH = 2;
+	private static final int SHOT_DAMAGE = 1;
+
+	private static long lastFire = 0;
+	private static final long firingInterval = 1000; // 1 second cooldown for the entire fleet
+
+
+	public AlienEntity(GameContext context, int x, int y, int health) {
+		super("sprites/alien.gif", x, y);
+		this.health = new HealthComponent(health);
+		// setup the animatin frames
+		frames[0] = sprite;
+		frames[1] = SpriteStore.get().getSprite("sprites/alien2.gif");
+		frames[2] = sprite;
+		frames[3] = SpriteStore.get().getSprite("sprites/alien3.gif");
+
+		this.context = context;
+		dx = 0;
+		dy = moveSpeed;
+	}
 
 	/**
 	 * Create a new alien entity
@@ -44,16 +63,19 @@ public class AlienEntity extends Entity {
 	 * @param y       The intial y location of this alient
 	 */
 	public AlienEntity(GameContext context, int x, int y) {
-		super("sprites/alien.gif", x, y);
-		this.health = new HealthComponent(MAX_HEALTH);
-		// setup the animatin frames
-		frames[0] = sprite;
-		frames[1] = SpriteStore.get().getSprite("sprites/alien2.gif");
-		frames[2] = sprite;
-		frames[3] = SpriteStore.get().getSprite("sprites/alien3.gif");
+		this(context, x, y, MAX_HEALTH);
+	}
 
-		this.context = context;
-		dx = -moveSpeed;
+	private void tryToFire() {
+		if (System.currentTimeMillis() - lastFire < firingInterval) {
+			return;
+		}
+
+		// if (Math.random() < 0.01) { // Add randomness if desired
+			lastFire = System.currentTimeMillis();
+			AlienShotEntity shot = new AlienShotEntity(context, "sprites/alien_shot.gif", getX() + 10, getY() + 30, SHOT_DAMAGE);
+			context.addEntity(shot);
+		// }
 	}
 
 	/**
@@ -82,35 +104,18 @@ public class AlienEntity extends Entity {
 			sprite = frames[frameNumber];
 		}
 
-		// if we have reached the left hand side of the screen and
-		// are moving left then request a logic update 
-		if ((dx < 0) && (x < 10)) {
-			context.updateLogic();
+		// Randomly decide to fire
+		if (Math.random() < 0.002) {
+			tryToFire();
 		}
-		// and vice vesa, if we have reached the right hand side of 
-		// the screen and are moving right, request a logic update
-		if ((dx > 0) && (x > 750)) {
-			context.updateLogic();
+
+		// if we have gone off the bottom of the screen, remove ourselfs
+		if (y > 600) {
+			context.notifyAlienEscaped(this);
 		}
 
 		// proceed with normal move
 		super.move(delta);
-	}
-
-	/**
-	 * Update the game logic related to aliens
-	 */
-	public void doLogic() {
-		// swap over horizontal movement and move down the
-		// screen a bit
-		dx = -dx;
-		y += 10;
-
-		// if we've reached the bottom of the screen then the player
-		// dies
-		if (y > 570) {
-			context.notifyDeath();
-		}
 	}
 
 	/**
