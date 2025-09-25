@@ -8,6 +8,12 @@ import org.newdawn.spaceinvaders.entity.Entity;
 public interface GameContext {
 
     /**
+     * 게임에 새로운 엔티티를 추가하도록 요청.
+     * @param entity 추가할 엔티티
+     */
+    void addEntity(Entity entity);
+
+    /**
      * 게임에서 특정 엔티티를 제거하도록 요청.
      * @param entity 제거할 엔티티
      */
@@ -22,6 +28,12 @@ public interface GameContext {
      * 플레이어가 승리했음을 알립니다.
      */
     void notifyWin();
+
+    /**
+     * 외계인이 화면 밖으로 탈출했음을 알립니다.
+     * @param entity 탈출한 엔티티
+     */
+    void notifyAlienEscaped(Entity entity);
 
     /**
      * 외계인이 죽었음을 알립니다.

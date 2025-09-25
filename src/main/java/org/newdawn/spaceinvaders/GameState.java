@@ -9,6 +9,7 @@ package org.newdawn.spaceinvaders;
 public enum GameState {
     MAIN_MENU,
     PLAYING,
+    WAVE_CLEARED,
     GAME_OVER,
     GAME_WON
 }

@@ -81,5 +81,11 @@ public class ShipEntity extends Entity {
 				context.notifyDeath();
 			}
 		}
+
+		if (other instanceof AlienShotEntity) {
+		    if (!health.decreaseHealth(((AlienShotEntity) other).getDamage())) {
+		        context.notifyDeath();
+		    }
+		}
 	}
 }

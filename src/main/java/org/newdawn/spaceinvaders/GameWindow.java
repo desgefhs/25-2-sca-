@@ -73,7 +73,7 @@ public class GameWindow extends Canvas {
      * @param currentState 현재 게임 상태
      * @param backgroundY 배경 스크롤 y좌표
      */
-    public void render(List<Entity> entities, String message, int score, GameState currentState, double backgroundY) {
+    public void render(List<Entity> entities, String message, int score, GameState currentState, double backgroundY, int wave) {
         Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
         g.setColor(Color.black);
         g.fillRect(0, 0, 800, 600);
@@ -86,7 +86,8 @@ public class GameWindow extends Canvas {
         // 점수 그리기
         g.setColor(Color.white);
         g.setFont(new Font("Dialog", Font.BOLD, 14));
-        g.drawString(String.format("score: %03d", score), 680, 30);
+        g.drawString(String.format("Score: %03d", score), 680, 30);
+        g.drawString(String.format("Wave: %d", wave), 20, 30);
 
         // 게임오버/승리 메시지가 있으면 그리기
         if (message != null && !message.isEmpty()) {
