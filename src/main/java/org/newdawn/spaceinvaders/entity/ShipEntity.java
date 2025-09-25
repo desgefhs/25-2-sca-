@@ -88,4 +88,10 @@ public class ShipEntity extends Entity {
 		    }
 		}
 	}
+
+	public void reset() {
+	    health.reset();
+	    x = 370;
+	    y = 550;
+	}
 }

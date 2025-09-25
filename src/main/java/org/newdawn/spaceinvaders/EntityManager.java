@@ -28,6 +28,7 @@ public class EntityManager {
         if (ship == null) {
             ship = new ShipEntity(context, "sprites/ship.gif", 370, 550);
         }
+        ship.reset();
         entities.clear();
         addList.clear();
         removeList.clear();

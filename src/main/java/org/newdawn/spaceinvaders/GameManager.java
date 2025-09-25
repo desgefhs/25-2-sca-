@@ -21,7 +21,7 @@ public class GameManager implements GameContext {
     private boolean logicRequiredThisLoop = false;
     private String message = "";
     private long lastFire = 0;
-    private final long firingInterval = 250;
+    private final long firingInterval = 50;
     private final double moveSpeed = 300;
     private static final int SHOT_DAMAGE = 1;
     private static final int ALIEN_SCORE = 10;
