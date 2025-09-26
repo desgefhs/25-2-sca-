@@ -1,6 +1,6 @@
 package org.newdawn.spaceinvaders.entity;
 
-import org.newdawn.spaceinvaders.GameContext;
+import org.newdawn.spaceinvaders.core.GameContext;
 
 /**
  * An entity representing a shot fired by the player's ship

@@ -1,5 +1,5 @@
 
-package org.newdawn.spaceinvaders.view;
+package org.newdawn.spaceinvaders.auth;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,6 +1,7 @@
 package org.newdawn.spaceinvaders.entity;
 
-import org.newdawn.spaceinvaders.GameContext;
+
+import org.newdawn.spaceinvaders.core.GameContext;
 
 import java.util.List;
 

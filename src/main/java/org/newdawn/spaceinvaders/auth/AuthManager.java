@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders;
+package org.newdawn.spaceinvaders.auth;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;

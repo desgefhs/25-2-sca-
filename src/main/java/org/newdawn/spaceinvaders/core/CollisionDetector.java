@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders;
+package org.newdawn.spaceinvaders.core;
 
 import org.newdawn.spaceinvaders.entity.Entity;
 

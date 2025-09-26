@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders;
+package org.newdawn.spaceinvaders.core;
 
 /**
  * 게임의 현재 상태를 나타내는 열거형(enum).

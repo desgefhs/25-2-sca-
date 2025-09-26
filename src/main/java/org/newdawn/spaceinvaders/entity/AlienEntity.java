@@ -1,8 +1,9 @@
 package org.newdawn.spaceinvaders.entity;
 
-import org.newdawn.spaceinvaders.GameContext;
-import org.newdawn.spaceinvaders.Sprite;
-import org.newdawn.spaceinvaders.SpriteStore;
+
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.graphics.Sprite;
+import org.newdawn.spaceinvaders.graphics.SpriteStore;
 
 /**
  * An entity which represents one of our space invader aliens.

@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders;
+package org.newdawn.spaceinvaders.core;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;

@@ -1,7 +1,5 @@
-package org.newdawn.spaceinvaders.view;
+package org.newdawn.spaceinvaders.auth;
 
-import org.newdawn.spaceinvaders.AuthManager;
-import org.newdawn.spaceinvaders.AuthenticatedUser;
 
 import javax.swing.*;
 import java.awt.*;

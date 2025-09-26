@@ -1,4 +1,7 @@
-package org.newdawn.spaceinvaders.entity;
+package org.newdawn.spaceinvaders.graphics;
+
+import org.newdawn.spaceinvaders.entity.Entity;
+import org.newdawn.spaceinvaders.entity.HP;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;

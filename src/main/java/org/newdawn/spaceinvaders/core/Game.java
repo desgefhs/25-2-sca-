@@ -1,11 +1,14 @@
-package org.newdawn.spaceinvaders;
+package org.newdawn.spaceinvaders.core;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
-import org.newdawn.spaceinvaders.view.LoginDialog;
+import org.newdawn.spaceinvaders.auth.AuthManager;
+import org.newdawn.spaceinvaders.auth.AuthenticatedUser;
+import org.newdawn.spaceinvaders.auth.LoginDialog;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +32,7 @@ public class Game {
 
         // 3. 로그인 다이얼로그 생성 및 표시
         LoginDialog loginDialog = new LoginDialog(null, authManager);
-        AuthenticatedUser user = loginDialog.showDialog();
+         AuthenticatedUser user = loginDialog.showDialog();
 
         // 4. 로그인 성공 여부 확인
         if (user == null) {

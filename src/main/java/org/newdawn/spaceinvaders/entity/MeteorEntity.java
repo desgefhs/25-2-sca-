@@ -1,6 +1,6 @@
 package org.newdawn.spaceinvaders.entity;
 
-import org.newdawn.spaceinvaders.GameContext;
+import org.newdawn.spaceinvaders.core.GameContext;
 
 public class MeteorEntity extends Entity {
     private double moveSpeed;

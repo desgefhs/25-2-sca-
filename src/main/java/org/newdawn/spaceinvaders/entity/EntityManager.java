@@ -1,11 +1,6 @@
-package org.newdawn.spaceinvaders;
+package org.newdawn.spaceinvaders.entity;
 
-import org.newdawn.spaceinvaders.entity.AlienEntity;
-import org.newdawn.spaceinvaders.entity.BombEntity;
-import org.newdawn.spaceinvaders.entity.BossEntity;
-import org.newdawn.spaceinvaders.entity.Entity;
-import org.newdawn.spaceinvaders.entity.MeteorEntity;
-import org.newdawn.spaceinvaders.entity.ShipEntity;
+import org.newdawn.spaceinvaders.core.GameContext;
 
 import java.util.ArrayList;
 import java.util.List;

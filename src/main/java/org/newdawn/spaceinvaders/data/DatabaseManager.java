@@ -1,14 +1,7 @@
-package org.newdawn.spaceinvaders;
+package org.newdawn.spaceinvaders.data;
 
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.Query;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
-import com.google.cloud.firestore.WriteResult;
-import org.newdawn.spaceinvaders.model.PlayerData;
+import com.google.cloud.firestore.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

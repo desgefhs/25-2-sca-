@@ -1,8 +1,11 @@
-package org.newdawn.spaceinvaders;
+package org.newdawn.spaceinvaders.core;
 
 import com.google.cloud.firestore.Firestore;
+import org.newdawn.spaceinvaders.auth.AuthenticatedUser;
+import org.newdawn.spaceinvaders.data.DatabaseManager;
+import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.entity.*;
-import org.newdawn.spaceinvaders.model.PlayerData;
+import org.newdawn.spaceinvaders.view.GameWindow;
 import org.newdawn.spaceinvaders.view.MainMenu;
 import org.newdawn.spaceinvaders.view.PauseMenu;
 

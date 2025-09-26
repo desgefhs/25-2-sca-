@@ -1,5 +1,5 @@
 
-package org.newdawn.spaceinvaders;
+package org.newdawn.spaceinvaders.auth;
 
 public class AuthenticatedUser {
     private final String localId;

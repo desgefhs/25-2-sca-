@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders.model;
+package org.newdawn.spaceinvaders.data;
 
 /**
  * Firebase에 저장될 플레이어의 데이터를 담는 클래스.

@@ -1,6 +1,8 @@
 package org.newdawn.spaceinvaders.entity;
 
-import org.newdawn.spaceinvaders.GameContext;
+
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.graphics.HpRender;
 
 public class BossEntity extends Entity {
     private double moveSpeed = 50;
