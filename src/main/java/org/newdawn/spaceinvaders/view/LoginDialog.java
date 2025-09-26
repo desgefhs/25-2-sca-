@@ -1,4 +1,3 @@
-
 package org.newdawn.spaceinvaders.view;
 
 import org.newdawn.spaceinvaders.AuthManager;

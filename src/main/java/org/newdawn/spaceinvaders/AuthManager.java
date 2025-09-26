@@ -1,4 +1,3 @@
-
 package org.newdawn.spaceinvaders;
 
 import com.google.api.core.ApiFuture;

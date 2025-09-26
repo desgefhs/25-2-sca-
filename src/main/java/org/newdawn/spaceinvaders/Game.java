@@ -17,9 +17,7 @@ import java.io.InputStream;
  */
 public class Game {
 
-    /**
-     * 게임 시작점.
-     */
+    //게임 시작
     public static void main(String[] argv) {
         // Initialize Firestore
         Firestore db = initializeFirebase();
