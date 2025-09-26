@@ -5,9 +5,14 @@ import org.newdawn.spaceinvaders.auth.AuthenticatedUser;
 import org.newdawn.spaceinvaders.data.DatabaseManager;
 import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.entity.*;
+import org.newdawn.spaceinvaders.player.PlayerStats;
+import org.newdawn.spaceinvaders.shop.ShopManager;
+import org.newdawn.spaceinvaders.shop.Upgrade;
+import org.newdawn.spaceinvaders.view.ConfirmDialog;
 import org.newdawn.spaceinvaders.view.GameWindow;
 import org.newdawn.spaceinvaders.view.MainMenu;
 import org.newdawn.spaceinvaders.view.PauseMenu;
+import org.newdawn.spaceinvaders.view.ShopMenu;
 
 /**
  * 게임의 핵심 로직과 상태를 관리하며, 다른 전문 관리 클래스들을 총괄하는 메인 컨트롤러.
@@ -20,8 +25,13 @@ public class GameManager implements GameContext {
     private final GameWindow gameWindow;
     private final MainMenu mainMenu;
     private final PauseMenu pauseMenu;
+    private final ConfirmDialog confirmDialog;
     private final DatabaseManager databaseManager;
     private final AuthenticatedUser user;
+    private final ShopManager shopManager;
+    private ShopMenu shopMenu;
+    private PlayerStats playerStats;
+
 
     private PlayerData currentPlayer;
 
@@ -30,9 +40,7 @@ public class GameManager implements GameContext {
     private boolean logicRequiredThisLoop = false;
     private String message = "";
     private long lastFire = 0;
-    private final long firingInterval = 50;
     private final double moveSpeed = 300;
-    private static final int SHOT_DAMAGE = 1;
     private static final int ALIEN_SCORE = 10;
     private int score = 0;
     private int wave = 1;
@@ -55,11 +63,16 @@ public class GameManager implements GameContext {
         this.gameWindow = new GameWindow(inputHandler);
         this.mainMenu = new MainMenu();
         this.pauseMenu = new PauseMenu();
+        this.shopManager = new ShopManager();
+        this.playerStats = new PlayerStats();
+        this.confirmDialog = new ConfirmDialog("Are you sure you want to exit?");
         setCurrentState(GameState.MAIN_MENU);
     }
 
     public void initializePlayer() {
         this.currentPlayer = databaseManager.loadPlayerData(user.getLocalId());
+        // Initialize ShopMenu with all available upgrades
+        this.shopMenu = new ShopMenu(shopManager.getAllUpgrades());
     }
 
     public void startGame() {
@@ -90,10 +103,8 @@ public class GameManager implements GameContext {
                     gameWindow.getGameCanvas().renderRanking(databaseManager.getHighScores());
                     break;
                 case SHOP:
-                    if (inputHandler.isFirePressedAndConsume()) {
-                        setCurrentState(GameState.MAIN_MENU);
-                    }
-                    gameWindow.getGameCanvas().renderShop(currentPlayer.getCredit());
+                    handleShopInput();
+                    gameWindow.getGameCanvas().renderShop(shopMenu, currentPlayer, message);
                     break;
                 case PLAYING:
                     updateGame(delta);
@@ -113,13 +124,17 @@ public class GameManager implements GameContext {
                     SystemTimer.sleep(3000);
                     startNextWave();
                     break;
+                case EXIT_CONFIRMATION:
+                    handleExitConfirmationInput();
+                    gameWindow.getGameCanvas().renderConfirmDialog(confirmDialog);
+                    break;
             }
             SystemTimer.sleep(lastLoopTime + 10 - SystemTimer.getTime());
         }
     }
 
     private void updateGame(long delta) {
-        if (inputHandler.isPPressedAndConsume()) {
+        if (inputHandler.isEscPressedAndConsume()) {
             setCurrentState(GameState.PAUSED);
             return;
         }
@@ -191,6 +206,9 @@ public class GameManager implements GameContext {
     private void handleMenuInput() {
         if (inputHandler.isLeftPressedAndConsume()) mainMenu.moveLeft();
         if (inputHandler.isRightPressedAndConsume()) mainMenu.moveRight();
+        if (inputHandler.isEscPressedAndConsume()) {
+            setCurrentState(GameState.EXIT_CONFIRMATION);
+        }
 
         if (inputHandler.isFirePressedAndConsume()) {
             String selected = mainMenu.getSelectedItem();
@@ -202,6 +220,54 @@ public class GameManager implements GameContext {
                 setCurrentState(GameState.SHOP);
             } else if ("5. 설정".equals(selected)){
                 System.exit(0);
+            }
+        }
+    }
+
+    private void handleExitConfirmationInput() {
+        if (inputHandler.isLeftPressedAndConsume()) confirmDialog.moveLeft();
+        if (inputHandler.isRightPressedAndConsume()) confirmDialog.moveRight();
+
+        if (inputHandler.isFirePressedAndConsume()) {
+            String selected = confirmDialog.getSelectedItem();
+            if ("Confirm".equals(selected)) {
+                System.exit(0);
+            } else if ("Cancel".equals(selected)) {
+                setCurrentState(GameState.MAIN_MENU);
+            }
+        }
+    }
+
+    private void handleShopInput() {
+        if (inputHandler.isUpPressedAndConsume()) shopMenu.moveUp();
+        if (inputHandler.isDownPressedAndConsume()) shopMenu.moveDown();
+        if (inputHandler.isEscPressedAndConsume()) setCurrentState(GameState.MAIN_MENU);
+
+
+        if (inputHandler.isFirePressedAndConsume()) {
+            Upgrade selectedUpgrade = shopMenu.getSelectedItem();
+            if (selectedUpgrade == null) return;
+
+            int currentLevel = currentPlayer.getUpgradeLevel(selectedUpgrade.getId());
+            if (currentLevel >= selectedUpgrade.getMaxLevel()) {
+                message = "This item is already max level.";
+                return; // Already at max level
+            }
+
+            int cost = selectedUpgrade.getCost(currentLevel + 1);
+            if (currentPlayer.getCredit() >= cost) {
+                // 1. Deduct credit
+                currentPlayer.setCredit(currentPlayer.getCredit() - cost);
+
+                // 2. Increase upgrade level
+                currentPlayer.setUpgradeLevel(selectedUpgrade.getId(), currentLevel + 1);
+
+                // 3. Save to database
+                databaseManager.updatePlayerData(user.getLocalId(), currentPlayer);
+
+                message = "Upgrade successful!";
+            } else {
+                message = "Not enough credit!";
             }
         }
     }
@@ -220,12 +286,37 @@ public class GameManager implements GameContext {
         }
     }
 
+    private void calculatePlayerStats() {
+        playerStats = new PlayerStats(); // Reset to default stats
+
+        for (Upgrade upgrade : shopManager.getAllUpgrades()) {
+            int level = currentPlayer.getUpgradeLevel(upgrade.getId());
+            if (level > 0) {
+                switch (upgrade.getId()) {
+                    case "DAMAGE":
+                        playerStats.setBulletDamage((int) upgrade.getEffect(level));
+                        break;
+                    case "HEALTH":
+                        playerStats.setMaxHealth((int) upgrade.getEffect(level));
+                        break;
+                    case "ATK_SPEED":
+                        playerStats.setFiringInterval((long) upgrade.getEffect(level));
+                        break;
+                    case "PROJECTILE":
+                        playerStats.setProjectileCount((int) upgrade.getEffect(level));
+                        break;
+                }
+            }
+        }
+    }
+
     private void startGameplay() {
+        calculatePlayerStats();
         resetScore();
         wave = 1;
         lineCount = 0;
         lastLineSpawnTime = System.currentTimeMillis();
-        entityManager.initShip();
+        entityManager.initShip(playerStats);
         setCurrentState(GameState.PLAYING);
         message = "";
     }
@@ -246,26 +337,28 @@ public class GameManager implements GameContext {
     }
 
     private void tryToFire() {
-        if (System.currentTimeMillis() - lastFire < firingInterval) return;
+        if (System.currentTimeMillis() - lastFire < playerStats.getFiringInterval()) return;
         lastFire = System.currentTimeMillis();
         ShipEntity ship = entityManager.getShip();
-        ShotEntity shot = new ShotEntity(this, "sprites/shot.gif", ship.getX() + 10, ship.getY() - 30, SHOT_DAMAGE);
-        entityManager.addEntity(shot);
+
+        for (int i=0; i < playerStats.getProjectileCount(); i++) {
+            // This is a simple implementation for multi-shot.
+            // A better way would be to spread the shots.
+            int xOffset = (i - playerStats.getProjectileCount() / 2) * 15;
+            ShotEntity shot = new ShotEntity(this, "sprites/shot.gif", ship.getX() + 10 + xOffset, ship.getY() - 30, playerStats.getBulletDamage());
+            entityManager.addEntity(shot);
+        }
     }
 
     private void saveGameResults() {
         if (user == null || currentPlayer == null) return;
 
-        // 1. 새로운 크레딧과 최고 점수 계산
-        int newCredit = currentPlayer.getCredit() + score;
-        int newHighScore = Math.max(currentPlayer.getHighScore(), score);
+        // 1. Update the currentPlayer object with the new results
+        currentPlayer.setCredit(currentPlayer.getCredit() + score);
+        currentPlayer.setHighScore(Math.max(currentPlayer.getHighScore(), score));
 
-        // 2. 변경된 내용을 PlayerData 객체에도 반영 (다음 게임을 위해)
-        currentPlayer.setCredit(newCredit);
-        currentPlayer.setHighScore(newHighScore);
-
-        // 3. 데이터베이스에 업데이트 요청
-        databaseManager.updatePlayerStats(user.getLocalId(), newCredit, newHighScore);
+        // 2. Save the entire updated PlayerData object to the database
+        databaseManager.updatePlayerData(user.getLocalId(), currentPlayer);
     }
 
     @Override
@@ -317,7 +410,7 @@ public class GameManager implements GameContext {
         lineCount = 0;
         lastLineSpawnTime = System.currentTimeMillis();
         message = "Wave " + wave;
-        entityManager.initShip();
+        entityManager.initShip(playerStats);
         setCurrentState(GameState.PLAYING);
     }
 }

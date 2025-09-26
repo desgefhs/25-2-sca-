@@ -15,7 +15,7 @@ public class InputHandler extends KeyAdapter {
     private boolean upPressed = false;
     private boolean downPressed = false;
     private boolean firePressed = false;
-    private boolean pPressed = false;
+    private boolean escPressed = false;
 
     // 키 한 번 누름을 처리하기 위한 플래그들
     private boolean leftKeyProcessed = false;
@@ -23,7 +23,7 @@ public class InputHandler extends KeyAdapter {
     private boolean upKeyProcessed = false;
     private boolean downKeyProcessed = false;
     private boolean fireKeyProcessed = false;
-    private boolean pKeyProcessed = false;
+    private boolean escKeyProcessed = false;
 
     private final List<Character> typedChars = new ArrayList<>();
 
@@ -76,9 +76,9 @@ public class InputHandler extends KeyAdapter {
         return false;
     }
 
-    public boolean isPPressedAndConsume() {
-        if (pPressed && !pKeyProcessed) {
-            pKeyProcessed = true;
+    public boolean isEscPressedAndConsume() {
+        if (escPressed && !escKeyProcessed) {
+            escKeyProcessed = true;
             return true;
         }
         return false;
@@ -118,8 +118,8 @@ public class InputHandler extends KeyAdapter {
         if (keyCode == KeyEvent.VK_SPACE || keyCode == KeyEvent.VK_ENTER) {
             fireKeyProcessed = false;
         }
-        if (keyCode == KeyEvent.VK_P) {
-            pKeyProcessed = false;
+        if (keyCode == KeyEvent.VK_ESCAPE) {
+            escKeyProcessed = false;
         }
     }
 
@@ -139,17 +139,13 @@ public class InputHandler extends KeyAdapter {
         if (keyCode == KeyEvent.VK_SPACE || keyCode == KeyEvent.VK_ENTER) {
             firePressed = pressed;
         }
-        if (keyCode == KeyEvent.VK_P) {
-            pPressed = pressed;
+        if (keyCode == KeyEvent.VK_ESCAPE) {
+            escPressed = pressed;
         }
     }
 
     @Override
     public void keyTyped(KeyEvent e) {
-        // ESC 키로 종료
-        if (e.getKeyChar() == 27) {
-            System.exit(0);
-        }
         synchronized (typedChars) {
             typedChars.add(e.getKeyChar());
         }

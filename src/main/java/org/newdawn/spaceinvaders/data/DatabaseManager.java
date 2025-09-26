@@ -21,24 +21,26 @@ public class DatabaseManager {
     }
 
     /**
-     * 특정 사용자의 크레딧과 최고 점수를 업데이트합니다.
-     * @param uid 업데이트할 사용자의 고유 ID
-     * @param newCredit 새로운 누적 크레딧
-     * @param newHighScore 새로운 최고 점수
+     * Saves the entire PlayerData object to Firestore, overwriting existing data.
+     * @param uid The unique ID of the user to update.
+     * @param playerData The PlayerData object containing the data to save.
      */
-    public void updatePlayerStats(String uid, int newCredit, int newHighScore) {
+    public void updatePlayerData(String uid, PlayerData playerData) {
         if (uid == null || uid.trim().isEmpty()) return;
         DocumentReference docRef = db.collection("users").document(uid);
 
+        // Convert PlayerData to a Map to use the update() method,
+        // which prevents overwriting the whole document.
         Map<String, Object> updates = new HashMap<>();
-        updates.put("credit", newCredit);
-        updates.put("highScore", newHighScore);
+        updates.put("highScore", playerData.getHighScore());
+        updates.put("credit", playerData.getCredit());
+        updates.put("upgradeLevels", playerData.getUpgradeLevels());
 
         ApiFuture<WriteResult> result = docRef.update(updates);
         try {
-            System.out.println("점수 및 크레딧 업데이트 완료: " + result.get().getUpdateTime());
+            System.out.println("PlayerData 업데이트 완료: " + result.get().getUpdateTime());
         } catch (Exception e) {
-            System.err.println("데이터 업데이트 중 오류 발생: " + e.getMessage());
+            System.err.println("PlayerData 업데이트 중 오류 발생: " + e.getMessage());
         }
     }
 

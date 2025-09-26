@@ -14,7 +14,6 @@ public class ShipEntity extends Entity {
 	private GameContext context;
 	private HpRender hpRender;
 	private static final int COLLISION_DAMAGE = 1;
-	private static final int MAX_HEALTH = 3;
 	
 	/**
 	 * Create a new entity to represent the players ship
@@ -23,13 +22,19 @@ public class ShipEntity extends Entity {
 	 * @param ref The reference to the sprite to show for the ship
 	 * @param x The initial x location of the player's ship
 	 * @param y The initial y location of the player's ship
+	 * @param maxHealth The maximum health of the ship, based on upgrades.
 	 */
-	public ShipEntity(GameContext context,String ref,int x,int y) {
+	public ShipEntity(GameContext context,String ref,int x,int y, int maxHealth) {
 		super(ref,x,y);
 		// 우주선은 체력을 가지므로, HealthComponent를 생성하여 초기화한다.
-		this.health = new HealthComponent(MAX_HEALTH);
+		this.health = new HealthComponent(maxHealth);
 		this.context = context;
 		this.hpRender = new HpRender(health.getHp());
+	}
+
+	public void setMaxHealth(int maxHealth) {
+	    this.health = new HealthComponent(maxHealth);
+	    this.hpRender = new HpRender(health.getHp());
 	}
 	
 	/**

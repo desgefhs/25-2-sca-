@@ -7,6 +7,9 @@ import org.newdawn.spaceinvaders.graphics.Sprite;
 import org.newdawn.spaceinvaders.graphics.SpriteStore;
 
 
+import org.newdawn.spaceinvaders.data.PlayerData;
+import org.newdawn.spaceinvaders.shop.Upgrade;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -162,22 +165,107 @@ public class GameWindow {
             strategy.show();
         }
 
-        public void renderShop(int credit) {
+        public void renderShop(ShopMenu menu, PlayerData player, String message) {
             if (strategy == null) createStrategy();
             Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
             g.setColor(Color.black);
             g.fillRect(0, 0, 800, 600);
 
+            // Title
             g.setColor(Color.white);
+            g.setFont(new Font("Dialog", Font.BOLD, 32));
+            g.drawString("UPGRADE SHOP", (800 - g.getFontMetrics().stringWidth("UPGRADE SHOP")) / 2, 80);
+
+            // Player Credit
+            g.setFont(new Font("Dialog", Font.BOLD, 20));
+            String creditText = "Your Credit: " + player.getCredit();
+            g.drawString(creditText, (800 - g.getFontMetrics().stringWidth(creditText)) / 2, 120);
+
+            // Instructions
+            g.setFont(new Font("Dialog", Font.PLAIN, 14));
+            g.drawString("Use UP/DOWN to navigate, ENTER to purchase, ESC to exit.", (800 - g.getFontMetrics().stringWidth("Use UP/DOWN to navigate, ENTER to purchase, ESC to exit.")) / 2, 550);
+
+            // Message
+            if (message != null && !message.isEmpty()) {
+                g.setColor(Color.yellow);
+                g.setFont(new Font("Dialog", Font.BOLD, 16));
+                g.drawString(message, (800 - g.getFontMetrics().stringWidth(message)) / 2, 520);
+            }
+
+            // Items
+            int itemHeight = 60;
+            int startY = 160;
+            List<Upgrade> items = menu.getItems();
+
+            for (int i = 0; i < items.size(); i++) {
+                Upgrade upgrade = items.get(i);
+                int currentLevel = player.getUpgradeLevel(upgrade.getId());
+                int maxLevel = upgrade.getMaxLevel();
+
+                if (i == menu.getSelectedIndex()) {
+                    g.setColor(Color.GREEN);
+                } else {
+                    g.setColor(Color.WHITE);
+                }
+
+                g.setFont(new Font("Dialog", Font.BOLD, 20));
+                g.drawString(upgrade.getName(), 100, startY + (i * itemHeight));
+
+                g.setFont(new Font("Dialog", Font.PLAIN, 16));
+                g.drawString("Level: " + currentLevel + " / " + maxLevel, 350, startY + (i * itemHeight));
+
+                String costString;
+                if (currentLevel >= maxLevel) {
+                    costString = "MAX LEVEL";
+                } else {
+                    costString = "Cost: " + upgrade.getCost(currentLevel + 1);
+                }
+                g.drawString(costString, 550, startY + (i * itemHeight));
+            }
+
+            g.dispose();
+            strategy.show();
+        }
+
+        public void renderConfirmDialog(ConfirmDialog dialog) {
+            if (strategy == null) createStrategy();
+            Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+
+            // Draw a semi-transparent overlay
+            g.setColor(new Color(0, 0, 0, 150));
+            g.fillRect(0, 0, 800, 600);
+
+            // Draw the dialog box
+            g.setColor(Color.BLACK);
+            g.fillRect(200, 200, 400, 200);
+            g.setColor(Color.WHITE);
+            g.drawRect(200, 200, 400, 200);
+
+            // Draw the message
+            g.setFont(new Font("Dialog", Font.BOLD, 20));
+            g.drawString(dialog.getMessage(), (800 - g.getFontMetrics().stringWidth(dialog.getMessage())) / 2, 260);
+
+            // Draw the buttons
             g.setFont(new Font("Dialog", Font.BOLD, 24));
-            g.drawString("Shop", (800 - g.getFontMetrics().stringWidth("Shop")) / 2, 100);
+            int totalWidth = 0;
+            int spacing = 80;
 
-            g.setFont(new Font("Dialog", Font.BOLD, 18));
-            String creditText = "Your Credit: " + credit;
-            g.drawString(creditText, (800 - g.getFontMetrics().stringWidth(creditText)) / 2, 250);
+            for (int i = 0; i < dialog.getItemCount(); i++) {
+                totalWidth += g.getFontMetrics().stringWidth(dialog.getItem(i));
+            }
+            totalWidth += (dialog.getItemCount() - 1) * spacing;
 
-            g.setFont(new Font("Dialog", Font.BOLD, 14));
-            g.drawString("Press Fire to return to Main Menu", (800 - g.getFontMetrics().stringWidth("Press Fire to return to Main Menu")) / 2, 500);
+            int currentX = (800 - totalWidth) / 2;
+
+            for (int i = 0; i < dialog.getItemCount(); i++) {
+                if (i == dialog.getSelectedIndex()) {
+                    g.setColor(Color.GREEN);
+                } else {
+                    g.setColor(Color.WHITE);
+                }
+                g.drawString(dialog.getItem(i), currentX, 350);
+                currentX += g.getFontMetrics().stringWidth(dialog.getItem(i)) + spacing;
+            }
 
             g.dispose();
             strategy.show();

@@ -14,5 +14,6 @@ public enum GameState {
     GAME_OVER,
     GAME_WON,
     RANKING,
-    SHOP
+    SHOP,
+    EXIT_CONFIRMATION
 }

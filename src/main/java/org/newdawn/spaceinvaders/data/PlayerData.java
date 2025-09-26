@@ -4,11 +4,15 @@ package org.newdawn.spaceinvaders.data;
  * Firebase에 저장될 플레이어의 데이터를 담는 클래스.
  * 최고 점수와 재화(크레딧) 정보를 포함합니다.
  */
+import java.util.HashMap;
+import java.util.Map;
+
 public class PlayerData {
 
     private String username;
     private int highScore = 0;
     private int credit = 0;
+    private Map<String, Integer> upgradeLevels = new HashMap<>();
 
     // Firestore가 데이터를 객체로 변환할 때 기본 생성자가 필요합니다.
     public PlayerData() {}
@@ -35,5 +39,21 @@ public class PlayerData {
 
     public void setCredit(int credit) {
         this.credit = credit;
+    }
+
+    public Map<String, Integer> getUpgradeLevels() {
+        return upgradeLevels;
+    }
+
+    public void setUpgradeLevels(Map<String, Integer> upgradeLevels) {
+        this.upgradeLevels = upgradeLevels;
+    }
+
+    public int getUpgradeLevel(String upgradeId) {
+        return upgradeLevels.getOrDefault(upgradeId, 0);
+    }
+
+    public void setUpgradeLevel(String upgradeId, int level) {
+        upgradeLevels.put(upgradeId, level);
     }
 }

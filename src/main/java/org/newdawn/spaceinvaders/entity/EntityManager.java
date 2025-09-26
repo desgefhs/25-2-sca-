@@ -2,6 +2,8 @@ package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.core.GameContext;
 
+import org.newdawn.spaceinvaders.player.PlayerStats;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +23,11 @@ public class EntityManager {
         this.context = context;
     }
 
-    public void initShip() {
+    public void initShip(PlayerStats stats) {
         if (ship == null) {
-            ship = new ShipEntity(context, "sprites/ship.gif", 370, 550);
+            ship = new ShipEntity(context, "sprites/ship.gif", 370, 550, stats.getMaxHealth());
+        } else {
+            ship.setMaxHealth(stats.getMaxHealth());
         }
         ship.reset();
         entities.clear();
