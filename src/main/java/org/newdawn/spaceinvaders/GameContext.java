@@ -44,4 +44,10 @@ public interface GameContext {
      * 외계인들이 화면 끝에 도달하여 로직 업데이트가 필요함을 알립니다.
      */
     void updateLogic();
+
+    /**
+     * 게임에 존재하는 모든 엔티티 목록을 가져옵니다.
+     * @return 엔티티 목록
+     */
+    java.util.List<Entity> getEntities();
 }

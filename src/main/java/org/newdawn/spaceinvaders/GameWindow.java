@@ -87,4 +87,78 @@ public class GameWindow {
                 g.setColor(new Color(0, 0, 0, 150));
                 g.fillRect(0, 0, 800, 600);
                 g.setFont(new Font("Dialog", Font.BOLD, 24));
+                
                 int itemHeight = 40;
+                int startY = (600 - (pauseMenu.getItemCount() * itemHeight)) / 2;
+
+                for (int i = 0; i < pauseMenu.getItemCount(); i++) {
+                    if (i == pauseMenu.getSelectedIndex()) {
+                        g.setColor(Color.GREEN);
+                    } else {
+                        g.setColor(Color.WHITE);
+                    }
+                    String itemText = pauseMenu.getItem(i);
+                    int textWidth = g.getFontMetrics().stringWidth(itemText);
+                    g.drawString(itemText, (800 - textWidth) / 2, startY + (i * itemHeight));
+                }
+            }
+
+            g.dispose();
+            strategy.show();
+        }
+
+        public void renderMenu(org.newdawn.spaceinvaders.view.MainMenu menu) {
+            if (strategy == null) createStrategy();
+            Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+            g.drawImage(backgroundSprite.getImage(), 0, 0, 800, 600, null);
+
+            g.setFont(new Font("Dialog", Font.BOLD, 24));
+            int totalWidth = 0;
+            int spacing = 40;
+
+            for (int i = 0; i < menu.getItemCount(); i++) {
+                totalWidth += g.getFontMetrics().stringWidth(menu.getItem(i));
+            }
+            totalWidth += (menu.getItemCount() - 1) * spacing;
+
+            int currentX = (800 - totalWidth) / 2;
+
+            for (int i = 0; i < menu.getItemCount(); i++) {
+                if (i == menu.getSelectedIndex()) {
+                    g.setColor(Color.GREEN);
+                } else {
+                    g.setColor(Color.WHITE);
+                }
+                g.drawString(menu.getItem(i), currentX, 500);
+                currentX += g.getFontMetrics().stringWidth(menu.getItem(i)) + spacing;
+            }
+
+            g.dispose();
+            strategy.show();
+        }
+
+        public void renderRanking(java.util.List<String> highScores) {
+            if (strategy == null) createStrategy();
+            Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+            g.setColor(Color.black);
+            g.fillRect(0, 0, 800, 600);
+
+            g.setColor(Color.white);
+            g.setFont(new Font("Dialog", Font.BOLD, 24));
+            g.drawString("Ranking", (800 - g.getFontMetrics().stringWidth("Ranking")) / 2, 100);
+
+            g.setFont(new Font("Dialog", Font.BOLD, 18));
+            int y = 150;
+            for (String score : highScores) {
+                g.drawString(score, (800 - g.getFontMetrics().stringWidth(score)) / 2, y);
+                y += 30;
+            }
+
+            g.setFont(new Font("Dialog", Font.BOLD, 14));
+            g.drawString("Press Fire to return to Main Menu", (800 - g.getFontMetrics().stringWidth("Press Fire to return to Main Menu")) / 2, 500);
+
+            g.dispose();
+            strategy.show();
+        }
+    }
+}

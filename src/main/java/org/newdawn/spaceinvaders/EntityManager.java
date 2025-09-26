@@ -1,8 +1,10 @@
 package org.newdawn.spaceinvaders;
 
 import org.newdawn.spaceinvaders.entity.AlienEntity;
+import org.newdawn.spaceinvaders.entity.BombEntity;
 import org.newdawn.spaceinvaders.entity.BossEntity;
 import org.newdawn.spaceinvaders.entity.Entity;
+import org.newdawn.spaceinvaders.entity.MeteorEntity;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
 
 import java.util.ArrayList;
@@ -56,6 +58,8 @@ public class EntityManager {
                 addList.add(alien);
                 alienCount++;
             }
+
+
         }
     }
 

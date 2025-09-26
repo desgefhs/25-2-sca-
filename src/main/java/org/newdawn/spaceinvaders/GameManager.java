@@ -6,7 +6,9 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
+import org.newdawn.spaceinvaders.entity.BombEntity;
 import org.newdawn.spaceinvaders.entity.Entity;
+import org.newdawn.spaceinvaders.entity.MeteorEntity;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
 import org.newdawn.spaceinvaders.entity.ShotEntity;
 import org.newdawn.spaceinvaders.view.MainMenu;
@@ -44,6 +46,11 @@ public class GameManager implements GameContext {
     private long lastLineSpawnTime = 0;
     private final long lineSpawnInterval = 3000; // 3 seconds
     private final int LINES_PER_WAVE = 10;
+
+    private long lastMeteorSpawnTime = 0;
+    private final long meteorSpawnInterval = 3000; // 3 seconds
+    private long lastBombSpawnTime = 0;
+    private final long bombSpawnInterval = 5000; // 5 seconds
 
     private List<String> highScores = new ArrayList<>();
 
@@ -100,6 +107,10 @@ public class GameManager implements GameContext {
                     }
                     gameWindow.getGameCanvas().render(entityManager.getEntities(), message, score, currentState, 0, wave, pauseMenu);
                     break;
+                case WAVE_CLEARED:
+                    SystemTimer.sleep(3000); // 3초 대기
+                    startNextWave();
+                    break;
             }
             SystemTimer.sleep(lastLoopTime + 10 - SystemTimer.getTime());
         }
@@ -125,6 +136,30 @@ public class GameManager implements GameContext {
                     lineCount++;
                     lastLineSpawnTime = System.currentTimeMillis();
                 }
+            }
+        }
+
+        long currentTime = System.currentTimeMillis();
+
+        // Spawn meteors
+        if (currentTime - lastMeteorSpawnTime > meteorSpawnInterval) {
+            lastMeteorSpawnTime = currentTime;
+            int quantity = (int) (Math.random() * 2) + 2; // 2 or 3
+            for (int i = 0; i < quantity; i++) {
+                int x = (int) (Math.random() * 750);
+                MeteorEntity meteor = new MeteorEntity(this, "sprites/meteor.gif", x, -50, 150);
+                entityManager.addEntity(meteor);
+            }
+        }
+
+        // Spawn bombs
+        if (currentTime - lastBombSpawnTime > bombSpawnInterval) {
+            lastBombSpawnTime = currentTime;
+            int quantity = (int) (Math.random() * 2) + 2; // 2 or 3
+            for (int i = 0; i < quantity; i++) {
+                int x = (int) (Math.random() * 750);
+                BombEntity bomb = new BombEntity(this, "sprites/bomb.gif", x, -50, 100, wave);
+                entityManager.addEntity(bomb);
             }
         }
 
@@ -282,6 +317,11 @@ public class GameManager implements GameContext {
         if (entityManager.getAlienCount() == 0 && lineCount >= LINES_PER_WAVE) {
             setCurrentState(GameState.WAVE_CLEARED);
         }
+    }
+
+    @Override
+    public java.util.List<Entity> getEntities() {
+        return entityManager.getEntities();
     }
     public void increaseScore(int amount) { score += amount; }
     public void resetScore() { score = 0; }

@@ -13,7 +13,7 @@ public class AlienEntity extends Entity {
 	/**
 	 * The speed at which the alient moves horizontally
 	 */
-	private double moveSpeed = 75;
+	private double moveSpeed = 100;
 	/**
 	 * The game context in which the entity exists
 	 */
