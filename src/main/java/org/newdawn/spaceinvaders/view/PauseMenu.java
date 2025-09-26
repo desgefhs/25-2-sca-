@@ -1,16 +1,16 @@
 package org.newdawn.spaceinvaders.view;
 
 /**
- * 메인 메뉴의 데이터(아이템)와 동작(좌/우 이동)을 관리하는 클래스.
+ * 일시정지 메뉴의 데이터와 동작을 관리하는 클래스.
  */
-public class MainMenu {
-    private String[] items = {"1. 게임시작", "2. 랭킹", "3. 장비", "4. 상점", "5. 설정"};
+public class PauseMenu {
+    private String[] items = {"재개하기", "메인메뉴로 나가기", "종료하기"};
     private int selectedItemIndex = 0;
 
     /**
-     * 메뉴 선택을 왼쪽으로 한 칸 이동합니다.
+     * 메뉴 선택을 위로 한 칸 이동합니다.
      */
-    public void moveLeft() {
+    public void moveUp() {
         selectedItemIndex--;
         if (selectedItemIndex < 0) {
             selectedItemIndex = items.length - 1;
@@ -18,9 +18,9 @@ public class MainMenu {
     }
 
     /**
-     * 메뉴 선택을 오른쪽으로 한 칸 이동합니다.
+     * 메뉴 선택을 아래로 한 칸 이동합니다.
      */
-    public void moveRight() {
+    public void moveDown() {
         selectedItemIndex++;
         if (selectedItemIndex >= items.length) {
             selectedItemIndex = 0;
