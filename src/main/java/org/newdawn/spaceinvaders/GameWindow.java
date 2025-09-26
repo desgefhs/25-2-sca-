@@ -160,5 +160,26 @@ public class GameWindow {
             g.dispose();
             strategy.show();
         }
+
+        public void renderShop(int credit) {
+            if (strategy == null) createStrategy();
+            Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+            g.setColor(Color.black);
+            g.fillRect(0, 0, 800, 600);
+
+            g.setColor(Color.white);
+            g.setFont(new Font("Dialog", Font.BOLD, 24));
+            g.drawString("Shop", (800 - g.getFontMetrics().stringWidth("Shop")) / 2, 100);
+
+            g.setFont(new Font("Dialog", Font.BOLD, 18));
+            String creditText = "Your Credit: " + credit;
+            g.drawString(creditText, (800 - g.getFontMetrics().stringWidth(creditText)) / 2, 250);
+
+            g.setFont(new Font("Dialog", Font.BOLD, 14));
+            g.drawString("Press Fire to return to Main Menu", (800 - g.getFontMetrics().stringWidth("Press Fire to return to Main Menu")) / 2, 500);
+
+            g.dispose();
+            strategy.show();
+        }
     }
 }

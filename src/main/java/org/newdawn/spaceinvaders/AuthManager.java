@@ -34,6 +34,8 @@ public class AuthManager {
             // Hash the password
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
+            System.out.println("DEBUG: Hashed Password to be saved: " + hashedPassword);
+
             // Create a new user document
             Map<String, Object> user = new HashMap<>();
             user.put("username", username);

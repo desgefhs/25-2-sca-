@@ -1,25 +1,14 @@
-
 package org.newdawn.spaceinvaders;
 
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
-import org.newdawn.spaceinvaders.entity.BombEntity;
-import org.newdawn.spaceinvaders.entity.Entity;
-import org.newdawn.spaceinvaders.entity.MeteorEntity;
-import org.newdawn.spaceinvaders.entity.ShipEntity;
-import org.newdawn.spaceinvaders.entity.ShotEntity;
+import org.newdawn.spaceinvaders.entity.*;
+import org.newdawn.spaceinvaders.model.PlayerData;
 import org.newdawn.spaceinvaders.view.MainMenu;
 import org.newdawn.spaceinvaders.view.PauseMenu;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
+/**
+ * 게임의 핵심 로직과 상태를 관리하며, 다른 전문 관리 클래스들을 총괄하는 메인 컨트롤러.
+ */
 public class GameManager implements GameContext {
 
     private final InputHandler inputHandler;
@@ -28,8 +17,10 @@ public class GameManager implements GameContext {
     private final GameWindow gameWindow;
     private final MainMenu mainMenu;
     private final PauseMenu pauseMenu;
-    private final Firestore db;
+    private final DatabaseManager databaseManager;
     private final AuthenticatedUser user;
+
+    private PlayerData currentPlayer;
 
     private GameState currentState;
     private boolean gameRunning = true;
@@ -44,7 +35,7 @@ public class GameManager implements GameContext {
     private int wave = 1;
     private int lineCount = 0;
     private long lastLineSpawnTime = 0;
-    private final long lineSpawnInterval = 3000; // 3 seconds
+    private final long lineSpawnInterval = 3000;
     private final int LINES_PER_WAVE = 10;
 
     private long lastMeteorSpawnTime = 0;
@@ -52,11 +43,9 @@ public class GameManager implements GameContext {
     private long lastBombSpawnTime = 0;
     private final long bombSpawnInterval = 5000; // 5 seconds
 
-    private List<String> highScores = new ArrayList<>();
-
     public GameManager(AuthenticatedUser user, Firestore db) {
         this.user = user;
-        this.db = db;
+        this.databaseManager = new DatabaseManager(db);
         this.inputHandler = new InputHandler();
         this.entityManager = new EntityManager(this);
         this.collisionDetector = new CollisionDetector();
@@ -64,6 +53,10 @@ public class GameManager implements GameContext {
         this.mainMenu = new MainMenu();
         this.pauseMenu = new PauseMenu();
         setCurrentState(GameState.MAIN_MENU);
+    }
+
+    public void initializePlayer() {
+        this.currentPlayer = databaseManager.loadPlayerData(user.getLocalId());
     }
 
     public void startGame() {
@@ -77,7 +70,6 @@ public class GameManager implements GameContext {
 
     private void mainLoop() {
         long lastLoopTime = SystemTimer.getTime();
-
         while (gameRunning) {
             long delta = SystemTimer.getTime() - lastLoopTime;
             lastLoopTime = SystemTimer.getTime();
@@ -91,7 +83,14 @@ public class GameManager implements GameContext {
                     if (inputHandler.isFirePressedAndConsume()) {
                         setCurrentState(GameState.MAIN_MENU);
                     }
-                    gameWindow.getGameCanvas().renderRanking(highScores);
+                    // 랭킹 렌더링 시 DB매니저로부터 직접 데이터를 가져와 전달
+                    gameWindow.getGameCanvas().renderRanking(databaseManager.getHighScores());
+                    break;
+                case SHOP:
+                    if (inputHandler.isFirePressedAndConsume()) {
+                        setCurrentState(GameState.MAIN_MENU);
+                    }
+                    gameWindow.getGameCanvas().renderShop(currentPlayer.getCredit());
                     break;
                 case PLAYING:
                     updateGame(delta);
@@ -108,7 +107,7 @@ public class GameManager implements GameContext {
                     gameWindow.getGameCanvas().render(entityManager.getEntities(), message, score, currentState, 0, wave, pauseMenu);
                     break;
                 case WAVE_CLEARED:
-                    SystemTimer.sleep(3000); // 3초 대기
+                    SystemTimer.sleep(3000);
                     startNextWave();
                     break;
             }
@@ -122,7 +121,20 @@ public class GameManager implements GameContext {
             return;
         }
         handlePlayingInput(delta);
+        handleSpawning(delta);
+        updateEntities(delta);
 
+        if (logicRequiredThisLoop) {
+            entityManager.doLogicAll();
+            logicRequiredThisLoop = false;
+        }
+        gameWindow.getGameCanvas().render(entityManager.getEntities(), message, score, currentState, 0, wave, pauseMenu);
+    }
+
+    /**
+     * 모든 종류의 엔티티(외계인, 운석, 폭탄) 생성을 처리합니다.
+     */
+    private void handleSpawning(long delta) {
         // Spawn aliens
         if (wave % 5 == 0) { // Boss Wave
             if (lineCount == 0) {
@@ -162,15 +174,15 @@ public class GameManager implements GameContext {
                 entityManager.addEntity(bomb);
             }
         }
+    }
 
+    /**
+     * 엔티티의 이동, 충돌, 제거 등 상태 업데이트를 처리합니다.
+     */
+    private void updateEntities(long delta) {
         entityManager.moveAll(delta);
         collisionDetector.checkCollisions(entityManager.getEntities());
         entityManager.cleanup();
-        if (logicRequiredThisLoop) {
-            entityManager.doLogicAll();
-            logicRequiredThisLoop = false;
-        }
-        gameWindow.getGameCanvas().render(entityManager.getEntities(), message, score, currentState, 0, wave, pauseMenu);
     }
 
     private void handleMenuInput() {
@@ -182,9 +194,10 @@ public class GameManager implements GameContext {
             if ("1. 게임시작".equals(selected)) {
                 startGameplay();
             } else if ("2. 랭킹".equals(selected)) {
-                getHighScores();
                 setCurrentState(GameState.RANKING);
-            } else if ("5. 설정".equals(selected)) {
+            } else if ("4. 상점".equals(selected)) {
+                setCurrentState(GameState.SHOP);
+            } else if ("5. 설정".equals(selected)){
                 System.exit(0);
             }
         }
@@ -196,7 +209,10 @@ public class GameManager implements GameContext {
         if (inputHandler.isFirePressedAndConsume()) {
             String selected = pauseMenu.getSelectedItem();
             if ("재개하기".equals(selected)) setCurrentState(GameState.PLAYING);
-            else if ("메인메뉴로 나가기".equals(selected)) setCurrentState(GameState.MAIN_MENU);
+            else if ("메인메뉴로 나가기".equals(selected)) {
+                saveGameResults(); // 일시정지 후 메뉴로 나갈때도 결과 저장
+                setCurrentState(GameState.MAIN_MENU);
+            }
             else if ("종료하기".equals(selected)) System.exit(0);
         }
     }
@@ -213,6 +229,7 @@ public class GameManager implements GameContext {
 
     private void handlePlayingInput(long delta) {
         ShipEntity ship = entityManager.getShip();
+        if (ship == null) return;
         ship.setHorizontalMovement(0);
         ship.setVerticalMovement(0);
 
@@ -233,67 +250,33 @@ public class GameManager implements GameContext {
         entityManager.addEntity(shot);
     }
 
+    private void saveGameResults() {
+        if (user == null || currentPlayer == null) return;
+
+        // 1. 새로운 크레딧과 최고 점수 계산
+        int newCredit = currentPlayer.getCredit() + score;
+        int newHighScore = Math.max(currentPlayer.getHighScore(), score);
+
+        // 2. 변경된 내용을 PlayerData 객체에도 반영 (다음 게임을 위해)
+        currentPlayer.setCredit(newCredit);
+        currentPlayer.setHighScore(newHighScore);
+
+        // 3. 데이터베이스에 업데이트 요청
+        databaseManager.updatePlayerStats(user.getLocalId(), newCredit, newHighScore);
+    }
+
     @Override
     public void notifyDeath() {
-        saveScore();
+        saveGameResults();
         message = "Oh no! They got you, try again?";
         setCurrentState(GameState.GAME_OVER);
     }
 
     @Override
     public void notifyWin() {
-        saveScore();
+        saveGameResults();
         message = "Well done! You Win!";
         setCurrentState(GameState.GAME_WON);
-    }
-
-    private void saveScore() {
-        if (user.getLocalId() == null || user.getLocalId().trim().isEmpty() || db == null) return;
-
-        DocumentReference userHighScoreRef = db.collection("scores").document(user.getLocalId());
-
-        ApiFuture<com.google.cloud.firestore.DocumentSnapshot> future = userHighScoreRef.get();
-        try {
-            com.google.cloud.firestore.DocumentSnapshot document = future.get(); // Get existing high score
-
-            long existingHighScore = 0;
-            if (document.exists()) {
-                Long scoreLong = document.getLong("score");
-                if (scoreLong != null) {
-                    existingHighScore = scoreLong;
-                }
-            }
-
-            if (score > existingHighScore) { // Only save if current score is higher
-                Map<String, Object> scoreData = new HashMap<>();
-                scoreData.put("uid", user.getLocalId());
-                scoreData.put("username", user.getUsername());
-                scoreData.put("score", score);
-                scoreData.put("timestamp", System.currentTimeMillis()); // Update timestamp as well
-
-                userHighScoreRef.set(scoreData); // Overwrite with new high score
-                System.out.println("New high score saved for " + user.getUsername() + ": " + score);
-            } else {
-                System.out.println("Current score " + score + " is not higher than existing high score " + existingHighScore + " for " + user.getUsername());
-            }
-
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void getHighScores() {
-        if (db == null) return;
-        highScores.clear();
-        ApiFuture<QuerySnapshot> query = db.collection("scores").orderBy("score", com.google.cloud.firestore.Query.Direction.DESCENDING).limit(10).get();
-        try {
-            QuerySnapshot querySnapshot = query.get();
-            for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
-                highScores.add(document.getString("username") + ": " + document.getLong("score"));
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
     }
     
     @Override
