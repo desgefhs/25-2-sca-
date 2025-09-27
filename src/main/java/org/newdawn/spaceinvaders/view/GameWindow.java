@@ -63,7 +63,7 @@ public class GameWindow {
             strategy = getBufferStrategy();
         }
 
-        public void render(List<Entity> entities, String message, int score, GameState currentState, double backgroundY, int wave, org.newdawn.spaceinvaders.view.PauseMenu pauseMenu) {
+        public void render(List<Entity> entities, String message, int score, GameState currentState, double backgroundY, int wave, org.newdawn.spaceinvaders.view.PauseMenu pauseMenu, org.newdawn.spaceinvaders.view.GameOverMenu gameOverMenu) {
             if (strategy == null) createStrategy();
             Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
             g.setColor(Color.black);
@@ -75,7 +75,7 @@ public class GameWindow {
 
             g.setColor(Color.white);
             g.setFont(new Font("Dialog", Font.BOLD, 14));
-            g.drawString(String.format("Score: %03d", score), 680, 30);
+            g.drawString(String.format("점수: %03d", score), 680, 30);
             g.drawString(String.format("Wave: %d", wave), 20, 30);
 
             if (message != null && !message.isEmpty() && currentState != GameState.PAUSED) {
@@ -83,7 +83,25 @@ public class GameWindow {
                 g.setFont(new Font("Dialog", Font.BOLD, 20));
                 g.drawString(message, (800 - g.getFontMetrics().stringWidth(message)) / 2, 250);
                 if (currentState == GameState.GAME_OVER || currentState == GameState.GAME_WON) {
-                    g.drawString("Press Enter to Continue", (800 - g.getFontMetrics().stringWidth("Press Enter to Continue")) / 2, 300);
+                    // Draw the GameOverMenu
+                    g.setFont(new Font("Dialog", Font.BOLD, 24));
+                    int totalWidth = 0;
+                    int spacing = 40;
+                    for (int i = 0; i < gameOverMenu.getItemCount(); i++) {
+                        totalWidth += g.getFontMetrics().stringWidth(gameOverMenu.getItem(i));
+                    }
+                    totalWidth += (gameOverMenu.getItemCount() - 1) * spacing;
+                    int currentX = (800 - totalWidth) / 2;
+
+                    for (int i = 0; i < gameOverMenu.getItemCount(); i++) {
+                        if (i == gameOverMenu.getSelectedIndex()) {
+                            g.setColor(Color.GREEN);
+                        } else {
+                            g.setColor(Color.WHITE);
+                        }
+                        g.drawString(gameOverMenu.getItem(i), currentX, 350);
+                        currentX += g.getFontMetrics().stringWidth(gameOverMenu.getItem(i)) + spacing;
+                    }
                 }
             }
 
@@ -174,16 +192,16 @@ public class GameWindow {
             // Title
             g.setColor(Color.white);
             g.setFont(new Font("Dialog", Font.BOLD, 32));
-            g.drawString("UPGRADE SHOP", (800 - g.getFontMetrics().stringWidth("UPGRADE SHOP")) / 2, 80);
+            g.drawString("업그레이드 상점", (800 - g.getFontMetrics().stringWidth("업그레이드 상점")) / 2, 80);
 
             // Player Credit
             g.setFont(new Font("Dialog", Font.BOLD, 20));
-            String creditText = "Your Credit: " + player.getCredit();
+            String creditText = "보유 크레딧: " + player.getCredit();
             g.drawString(creditText, (800 - g.getFontMetrics().stringWidth(creditText)) / 2, 120);
 
             // Instructions
             g.setFont(new Font("Dialog", Font.PLAIN, 14));
-            g.drawString("Use UP/DOWN to navigate, ENTER to purchase, ESC to exit.", (800 - g.getFontMetrics().stringWidth("Use UP/DOWN to navigate, ENTER to purchase, ESC to exit.")) / 2, 550);
+            g.drawString("위/아래 키로 이동, 엔터 키로 구매, ESC 키로 나가기", (800 - g.getFontMetrics().stringWidth("위/아래 키로 이동, 엔터 키로 구매, ESC 키로 나가기")) / 2, 550);
 
             // Message
             if (message != null && !message.isEmpty()) {
@@ -212,13 +230,13 @@ public class GameWindow {
                 g.drawString(upgrade.getName(), 100, startY + (i * itemHeight));
 
                 g.setFont(new Font("Dialog", Font.PLAIN, 16));
-                g.drawString("Level: " + currentLevel + " / " + maxLevel, 350, startY + (i * itemHeight));
+                g.drawString("레벨: " + currentLevel + " / " + maxLevel, 350, startY + (i * itemHeight));
 
                 String costString;
                 if (currentLevel >= maxLevel) {
-                    costString = "MAX LEVEL";
+                    costString = "최고 레벨";
                 } else {
-                    costString = "Cost: " + upgrade.getCost(currentLevel + 1);
+                    costString = "비용: " + upgrade.getCost(currentLevel + 1);
                 }
                 g.drawString(costString, 550, startY + (i * itemHeight));
             }
