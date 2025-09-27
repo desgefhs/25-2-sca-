@@ -14,7 +14,7 @@ public class AlienEntity extends Entity {
 	/**
 	 * The speed at which the alient moves horizontally
 	 */
-	private double moveSpeed = 100;
+	private double moveSpeed = 200;
 	/**
 	 * The game context in which the entity exists
 	 */
@@ -42,8 +42,8 @@ public class AlienEntity extends Entity {
 	private static final long firingInterval = 1000; // 1 second cooldown for the entire fleet
 
 
-	public AlienEntity(GameContext context, int x, int y, int health) {
-		super("sprites/alien.gif", x, y);
+	public AlienEntity(GameContext context, int x, int y, int health, int cycle) {
+		super("sprites/alien_cycle" + cycle + ".gif", x, y); // Example of cycle-based sprite
 		this.health = new HealthComponent(health);
 		// setup the animatin frames
 		frames[0] = sprite;
@@ -54,6 +54,10 @@ public class AlienEntity extends Entity {
 		this.context = context;
 		dx = 0;
 		dy = moveSpeed;
+	}
+
+	public AlienEntity(GameContext context, int x, int y, int health) {
+		this(context, x, y, health, 0);
 	}
 
 	/**

@@ -75,7 +75,14 @@ public class BombEntity extends Entity {
                     }
                 }
                 if (entity instanceof ShipEntity) {
-                    context.notifyDeath();
+                    HealthComponent shipHealth = entity.getHealth();
+                    if (shipHealth != null && shipHealth.isAlive()) {
+                        double maxHealth = shipHealth.getHp().getMAX_HP();
+                        double damage = maxHealth / 2.0;
+                        if (!shipHealth.decreaseHealth(damage)) {
+                            context.notifyDeath();
+                        }
+                    }
                 }
             }
         }

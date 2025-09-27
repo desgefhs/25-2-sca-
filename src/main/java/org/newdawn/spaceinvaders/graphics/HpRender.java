@@ -22,7 +22,7 @@ public class HpRender {
     // Entity를 직접 받아와서 그 위치에 HP 바를 렌더링하도록 수정
     public void hpRender(Graphics2D g, Entity entity) {
         double hpY = entity.getY() - 10; // 엔티티의 y좌표 바로 위에 표시
-        double hpX = entity.getX();
+        double hpX = entity.getX() + (entity.getWidth() / 2) - (Hprendersize / 2);
 
         g.setColor(new Color(70, 70, 70));
         g.fill(new Rectangle2D.Double(hpX, hpY, Hprendersize, 4)); // HP 바 배경

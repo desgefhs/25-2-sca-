@@ -49,7 +49,7 @@ public class DatabaseManager {
      * @param uid 불러올 사용자의 고유 ID
      * @return 불러온 PlayerData 객체. 만약 데이터가 없으면 기본값(highScore=0, credit=0)을 가진 새 객체를 반환합니다.
      */
-    public PlayerData loadPlayerData(String uid) {
+    public PlayerData loadPlayerData(String uid, String username) {
         if (uid == null || uid.trim().isEmpty()) return new PlayerData();
         DocumentReference docRef = db.collection("users").document(uid);
         ApiFuture<DocumentSnapshot> future = docRef.get();
@@ -57,10 +57,10 @@ public class DatabaseManager {
             DocumentSnapshot document = future.get();
             if (document.exists()) {
                 PlayerData playerData = document.toObject(PlayerData.class);
-                System.out.println(uid + " 사용자의 데이터 불러오기 성공. 최고 점수: " + playerData.getHighScore() + ", 크레딧: " + playerData.getCredit());
+                System.out.println(username + " 사용자의 데이터 불러오기 성공. 최고 점수: " + playerData.getHighScore() + ", 크레딧: " + playerData.getCredit());
                 return playerData;
             } else {
-                System.out.println(uid + " 사용자의 데이터가 존재하지 않아 새로 생성합니다.");
+                System.out.println(username + " 사용자의 데이터가 존재하지 않아 새로 생성합니다.");
                 return new PlayerData();
             }
         } catch (Exception e) {

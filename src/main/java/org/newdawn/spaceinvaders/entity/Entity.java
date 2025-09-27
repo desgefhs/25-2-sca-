@@ -129,10 +129,13 @@ public abstract class Entity {
 	 * 
 	 * @return The x location of this entity
 	 */
-	public int getX() {
-		return (int) x;
-	}
-
+	    public int getX() {
+	        return (int) x;
+	    }
+	
+	    public int getWidth() {
+	        return width;
+	    }
 	/**
 	 * Get the y location of this entity
 	 * 

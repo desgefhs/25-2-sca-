@@ -13,14 +13,18 @@ public class BossEntity extends Entity {
     private long firingInterval = 500; // Fires every 0.5 seconds
     private HpRender hpRender;
 
-    public BossEntity(GameContext context, int x, int y, int health) {
-        super("sprites/alien.gif", x, y);
+    public BossEntity(GameContext context, int x, int y, int health, int cycle) {
+        super("sprites/boss_cycle" + cycle + ".gif", x, y); // Example of cycle-based sprite
         this.context = context;
         this.health = new HealthComponent(health);
         this.hpRender = new HpRender(this.health.getHp());
         dx = -moveSpeed;
         this.width = sprite.getWidth() * 2;
         this.height = sprite.getHeight() * 2;
+    }
+
+    public BossEntity(GameContext context, int x, int y, int health) {
+        this(context, x, y, health, 0);
     }
 
     public BossEntity(GameContext context, int x, int y) {

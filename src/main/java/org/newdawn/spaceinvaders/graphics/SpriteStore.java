@@ -55,14 +55,18 @@ public class SpriteStore {
 		BufferedImage sourceImage = null;
 		
 		try {
-			// The ClassLoader.getResource() ensures we get the sprite
-			// from the appropriate place, this helps with deploying the game
-			// with things like webstart. You could equally do a file look
-			// up here.
 			URL url = this.getClass().getClassLoader().getResource(ref);
 			
 			if (url == null) {
-				fail("Can't find ref: "+ref);
+				// If the cycle-specific sprite is not found, try falling back to the default cycle 0 sprite
+				if (ref.contains("_cycle")) {
+					String fallbackRef = ref.replaceAll("_cycle[0-9]+", "_cycle0");
+					url = this.getClass().getClassLoader().getResource(fallbackRef);
+				}
+
+				if (url == null) {
+					fail("Can't find ref: " + ref);
+				}
 			}
 			
 			// use ImageIO to read the image in

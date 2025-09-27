@@ -26,10 +26,10 @@ public class EntityManager {
     public void initShip(PlayerStats stats) {
         if (ship == null) {
             ship = new ShipEntity(context, "sprites/ship.gif", 370, 550, stats.getMaxHealth());
+            ship.reset();
         } else {
             ship.setMaxHealth(stats.getMaxHealth());
         }
-        ship.reset();
         entities.clear();
         addList.clear();
         removeList.clear();
@@ -38,27 +38,34 @@ public class EntityManager {
     }
 
     public void spawnNext(int wave, int lineCount) {
-        if (wave % 5 == 0) {
+        int effectiveWave = ((wave - 1) % 5) + 1;
+        int cycle = (wave - 1) / 5;
+        int waveInCycle = (wave - 1) % 5;
+
+        // Exponential scaling per cycle (1.5x every 5 waves)
+        double cycleMultiplier = Math.pow(1.5, cycle);
+
+        if (effectiveWave == 5) {
             // Boss wave - spawn boss on the first line count
             if (lineCount == 0) {
-                double healthModifier = 1.0 + (wave - 1) / 20.0;
-                int bossHealth = (int) (50 * healthModifier);
-                Entity boss = new BossEntity(context, 350, 50, bossHealth);
+                int baseBossHealth = (int) (50 * cycleMultiplier);
+                int fixedBossBonus = waveInCycle * 10; // Add 10 health for each wave in the cycle
+                int bossHealth = baseBossHealth + fixedBossBonus;
+                Entity boss = new BossEntity(context, 350, 50, bossHealth, cycle);
                 addList.add(boss);
                 alienCount++;
             }
         } else {
             // Normal alien wave: spawn a single line
-            double healthModifier = 1.0 + (wave - 1) / 20.0;
-            int alienHealth = (int) (2 * healthModifier);
+            int baseAlienHealth = (int) (2 * cycleMultiplier);
+            int fixedAlienBonus = waveInCycle; // Add 1 health for each wave in the cycle
+            int alienHealth = baseAlienHealth + fixedAlienBonus;
             int aliensInLine = 10;
             for (int i = 0; i < aliensInLine; i++) {
-                Entity alien = new AlienEntity(context, 50 + (i * 60), -50, alienHealth);
+                Entity alien = new AlienEntity(context, 50 + (i * 60), -50, alienHealth, cycle);
                 addList.add(alien);
                 alienCount++;
             }
-
-
         }
     }
 

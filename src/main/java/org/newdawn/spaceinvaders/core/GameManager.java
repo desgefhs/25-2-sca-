@@ -70,7 +70,7 @@ public class GameManager implements GameContext {
     }
 
     public void initializePlayer() {
-        this.currentPlayer = databaseManager.loadPlayerData(user.getLocalId());
+        this.currentPlayer = databaseManager.loadPlayerData(user.getLocalId(), user.getUsername());
         // Initialize ShopMenu with all available upgrades
         this.shopMenu = new ShopMenu(shopManager.getAllUpgrades());
     }
@@ -121,7 +121,6 @@ public class GameManager implements GameContext {
                     gameWindow.getGameCanvas().render(entityManager.getEntities(), message, score, currentState, 0, wave, pauseMenu);
                     break;
                 case WAVE_CLEARED:
-                    SystemTimer.sleep(3000);
                     startNextWave();
                     break;
                 case EXIT_CONFIRMATION:
@@ -153,8 +152,9 @@ public class GameManager implements GameContext {
      * 모든 종류의 엔티티(외계인, 운석, 폭탄) 생성을 처리합니다.
      */
     private void handleSpawning(long delta) {
+        int effectiveWave = ((wave - 1) % 5) + 1;
         // Spawn aliens
-        if (wave % 5 == 0) { // Boss Wave
+        if (effectiveWave == 5) { // Boss Wave
             if (lineCount == 0) {
                 entityManager.spawnNext(wave, lineCount);
                 lineCount++; // Increment to prevent re-spawning
@@ -334,6 +334,13 @@ public class GameManager implements GameContext {
         if (inputHandler.isDownPressed() && !inputHandler.isUpPressed()) ship.setVerticalMovement(moveSpeed);
 
         if (inputHandler.isFirePressed()) tryToFire();
+
+        // For debugging: Press 'k' to skip to the next boss wave
+        if (inputHandler.isKPressedAndConsume()) {
+            int targetWave = ((wave / 5) * 5) + 5;
+            setWave(targetWave);
+            startNextWave();
+        }
     }
 
     private void tryToFire() {
@@ -383,8 +390,14 @@ public class GameManager implements GameContext {
     public void notifyAlienKilled() { 
         increaseScore(ALIEN_SCORE);
         entityManager.decreaseAlienCount();
-        if (entityManager.getAlienCount() == 0 && lineCount >= LINES_PER_WAVE) {
-            setCurrentState(GameState.WAVE_CLEARED);
+
+        if (entityManager.getAlienCount() == 0) {
+            int effectiveWave = ((wave - 1) % 5) + 1;
+            boolean isBossWave = (effectiveWave == 5);
+
+            if (isBossWave || lineCount >= LINES_PER_WAVE) {
+                setCurrentState(GameState.WAVE_CLEARED);
+            }
         }
     }
     @Override
@@ -405,6 +418,12 @@ public class GameManager implements GameContext {
     public void increaseScore(int amount) { score += amount; }
     public void resetScore() { score = 0; }
     public int getScore() { return score; }
+
+
+    public void setWave(int newWave) {
+        this.wave = newWave - 1; // startNextWave will increment it to the target wave
+    }
+
      public void startNextWave() {
         wave++;
         lineCount = 0;
