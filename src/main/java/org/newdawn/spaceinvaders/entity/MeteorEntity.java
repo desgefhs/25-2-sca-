@@ -26,7 +26,7 @@ public class MeteorEntity extends Entity {
     @Override
     public void collidedWith(Entity other) {
         if (other instanceof ShipEntity) {
-            context.notifyDeath();
+            context.removeEntity(this);
             return;
         }
 

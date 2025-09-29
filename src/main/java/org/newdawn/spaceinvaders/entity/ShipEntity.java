@@ -92,6 +92,15 @@ public class ShipEntity extends Entity {
 		        context.notifyDeath();
 		    }
 		}
+
+		if (other instanceof MeteorEntity) {
+			HealthComponent shipHealth = this.getHealth();
+			double damage = shipHealth.getMaxHealth() * 0.5;
+			if (!shipHealth.decreaseHealth(damage)) {
+				context.notifyDeath();
+			}
+			context.removeEntity(other);
+		}
 	}
 
 	public void reset() {
