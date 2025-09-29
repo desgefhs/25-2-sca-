@@ -152,13 +152,8 @@ public abstract class Entity {
 	 * @return True if the entities collide with each other
 	 */
 	public boolean collidesWith(Entity other) {
-		int me_hitbox_x = (int) (this.x + (this.width - this.hitboxWidth) / 2);
-		int me_hitbox_y = (int) (this.y + (this.height - this.hitboxHeight) / 2);
-		me.setBounds(me_hitbox_x, me_hitbox_y, this.hitboxWidth, this.hitboxHeight);
-
-		int him_hitbox_x = (int) (other.x + (other.width - other.hitboxWidth) / 2);
-		int him_hitbox_y = (int) (other.y + (other.height - other.hitboxHeight) / 2);
-		him.setBounds(him_hitbox_x, him_hitbox_y, other.hitboxWidth, other.hitboxHeight);
+		me.setBounds((int) x, (int) y, this.width, this.height);
+		him.setBounds((int) other.x, (int) other.y, other.width, other.height);
 
 		return me.intersects(him);
 	}

@@ -32,8 +32,4 @@ public class HealthComponent {
     public boolean isAlive() {
         return hp.getCurrentHp() > 0;
     }
-
-    public double getMaxHealth() {
-        return hp.getMAX_HP();
-    }
 }
