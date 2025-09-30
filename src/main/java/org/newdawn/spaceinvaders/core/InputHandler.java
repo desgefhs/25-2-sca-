@@ -17,6 +17,7 @@ public class InputHandler extends KeyAdapter {
     private boolean firePressed = false;
     private boolean escPressed = false;
     private boolean kPressed = false;
+    private boolean hPressed = false;
 
     // 키 한 번 누름을 처리하기 위한 플래그들
     private boolean leftKeyProcessed = false;
@@ -26,6 +27,7 @@ public class InputHandler extends KeyAdapter {
     private boolean fireKeyProcessed = false;
     private boolean escKeyProcessed = false;
     private boolean kKeyProcessed = false;
+    private boolean hKeyProcessed = false;
 
     private final List<Character> typedChars = new ArrayList<>();
 
@@ -41,6 +43,14 @@ public class InputHandler extends KeyAdapter {
     public boolean isKPressedAndConsume() {
         if (kPressed && !kKeyProcessed) {
             kKeyProcessed = true;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isHPressedAndConsume() {
+        if (hPressed && !hKeyProcessed) {
+            hKeyProcessed = true;
             return true;
         }
         return false;
@@ -134,6 +144,9 @@ public class InputHandler extends KeyAdapter {
         if (keyCode == KeyEvent.VK_K) {
             kKeyProcessed = false;
         }
+        if (keyCode == KeyEvent.VK_H) {
+            hKeyProcessed = false;
+        }
     }
 
     private void updateKeyState(int keyCode, boolean pressed) {
@@ -157,6 +170,9 @@ public class InputHandler extends KeyAdapter {
         }
         if (keyCode == KeyEvent.VK_K) {
             kPressed = pressed;
+        }
+        if (keyCode == KeyEvent.VK_H) {
+            hPressed = pressed;
         }
     }
 

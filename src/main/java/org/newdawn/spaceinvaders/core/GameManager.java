@@ -42,6 +42,7 @@ public class GameManager implements GameContext {
     private GameState currentState;
     private boolean gameRunning = true;
     private boolean logicRequiredThisLoop = false;
+    private boolean showHitboxes = false;
     private String message = "";
     private long lastFire = 0;
     private final double moveSpeed = 300;
@@ -117,7 +118,7 @@ public class GameManager implements GameContext {
                     break;
                 case PAUSED:
                     handlePauseMenuInput();
-                    gameWindow.getGameCanvas().render(background, entityManager.getEntities(), message, score, currentState, wave, pauseMenu, gameOverMenu);
+                    gameWindow.getGameCanvas().render(background, entityManager.getEntities(), message, score, currentState, wave, pauseMenu, gameOverMenu, showHitboxes);
                     break;
                 case GAME_OVER:
                 case GAME_WON:
@@ -132,7 +133,7 @@ public class GameManager implements GameContext {
                             setCurrentState(GameState.MAIN_MENU);
                         }
                     }
-                    gameWindow.getGameCanvas().render(background, entityManager.getEntities(), message, score, currentState, wave, pauseMenu, gameOverMenu);
+                    gameWindow.getGameCanvas().render(background, entityManager.getEntities(), message, score, currentState, wave, pauseMenu, gameOverMenu, showHitboxes);
                     break;
                 case WAVE_CLEARED:
                     startNextWave();
@@ -147,6 +148,9 @@ public class GameManager implements GameContext {
     }
 
     private void updateGame(long delta) {
+        if (inputHandler.isHPressedAndConsume()) {
+            showHitboxes = !showHitboxes;
+        }
         if (inputHandler.isEscPressedAndConsume()) {
             setCurrentState(GameState.PAUSED);
             return;
@@ -160,7 +164,7 @@ public class GameManager implements GameContext {
             entityManager.doLogicAll();
             logicRequiredThisLoop = false;
         }
-        gameWindow.getGameCanvas().render(background, entityManager.getEntities(), message, score, currentState, wave, pauseMenu, gameOverMenu);
+        gameWindow.getGameCanvas().render(background, entityManager.getEntities(), message, score, currentState, wave, pauseMenu, gameOverMenu, showHitboxes);
     }
 
     /**
@@ -191,8 +195,9 @@ public class GameManager implements GameContext {
             lastMeteorSpawnTime = currentTime;
             int quantity = (int) (Math.random() * 2) + 2; // 2 or 3
             for (int i = 0; i < quantity; i++) {
-                int x = (int) (Math.random() * 750);
-                MeteorEntity meteor = new MeteorEntity(this, "sprites/meteor.gif", x, -50, 150);
+                MeteorEntity meteor = new MeteorEntity(this, "sprites/meteor.gif", 0, -50, 150);
+                int x = (int) (Math.random() * (Game.GAME_WIDTH - meteor.getWidth()));
+                meteor.setX(x);
                 entityManager.addEntity(meteor);
             }
         }
@@ -202,8 +207,9 @@ public class GameManager implements GameContext {
             lastBombSpawnTime = currentTime;
             int quantity = (int) (Math.random() * 2) + 2; // 2 or 3
             for (int i = 0; i < quantity; i++) {
-                int x = (int) (Math.random() * 750);
-                BombEntity bomb = new BombEntity(this, "sprites/bomb.gif", x, -50, 100, wave);
+                BombEntity bomb = new BombEntity(this, "sprites/bomb.gif", 0, -50, 100, wave);
+                int x = (int) (Math.random() * (Game.GAME_WIDTH - bomb.getWidth()));
+                bomb.setX(x);
                 entityManager.addEntity(bomb);
             }
         }

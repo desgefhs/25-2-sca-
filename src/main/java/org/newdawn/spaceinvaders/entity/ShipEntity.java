@@ -1,4 +1,5 @@
 package org.newdawn.spaceinvaders.entity;
+import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.graphics.HpRender;
 
@@ -44,26 +45,22 @@ public class ShipEntity extends Entity {
 	 * @param delta The time that has elapsed since last move (ms)
 	 */
 	public void move(long delta) {
-		// if we're moving left and have reached the left hand side
-		// of the screen, don't move
-		if ((dx < 0) && (x < 10)) {
-			return;
-		}
-		// if we're moving right and have reached the right hand side
-		// of the screen, don't move
-		if ((dx > 0) && (x > 750)) {
-			return;
-		}
-		// if we're moving up and have reached the top of the screen, don't move
-		if ((dy < 0) && (y < 0)) {
-			return;
-		}
-		// if we're moving down and have reached the bottom of the screen, don't move
-		if ((dy > 0) && (y > 600 - sprite.getHeight())) {
-			return;
-		}
-		
+		// apply movement
 		super.move(delta);
+
+		// then clamp to the screen boundaries
+		if (x < 0) {
+			x = 0;
+		}
+		if (x > Game.GAME_WIDTH - width) {
+			x = Game.GAME_WIDTH - width;
+		}
+		if (y < 0) {
+			y = 0;
+		}
+		if (y > Game.GAME_HEIGHT - height) {
+			y = Game.GAME_HEIGHT - height;
+		}
 	}
 
 	@Override
@@ -96,7 +93,7 @@ public class ShipEntity extends Entity {
 
 	public void reset() {
 	    health.reset();
-	    x = 370;
+	    x = Game.GAME_WIDTH / 2;
 	    y = 550;
 	}
 }

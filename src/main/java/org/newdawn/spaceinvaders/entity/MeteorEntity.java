@@ -13,6 +13,7 @@ public class MeteorEntity extends Entity {
         this.moveSpeed = moveSpeed;
         this.health = new HealthComponent(2);
         dy = moveSpeed;
+        setScale(1.5);
     }
 
     @Override
@@ -30,13 +31,10 @@ public class MeteorEntity extends Entity {
             return;
         }
 
+        // If it collides with a shot, do nothing to the meteor.
+        // The shot will destroy itself because the meteor has a health component.
         if (other instanceof ShotEntity) {
-            if (!health.isAlive()) {
-                return;
-            }
-            if (!health.decreaseHealth(((ShotEntity) other).getDamage())) {
-                context.removeEntity(this);
-            }
+            return;
         }
     }
 

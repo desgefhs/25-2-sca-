@@ -2,8 +2,6 @@ package org.newdawn.spaceinvaders.entity;
 
 
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.graphics.Sprite;
-import org.newdawn.spaceinvaders.graphics.SpriteStore;
 
 /**
  * An entity which represents one of our space invader aliens.
@@ -19,22 +17,6 @@ public class AlienEntity extends Entity {
 	 * The game context in which the entity exists
 	 */
 	private GameContext context;
-	/**
-	 * The animation frames
-	 */
-	private Sprite[] frames = new Sprite[4];
-	/**
-	 * The time since the last frame change took place
-	 */
-	private long lastFrameChange;
-	/**
-	 * The frame duration in milliseconds, i.e. how long any given frame of animation lasts
-	 */
-	private long frameDuration = 250;
-	/**
-	 * The current frame of animation being displayed
-	 */
-	private int frameNumber;
 	private static final int MAX_HEALTH = 2;
 	private static final int SHOT_DAMAGE = 1;
 
@@ -43,14 +25,8 @@ public class AlienEntity extends Entity {
 
 
 	public AlienEntity(GameContext context, int x, int y, int health, int cycle) {
-		super("sprites/alien_cycle" + cycle + ".gif", x, y); // Example of cycle-based sprite
+		super("sprites/alien.gif", x, y);
 		this.health = new HealthComponent(health);
-		// setup the animatin frames
-		frames[0] = sprite;
-		frames[1] = SpriteStore.get().getSprite("sprites/alien2.gif");
-		frames[2] = sprite;
-		frames[3] = SpriteStore.get().getSprite("sprites/alien3.gif");
-
 		this.context = context;
 		dx = 0;
 		dy = moveSpeed;
@@ -89,26 +65,6 @@ public class AlienEntity extends Entity {
 	 * @param delta The time that has elapsed since last move
 	 */
 	public void move(long delta) {
-		// since the move tells us how much time has passed
-		// by we can use it to drive the animation, however
-		// its the not the prettiest solution
-		lastFrameChange += delta;
-
-		// if we need to change the frame, update the frame number
-		// and flip over the sprite in use
-		if (lastFrameChange > frameDuration) {
-			// reset our frame change time counter
-			lastFrameChange = 0;
-
-			// update the frame
-			frameNumber++;
-			if (frameNumber >= frames.length) {
-				frameNumber = 0;
-			}
-
-			sprite = frames[frameNumber];
-		}
-
 		// Randomly decide to fire
 		if (Math.random() < 0.002) {
 			tryToFire();

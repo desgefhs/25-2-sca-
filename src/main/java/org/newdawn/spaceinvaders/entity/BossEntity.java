@@ -1,6 +1,7 @@
 package org.newdawn.spaceinvaders.entity;
 
 
+import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.graphics.HpRender;
 
@@ -19,8 +20,7 @@ public class BossEntity extends Entity {
         this.health = new HealthComponent(health);
         this.hpRender = new HpRender(this.health.getHp());
         dx = -moveSpeed;
-        this.width = sprite.getWidth() * 2;
-        this.height = sprite.getHeight() * 2;
+        setScale(2.0);
     }
 
     public BossEntity(GameContext context, int x, int y, int health) {
@@ -33,15 +33,15 @@ public class BossEntity extends Entity {
 
     @Override
     public void draw(java.awt.Graphics g) {
-        g.drawImage(sprite.getImage(), (int) x, (int) y, this.width, this.height, null);
+        super.draw(g);
         hpRender.hpRender((java.awt.Graphics2D) g, this);
     }
 
     public void move(long delta) {
-        if ((dx < 0) && (x < 10)) {
+        if ((dx < 0) && (x < 0)) {
             dx = -dx; // Bounce off the left wall
         }
-        if ((dx > 0) && (x > 750)) {
+        if ((dx > 0) && (x > Game.GAME_WIDTH - width)) {
             dx = -dx; // Bounce off the right wall
         }
 

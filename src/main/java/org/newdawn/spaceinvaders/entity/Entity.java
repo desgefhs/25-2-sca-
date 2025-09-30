@@ -38,6 +38,7 @@ public abstract class Entity {
 
 	protected int width;
 	protected int height;
+	protected double scale = 1.0;
 
 	/** 엔티티가 파괴될 수 있는 경우, 체력 관련 로직을 처리 (선택적) */
 	protected HealthComponent health;
@@ -55,6 +56,13 @@ public abstract class Entity {
 		this.y = y;
 		this.width = sprite.getWidth();
 		this.height = sprite.getHeight();
+	}
+
+	public void setScale(double scale) {
+		if (scale <= 0) return;
+		this.scale = scale;
+		this.width = (int) (sprite.getWidth() * scale);
+		this.height = (int) (sprite.getHeight() * scale);
 	}
 
 	public HealthComponent getHealth() {
@@ -114,7 +122,7 @@ public abstract class Entity {
 	 * @param g The graphics context on which to draw
 	 */
 	public void draw(Graphics g) {
-		sprite.draw(g, (int) x, (int) y);
+		g.drawImage(sprite.getImage(), (int) x, (int) y, width, height, null);
 	}
 	
 	/**
@@ -132,6 +140,10 @@ public abstract class Entity {
 	    public int getX() {
 	        return (int) x;
 	    }
+
+	public void setX(double x) {
+	    this.x = x;
+	}
 	
 	    public int getWidth() {
 	        return width;
@@ -144,6 +156,8 @@ public abstract class Entity {
 	public int getY() {
 		return (int) y;
 	}
+
+	public int getHeight(){ return height; }
 	
 	/**
 	 * Check if this entity collised with another.

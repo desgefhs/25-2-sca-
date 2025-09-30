@@ -1,5 +1,6 @@
 package org.newdawn.spaceinvaders.entity;
 
+import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 
 import org.newdawn.spaceinvaders.player.PlayerStats;
@@ -25,7 +26,7 @@ public class EntityManager {
 
     public void initShip(PlayerStats stats) {
         if (ship == null) {
-            ship = new ShipEntity(context, "sprites/ship.gif", 370, 550, stats.getMaxHealth());
+            ship = new ShipEntity(context, "sprites/ship.gif", Game.GAME_WIDTH / 2, 550, stats.getMaxHealth());
             entities.add(ship);
         } else {
             ship.setMaxHealth(stats.getMaxHealth());
@@ -54,7 +55,7 @@ public class EntityManager {
                 int baseBossHealth = (int) (50 * cycleMultiplier);
                 int fixedBossBonus = waveInCycle * 10; // Add 10 health for each wave in the cycle
                 int bossHealth = baseBossHealth + fixedBossBonus;
-                Entity boss = new BossEntity(context, 350, 50, bossHealth, cycle);
+                Entity boss = new BossEntity(context, Game.GAME_WIDTH / 2, 50, bossHealth, cycle);
                 addList.add(boss);
                 alienCount++;
             }
@@ -64,8 +65,14 @@ public class EntityManager {
             int fixedAlienBonus = waveInCycle; // Add 1 health for each wave in the cycle
             int alienHealth = baseAlienHealth + fixedAlienBonus;
             int aliensInLine = 10;
+            int screenWidth = Game.GAME_WIDTH;
+            int padding = 50;
+            int availableWidth = screenWidth - (padding * 2);
+            int spacing = availableWidth / (aliensInLine - 1);
+
             for (int i = 0; i < aliensInLine; i++) {
-                Entity alien = new AlienEntity(context, 50 + (i * 60), -50, alienHealth, cycle);
+                int xPos = padding + (i * spacing);
+                Entity alien = new AlienEntity(context, xPos, -50, alienHealth, cycle);
                 addList.add(alien);
                 alienCount++;
             }

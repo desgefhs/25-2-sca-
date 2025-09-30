@@ -1,5 +1,6 @@
 package org.newdawn.spaceinvaders.view;
 
+import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.graphics.Sprite;
 import org.newdawn.spaceinvaders.graphics.SpriteStore;
 
@@ -30,10 +31,10 @@ public class Background {
             return;
         }
 
-        // Tile the background both horizontally and vertically
-        for (int x = 0; x < 800; x += imageWidth) { // 800 is screen width
+        // Tile the background both horizontally and vertically within the game area
+        for (int x = 0; x < Game.GAME_WIDTH; x += imageWidth) { // Use GAME_WIDTH
             // Start drawing from one image height above the screen to ensure no gaps when wrapping.
-            for (int y = (int) yOffset - imageHeight; y < 600; y += imageHeight) { // 600 is screen height
+            for (int y = (int) yOffset - imageHeight; y < Game.GAME_HEIGHT; y += imageHeight) { // Use GAME_HEIGHT
                 backgroundSprite.draw(g, x, y);
             }
         }

@@ -63,7 +63,7 @@ public class GameWindow {
             strategy = getBufferStrategy();
         }
 
-        public void render(Background background, List<Entity> entities, String message, int score, GameState currentState, int wave, org.newdawn.spaceinvaders.view.PauseMenu pauseMenu, org.newdawn.spaceinvaders.view.GameOverMenu gameOverMenu) {
+        public void render(Background background, List<Entity> entities, String message, int score, GameState currentState, int wave, org.newdawn.spaceinvaders.view.PauseMenu pauseMenu, org.newdawn.spaceinvaders.view.GameOverMenu gameOverMenu, boolean showHitboxes) {
             if (strategy == null) createStrategy();
             Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
             g.setColor(Color.black);
@@ -72,6 +72,13 @@ public class GameWindow {
 
             for (Entity entity : entities) {
                 entity.draw(g);
+            }
+
+            if (showHitboxes) {
+                g.setColor(Color.RED);
+                for (Entity entity : entities) {
+                    g.drawRect(entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight());
+                }
             }
 
             g.setColor(Color.white);
