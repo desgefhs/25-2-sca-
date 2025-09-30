@@ -4,7 +4,7 @@ package org.newdawn.spaceinvaders.entity;
 import org.newdawn.spaceinvaders.core.GameContext;
 
 public class AlienShotEntity extends Entity {
-    private double moveSpeed = 125;
+    private double moveSpeed = 350;
     private GameContext context;
     private boolean used = false;
     private int damage;

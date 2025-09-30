@@ -26,14 +26,17 @@ public class EntityManager {
     public void initShip(PlayerStats stats) {
         if (ship == null) {
             ship = new ShipEntity(context, "sprites/ship.gif", 370, 550, stats.getMaxHealth());
-            ship.reset();
+            entities.add(ship);
         } else {
             ship.setMaxHealth(stats.getMaxHealth());
         }
-        entities.clear();
+        ship.reset();
+
+        // Remove all entities except the ship
+        entities.removeIf(entity -> !(entity instanceof ShipEntity));
+
         addList.clear();
         removeList.clear();
-        entities.add(ship);
         alienCount = 0;
     }
 

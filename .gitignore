@@ -38,4 +38,5 @@ build/
 .DS_Store
 
 # Firebase service account key
-serviceAccountKey.json
+# serviceAccountKey.json
+/src/main/resources/serviceAccountKey.json

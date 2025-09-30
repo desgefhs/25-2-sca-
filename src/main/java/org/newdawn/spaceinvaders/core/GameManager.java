@@ -8,6 +8,7 @@ import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.player.PlayerStats;
 import org.newdawn.spaceinvaders.shop.ShopManager;
 import org.newdawn.spaceinvaders.shop.Upgrade;
+import org.newdawn.spaceinvaders.view.Background;
 import org.newdawn.spaceinvaders.view.ConfirmDialog;
 import org.newdawn.spaceinvaders.view.GameWindow;
 import org.newdawn.spaceinvaders.view.MainMenu;
@@ -31,6 +32,7 @@ public class GameManager implements GameContext {
     private final DatabaseManager databaseManager;
     private final AuthenticatedUser user;
     private final ShopManager shopManager;
+    private final Background background;
     private ShopMenu shopMenu;
     private PlayerStats playerStats;
 
@@ -67,6 +69,7 @@ public class GameManager implements GameContext {
         this.pauseMenu = new PauseMenu();
         this.gameOverMenu = new GameOverMenu();
         this.shopManager = new ShopManager();
+        this.background = new Background("sprites/gamebackground.png");
         this.playerStats = new PlayerStats();
         this.confirmDialog = new ConfirmDialog("Are you sure you want to exit?");
         setCurrentState(GameState.MAIN_MENU);
@@ -114,7 +117,7 @@ public class GameManager implements GameContext {
                     break;
                 case PAUSED:
                     handlePauseMenuInput();
-                    gameWindow.getGameCanvas().render(entityManager.getEntities(), message, score, currentState, 0, wave, pauseMenu, gameOverMenu);
+                    gameWindow.getGameCanvas().render(background, entityManager.getEntities(), message, score, currentState, wave, pauseMenu, gameOverMenu);
                     break;
                 case GAME_OVER:
                 case GAME_WON:
@@ -129,7 +132,7 @@ public class GameManager implements GameContext {
                             setCurrentState(GameState.MAIN_MENU);
                         }
                     }
-                    gameWindow.getGameCanvas().render(entityManager.getEntities(), message, score, currentState, 0, wave, pauseMenu, gameOverMenu);
+                    gameWindow.getGameCanvas().render(background, entityManager.getEntities(), message, score, currentState, wave, pauseMenu, gameOverMenu);
                     break;
                 case WAVE_CLEARED:
                     startNextWave();
@@ -148,6 +151,7 @@ public class GameManager implements GameContext {
             setCurrentState(GameState.PAUSED);
             return;
         }
+        background.update(delta);
         handlePlayingInput(delta);
         handleSpawning(delta);
         updateEntities(delta);
@@ -156,7 +160,7 @@ public class GameManager implements GameContext {
             entityManager.doLogicAll();
             logicRequiredThisLoop = false;
         }
-        gameWindow.getGameCanvas().render(entityManager.getEntities(), message, score, currentState, 0, wave, pauseMenu, gameOverMenu);
+        gameWindow.getGameCanvas().render(background, entityManager.getEntities(), message, score, currentState, wave, pauseMenu, gameOverMenu);
     }
 
     /**
