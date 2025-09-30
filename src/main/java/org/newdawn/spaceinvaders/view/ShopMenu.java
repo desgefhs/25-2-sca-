@@ -4,9 +4,7 @@ import org.newdawn.spaceinvaders.shop.Upgrade;
 
 import java.util.List;
 
-/**
- * Manages the data and navigation for the shop menu UI.
- */
+
 public class ShopMenu {
     private final List<Upgrade> items;
     private int selectedItemIndex = 0;

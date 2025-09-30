@@ -1,8 +1,5 @@
 package org.newdawn.spaceinvaders.view;
 
-/**
- * Manages the data and navigation for a simple confirmation dialog.
- */
 public class ConfirmDialog {
     private final String[] items = {"Confirm", "Cancel"};
     private int selectedItemIndex = 0;

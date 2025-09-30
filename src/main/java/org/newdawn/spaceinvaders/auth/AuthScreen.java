@@ -18,30 +18,30 @@ public class AuthScreen extends JPanel {
 
         gbc.insets = new Insets(5, 5, 5, 5);
 
-        // Username Label
+        // 아이디 라벨
         gbc.gridx = 0;
         gbc.gridy = 0;
         add(new JLabel("Username:"), gbc);
 
-        // Username Field
+        // 아이디 필드
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         usernameField = new JTextField(20);
         add(usernameField, gbc);
 
-        // Password Label
+        // 비밀번호 라벨
         gbc.gridx = 0;
         gbc.gridy = 1;
         add(new JLabel("Password:"), gbc);
 
-        // Password Field
+        // 비밀번호 필드
         gbc.gridx = 1;
         gbc.gridy = 1;
         passwordField = new JPasswordField(20);
         add(passwordField, gbc);
 
-        // Buttons Panel
+        // 로그인/회원가입 버튼
         JPanel buttonPanel = new JPanel();
         loginButton = new JButton("Login");
         signupButton = new JButton("Sign Up");
@@ -54,7 +54,7 @@ public class AuthScreen extends JPanel {
         gbc.fill = GridBagConstraints.NONE;
         add(buttonPanel, gbc);
 
-        // Message Label
+        // 오류 메세지 칸
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 2;

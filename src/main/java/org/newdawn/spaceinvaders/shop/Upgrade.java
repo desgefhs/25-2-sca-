@@ -40,27 +40,26 @@ public class Upgrade {
     }
 
     /**
-     * Gets the cost for upgrading to a specific level.
-     * @param level The target level (e.g., level 1 costs[0]).
-     * @return The cost, or Integer.MAX_VALUE if the level is out of bounds.
+     * 업그레이드 하는데 드는 비용 가져오기
+     * @param level 대상 레벨
+     * @return 크레딧이 부족하거나, 레벨 초과
      */
     public int getCost(int level) {
         if (level > 0 && level <= costs.size()) {
             return costs.get(level - 1);
         }
-        return Integer.MAX_VALUE; // No more upgrades or invalid level
+        return Integer.MAX_VALUE;
     }
 
     /**
-     * Gets the effect value for a given level.
-     * @param level The current level.
-     * @return The effect value, or the base value (from index 0) if the level is out of bounds.
+     * 효과 가져오기
+     * @param level 현재 레벨
+     * @return 기본값
      */
     public double getEffect(int level) {
         if (level > 0 && level <= effects.size()) {
             return effects.get(level - 1);
         }
-        // Return a default/base effect if level is 0 or out of bounds
         return effects.isEmpty() ? 1.0 : effects.get(0);
     }
 }

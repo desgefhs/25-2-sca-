@@ -1,8 +1,6 @@
 package org.newdawn.spaceinvaders.view;
 
-/**
- * Manages the data and navigation for the game over menu.
- */
+//게임 오버 시 메뉴창
 public class GameOverMenu {
     private String[] items = {"다시하기", "메인 메뉴로"};
     private int selectedItemIndex = 0;

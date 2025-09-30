@@ -13,10 +13,7 @@ import org.newdawn.spaceinvaders.auth.LoginDialog;
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * 게임의 주 진입점(Entry Point) 역할을 하는 클래스.
- * Firebase 초기화, 로그인 창 호출, GameManager 시작을 담당합니다.
- */
+// Firebase 초기화, 로그인 창 호출
 public class Game {
 
     public static final int SCREEN_WIDTH = 800;
@@ -25,28 +22,28 @@ public class Game {
     public static final int GAME_HEIGHT = 600;
 
     public static void main(String[] argv) {
-        // 1. Firebase 초기화
+        // Firebase 초기 화
         Firestore db = initializeFirebase();
         if (db == null) {
             System.err.println("Firebase 초기화 실패. 프로그램을 종료합니다.");
             return;
         }
 
-        // 2. 인증 관리자 생성
+        // 인증 관리자 생성
         AuthManager authManager = new AuthManager(db);
 
-        // 3. 로그인 다이얼로그 생성 및 표시
+        // 로그인 다이얼로그 생성 및 표시
         LoginDialog loginDialog = new LoginDialog(null, authManager);
          AuthenticatedUser user = loginDialog.showDialog();
 
-        // 4. 로그인 성공 여부 확인
+        //   로그인 성공 여부 확인
         if (user == null) {
-            // 로그인 실패 또는 취소 시 프로그램 종료
+            // 로그인 실패 또는 취소
             System.out.println("로그인이 취소되었습니다. 프로그램을 종료합니다.");
             System.exit(0);
         }
 
-        // 5. 로그인 성공 시, 사용자 정보와 함께 GameManager 생성 및 게임 시작
+        // 로그인 성공 시,  게임 시작
         System.out.println(user.getUsername() + "님, 환영합니다!");
         GameManager gameManager = new GameManager(user, db);
         gameManager.initializePlayer();

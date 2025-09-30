@@ -6,9 +6,8 @@ import org.newdawn.spaceinvaders.entity.HP;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
-/**
- * HP 데이터(HP.java)를 기반으로 화면에 체력 바를 그리는 책임을 가지는 클래스.
- */
+// hp/java로 화면에 체력 바를 그림(플레이어, 보스)
+
 public class HpRender {
 
     private final HP hp;
@@ -27,7 +26,7 @@ public class HpRender {
         g.setColor(new Color(70, 70, 70));
         g.fill(new Rectangle2D.Double(hpX, hpY, Hprendersize, 4)); // HP 바 배경
         g.setColor(new Color(253, 91, 91));
-        // HP 계산 버그 수정
+
         double hpsize = (hp.getCurrentHp() / hp.getMAX_HP()) * Hprendersize;
         g.fill(new Rectangle2D.Double(hpX, hpY, hpsize, 4)); // 현재 HP
     }

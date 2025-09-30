@@ -1,26 +1,21 @@
 package org.newdawn.spaceinvaders.player;
 
-/**
- * Holds the calculated, final stats for the player for the current game session.
- * These stats are derived from the player's upgrade levels.
- */
+// 상점 업그레이드를 통한 플레이어 상태
 public class PlayerStats {
 
     private int maxHealth;
     private int bulletDamage;
     private long firingInterval;
-    private int projectileCount;
-    private String weaponType; // Using String for flexibility, could be an Enum
+    private int projectileCount; // 다중발사
+    private String weaponType; // 추가예정
 
-    /**
-     * Initializes with default, non-upgraded values.
-     */
+    //기본값( 생성자)
     public PlayerStats() {
-        this.maxHealth = 3; // Default health
-        this.bulletDamage = 1; // Default damage
-        this.firingInterval = 500; // Default interval
-        this.projectileCount = 1; // Default projectile count
-        this.weaponType = "NORMAL"; // Default weapon type
+        this.maxHealth = 3;
+        this.bulletDamage = 1;
+        this.firingInterval = 500;
+        this.projectileCount = 1;
+        this.weaponType = "NORMAL";
     }
 
     // Getters

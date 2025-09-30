@@ -12,7 +12,7 @@ public class AlienEntity extends Entity {
 	/**
 	 * The speed at which the alient moves horizontally
 	 */
-	private double moveSpeed = 200;
+	private double moveSpeed = 100;
 	/**
 	 * The game context in which the entity exists
 	 */
@@ -23,6 +23,8 @@ public class AlienEntity extends Entity {
 	private static long lastFire = 0;
 	private static final long firingInterval = 1000; // 1 second cooldown for the entire fleet
 
+    private final EngineFireEntity fireEffect;
+
 
 	public AlienEntity(GameContext context, int x, int y, int health, int cycle) {
 		super("sprites/alien.gif", x, y);
@@ -30,6 +32,9 @@ public class AlienEntity extends Entity {
 		this.context = context;
 		dx = 0;
 		dy = moveSpeed;
+
+        this.fireEffect = new EngineFireEntity(context, this);
+        this.context.addEntity(this.fireEffect);
 	}
 
 	public AlienEntity(GameContext context, int x, int y, int health) {
@@ -72,6 +77,7 @@ public class AlienEntity extends Entity {
 
 		// if we have gone off the bottom of the screen, remove ourselfs
 		if (y > 600) {
+            context.removeEntity(this.fireEffect);
 			context.notifyAlienEscaped(this);
 		}
 
@@ -98,12 +104,22 @@ public class AlienEntity extends Entity {
 			}
 
 			// 총알의 데미지만큼 체력을 감소시키고, 체력이 0 이하가 되면 사망 처리
-			if (!health.decreaseHealth(((ShotEntity) other).getDamage())) {
-				// 외계인 자신을 게임에서 제거
-				context.removeEntity(this);
-				// 외계인이 죽었음을 게임에 알림 (점수 증가, 카운트 감소 등)
-				context.notifyAlienKilled();
-			}
-		}
+			            if (!health.decreaseHealth(((ShotEntity) other).getDamage())) {
+							// Create a scaled, centered explosion
+			                AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
+			                explosion.setScale(0.1);
+			                int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
+			                int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
+			                explosion.setX(centeredX);
+			                explosion.setY(centeredY);
+			                context.addEntity(explosion);
+			
+                            // Remove the fire effect as well
+                            context.removeEntity(this.fireEffect);
+							// 외계인 자신을 게임에서 제거
+							context.removeEntity(this);
+							// 외계인이 죽었음을 게임에 알림 (점수 증가, 카운트 감소 등)
+							context.notifyAlienKilled();
+						}		}
 	}
 }

@@ -141,12 +141,15 @@ public abstract class Entity {
 	        return (int) x;
 	    }
 
-	public void setX(double x) {
-	    this.x = x;
-	}
+	    public void setX(double x) {
+		    this.x = x;
+		}
 	
-	    public int getWidth() {
-	        return width;
+		public void setY(double y) {
+		    this.y = y;
+		}
+	
+		    public int getWidth() {	        return width;
 	    }
 	/**
 	 * Get the y location of this entity

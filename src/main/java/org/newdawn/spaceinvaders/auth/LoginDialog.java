@@ -10,7 +10,7 @@ public class LoginDialog extends JDialog {
     private AuthenticatedUser authenticatedUser = null;
 
     public LoginDialog(Frame owner, AuthManager authManager) {
-        super(owner, "Login", true); // true for modal
+        super(owner, "Login", true); //
 
         authScreen = new AuthScreen();
 
@@ -57,7 +57,7 @@ public class LoginDialog extends JDialog {
 
     public AuthenticatedUser showDialog() {
         setVisible(true);
-        // Because the dialog is modal, this line will only be reached after the dialog is disposed.
+
         return authenticatedUser;
     }
 }

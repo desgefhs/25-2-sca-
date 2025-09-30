@@ -15,6 +15,10 @@ public class ShipEntity extends Entity {
 	private GameContext context;
 	private HpRender hpRender;
 	private static final int COLLISION_DAMAGE = 1;
+
+	private boolean invincible = false;
+    private long invincibilityTimer = 0;
+    private static final long INVINCIBILITY_DURATION = 500; // 0.5 seconds
 	
 	/**
 	 * Create a new entity to represent the players ship
@@ -45,6 +49,14 @@ public class ShipEntity extends Entity {
 	 * @param delta The time that has elapsed since last move (ms)
 	 */
 	public void move(long delta) {
+		// Handle invincibility timer
+        if (invincible) {
+            invincibilityTimer -= delta;
+            if (invincibilityTimer <= 0) {
+                invincible = false;
+            }
+        }
+
 		// apply movement
 		super.move(delta);
 
@@ -65,7 +77,18 @@ public class ShipEntity extends Entity {
 
 	@Override
 	public void draw(Graphics g) {
-		super.draw(g);
+	    boolean shouldDraw = true;
+        if (invincible) {
+            // Blink effect: toggle visibility based on time
+            if ((System.currentTimeMillis() / 100) % 2 == 0) {
+                shouldDraw = false;
+            }
+        }
+
+        if (shouldDraw) {
+            super.draw(g);
+        }
+
 		hpRender.hpRender((Graphics2D) g, this);
 	}
 
@@ -75,24 +98,42 @@ public class ShipEntity extends Entity {
 	 * @param other The entity with which the ship has collided
 	 */
 	public void collidedWith(Entity other) {
+	    // if invincible, ignore all collisions
+        if (invincible) {
+            return;
+        }
+
 		// if its an alien, notify the game that the player
 		// is dead
 		if (other instanceof AlienEntity) {
 			context.removeEntity(other);
 			if(!health.decreaseHealth(COLLISION_DAMAGE)){
 				context.notifyDeath();
-			}
+			} else {
+                invincible = true;
+                invincibilityTimer = INVINCIBILITY_DURATION;
+            }
 		}
 
 		if (other instanceof AlienShotEntity) {
 		    if (!health.decreaseHealth(((AlienShotEntity) other).getDamage())) {
 		        context.notifyDeath();
-		    }
+		    } else {
+                invincible = true;
+                invincibilityTimer = INVINCIBILITY_DURATION;
+            }
 		}
+
+		if (other instanceof MeteorEntity) {
+            context.removeEntity(other);
+            context.notifyDeath();
+        }
 	}
 
 	public void reset() {
 	    health.reset();
+	    invincible = false;
+        invincibilityTimer = 0;
 	    x = Game.GAME_WIDTH / 2;
 	    y = 550;
 	}
