@@ -12,6 +12,7 @@ import org.newdawn.spaceinvaders.player.PlayerStats;
 import org.newdawn.spaceinvaders.shop.ShopManager;
 import org.newdawn.spaceinvaders.shop.Upgrade;
 import org.newdawn.spaceinvaders.view.*;
+import org.newdawn.spaceinvaders.wave.FormationManager;
 
 
 import java.awt.Graphics2D;
@@ -29,6 +30,7 @@ public class GameManager implements GameContext {
     public final GameOverMenu gameOverMenu;
     public final ConfirmDialog confirmDialog;
     public final ShopManager shopManager;
+    public final FormationManager formationManager;
     public final Background background;
     public final Sprite staticBackgroundSprite;
     public ShopMenu shopMenu;
@@ -69,6 +71,7 @@ public class GameManager implements GameContext {
         this.pauseMenu = new PauseMenu();
         this.gameOverMenu = new GameOverMenu();
         this.shopManager = new ShopManager();
+        this.formationManager = new org.newdawn.spaceinvaders.wave.FormationManager();
 
         this.background = new Background("sprites/gamebackground.png");
         this.staticBackgroundSprite = SpriteStore.get().getSprite("sprites/background.jpg");
@@ -238,4 +241,17 @@ public class GameManager implements GameContext {
     public DatabaseManager getDatabaseManager() { return databaseManager; }
     public PlayerData getCurrentPlayer() { return currentPlayer; }
     public GameStateManager getGsm() { return gsm; }
+
+    public void spawnBossNow() {
+        // Clear all entities except the player
+        getEntityManager().getEntities().removeIf(entity -> !(entity instanceof ShipEntity));
+
+        // Spawn the boss
+        int cycle = (wave - 1) / 5;
+        double cycleMultiplier = Math.pow(1.5, cycle);
+        int bossHealth = (int) (50 * cycleMultiplier);
+        Entity boss = new BossEntity(this, Game.GAME_WIDTH / 2, 50, bossHealth, cycle);
+        addEntity(boss);
+        entityManager.setAlienCount(1);
+    }
 }

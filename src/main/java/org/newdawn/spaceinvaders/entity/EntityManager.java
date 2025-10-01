@@ -79,6 +79,27 @@ public class EntityManager {
         }
     }
 
+    public void spawnFormation(org.newdawn.spaceinvaders.wave.Formation formation) {
+        for (SpawnInfo info : formation.getSpawnList()) {
+            Entity newEntity = null;
+            switch (info.entityType) {
+                case ALIEN:
+                    newEntity = new AlienEntity(context, info.x, info.y, 2, 0); // Default health/cycle
+                    break;
+                case THREE_WAY_SHOOTER:
+                    newEntity = new ThreeWayShooter(context, info.x, info.y);
+                    break;
+                // Add cases for other entity types here
+            }
+            if (newEntity != null) {
+                addEntity(newEntity);
+                if (!(newEntity instanceof BombEntity) && !(newEntity instanceof MeteorEntity)) {
+                    alienCount++;
+                }
+            }
+        }
+    }
+
     public void addEntity(Entity entity) {
         addList.add(entity);
     }
@@ -118,6 +139,10 @@ public class EntityManager {
 
     public void decreaseAlienCount() {
         alienCount--;
+    }
+
+    public void setAlienCount(int count) {
+        this.alienCount = count;
     }
 
     /**

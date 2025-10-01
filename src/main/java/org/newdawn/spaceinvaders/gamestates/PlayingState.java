@@ -2,6 +2,7 @@ package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.*;
 import org.newdawn.spaceinvaders.entity.*;
+import org.newdawn.spaceinvaders.wave.Formation;
 
 import java.awt.*;
 
@@ -25,6 +26,9 @@ public class PlayingState implements GameState {
             gameManager.setCurrentState(Type.PAUSED);
             return;
         }
+        if (input.isBpressedAndConsume()) { // B for Boss
+            gameManager.spawnBossNow();
+        }
 
         handlePlayingInput(input);
     }
@@ -47,18 +51,17 @@ public class PlayingState implements GameState {
 
     @Override
     public void render(Graphics2D g) {
-
-        //배경 그리기
+        // Draw Background
         g.setColor(Color.black);
         g.fillRect(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
         gameManager.background.draw(g);
 
-        // 엔티티 그리기
+        // Draw Entities
         for (Entity entity : gameManager.getEntityManager().getEntities()) {
             entity.draw(g);
         }
 
-        // 히트박스 확인용 (H키)
+        // Draw Hitboxes if enabled
         if (gameManager.showHitboxes) {
             g.setColor(Color.RED);
             for (Entity entity : gameManager.getEntityManager().getEntities()) {
@@ -66,12 +69,13 @@ public class PlayingState implements GameState {
             }
         }
 
-        // UI(스코어,웨이브 상태)
+        // Draw UI
         g.setColor(Color.white);
         g.setFont(new Font("Dialog", Font.BOLD, 14));
         g.drawString(String.format("점수: %03d", gameManager.score), 680, 30);
         g.drawString(String.format("Wave: %d", gameManager.wave), 20, 30);
 
+        // Draw Message if any
         if (gameManager.message != null && !gameManager.message.isEmpty()) {
             g.setColor(Color.white);
             g.setFont(new Font("Dialog", Font.BOLD, 20));
@@ -100,27 +104,10 @@ public class PlayingState implements GameState {
         }
     }
 
-    //적 생성
     private void handleSpawning(long delta) {
-        int effectiveWave = ((gameManager.wave - 1) % 5) + 1;
-        if (effectiveWave == 5) { //보스 스테이지
-            if (gameManager.lineCount == 0) {
-                gameManager.getEntityManager().spawnNext(gameManager.wave, gameManager.lineCount);
-                gameManager.lineCount++;
-            }
-        } else { // 일반 스테이지
-            if (gameManager.lineCount < gameManager.LINES_PER_WAVE) {
-                if (System.currentTimeMillis() - gameManager.lastLineSpawnTime > gameManager.lineSpawnInterval) {
-                    gameManager.getEntityManager().spawnNext(gameManager.wave, gameManager.lineCount);
-                    gameManager.lineCount++;
-                    gameManager.lastLineSpawnTime = System.currentTimeMillis();
-                }
-            }
-        }
-
+        // This method now only handles non-wave-based spawning like meteors and bombs.
         long currentTime = System.currentTimeMillis();
 
-        //메테오 생성(임시)
         if (currentTime - gameManager.lastMeteorSpawnTime > gameManager.meteorSpawnInterval) {
             gameManager.lastMeteorSpawnTime = currentTime;
             int quantity = (int) (Math.random() * 2) + 2;
@@ -132,7 +119,6 @@ public class PlayingState implements GameState {
             }
         }
 
-        //폭탄 엔티티 생성(임시)
         if (currentTime - gameManager.lastBombSpawnTime > gameManager.bombSpawnInterval) {
             gameManager.lastBombSpawnTime = currentTime;
             int quantity = (int) (Math.random() * 2) + 2;
@@ -146,7 +132,13 @@ public class PlayingState implements GameState {
     }
 
     @Override
-    public void onEnter() {}
+    public void onEnter() {
+        // When we enter this state (e.g., from the main menu or next wave), spawn a new formation.
+        if (gameManager.getEntityManager().getAlienCount() == 0) {
+            Formation formation = gameManager.formationManager.getRandomFormation();
+            gameManager.getEntityManager().spawnFormation(formation);
+        }
+    }
 
     @Override
     public void onExit() {}
