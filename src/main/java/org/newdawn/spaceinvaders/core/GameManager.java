@@ -210,6 +210,9 @@ public class GameManager implements GameContext {
                         playerShip.setShield(true, defensePet); // Grant initial shield
                         defensePet.resetAbilityCooldown();      // Start cooldown timer
                         break;
+                    case HEAL:
+                        addEntity(new HealPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
+                        break;
                 }
             } catch (IllegalArgumentException e) {
                 System.err.println("Attempted to spawn unknown pet type: " + currentPlayer.getEquippedPet());
@@ -249,7 +252,9 @@ public class GameManager implements GameContext {
                         playerShip.setShield(true, defensePet); // Grant initial shield
                         defensePet.resetAbilityCooldown();      // Start cooldown timer
                         break;
-                    // Add cases for other pet types here in the future
+                    case HEAL:
+                        addEntity(new HealPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
+                        break;
                 }
             } catch (IllegalArgumentException e) {
                 System.err.println("Attempted to spawn unknown pet type: " + currentPlayer.getEquippedPet());
