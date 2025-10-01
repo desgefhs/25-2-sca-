@@ -34,9 +34,11 @@ public class MainMenuState implements GameState {
                 gameManager.startGameplay();
             } else if ("2. 랭킹".equals(selected)) {
                 gameManager.setCurrentState(Type.RANKING);
-            } else if ("4. 상점".equals(selected)) {
+            } else if ("4. 펫".equals(selected)) {
+                gameManager.setCurrentState(Type.PET_MENU);
+            } else if ("5. 상점".equals(selected)) {
                 gameManager.setCurrentState(Type.SHOP);
-            } else if ("5. 설정".equals(selected)){
+            } else if ("6. 설정".equals(selected)){
                 System.exit(0);
             }
         }

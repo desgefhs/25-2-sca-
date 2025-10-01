@@ -5,10 +5,13 @@ import org.newdawn.spaceinvaders.auth.AuthenticatedUser;
 import org.newdawn.spaceinvaders.data.DatabaseManager;
 import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.entity.*;
+import org.newdawn.spaceinvaders.entity.PetType;
 import org.newdawn.spaceinvaders.gamestates.*;
+import org.newdawn.spaceinvaders.gamestates.PetMenuState;
 import org.newdawn.spaceinvaders.graphics.Sprite;
 import org.newdawn.spaceinvaders.graphics.SpriteStore;
 import org.newdawn.spaceinvaders.player.PlayerStats;
+import org.newdawn.spaceinvaders.player.PetStats;
 import org.newdawn.spaceinvaders.shop.ShopManager;
 import org.newdawn.spaceinvaders.shop.Upgrade;
 import org.newdawn.spaceinvaders.view.*;
@@ -37,6 +40,7 @@ public class GameManager implements GameContext {
     public final AuthenticatedUser user;
     public PlayerData currentPlayer;
     public PlayerStats playerStats;
+    public PetStats petStats; // Pet-specific stats
     public String message = "";
     public int score = 0;
     public int wave = 1;
@@ -73,6 +77,7 @@ public class GameManager implements GameContext {
         this.background = new Background("sprites/gamebackground.png");
         this.staticBackgroundSprite = SpriteStore.get().getSprite("sprites/background.jpg");
         this.playerStats = new PlayerStats();
+        this.petStats = new PetStats(); // Initialize pet stats
         this.confirmDialog = new ConfirmDialog("Are you sure you want to exit?");
 
         this.gsm = new GameStateManager();
@@ -102,6 +107,7 @@ public class GameManager implements GameContext {
             case GAME_WON -> new GameOverState(this, true);
             case RANKING -> new RankingState(this);
             case SHOP -> new ShopState(this);
+            case PET_MENU -> new PetMenuState(this);
             case EXIT_CONFIRMATION -> new ExitConfirmationState(this);
             case WAVE_CLEARED -> {
                 startNextWave();
@@ -188,6 +194,23 @@ public class GameManager implements GameContext {
         lastLineSpawnTime = System.currentTimeMillis();
         entityManager.initShip(playerStats);
         getShip().reset();
+
+        // Spawn the equipped pet, if any
+        if (currentPlayer != null && currentPlayer.getEquippedPet() != null) {
+            try {
+                ShipEntity playerShip = getShip();
+                PetType petType = PetType.valueOf(currentPlayer.getEquippedPet());
+                switch (petType) {
+                    case ATTACK:
+                        addEntity(new AttackPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
+                        break;
+                    // Add cases for other pet types here in the future
+                }
+            } catch (IllegalArgumentException e) {
+                System.err.println("Attempted to spawn unknown pet type: " + currentPlayer.getEquippedPet());
+            }
+        }
+
         message = "";
         setCurrentState(GameState.Type.PLAYING);
 
@@ -205,6 +228,23 @@ public class GameManager implements GameContext {
         lastLineSpawnTime = System.currentTimeMillis();
         message = "Wave " + wave;
         entityManager.initShip(playerStats);
+
+        // Spawn the equipped pet, if any
+        if (currentPlayer != null && currentPlayer.getEquippedPet() != null) {
+            try {
+                ShipEntity playerShip = getShip();
+                PetType petType = PetType.valueOf(currentPlayer.getEquippedPet());
+                switch (petType) {
+                    case ATTACK:
+                        addEntity(new AttackPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
+                        break;
+                    // Add cases for other pet types here in the future
+                }
+            } catch (IllegalArgumentException e) {
+                System.err.println("Attempted to spawn unknown pet type: " + currentPlayer.getEquippedPet());
+            }
+        }
+
         setCurrentState(GameState.Type.PLAYING);
     }
 

@@ -17,6 +17,7 @@ public interface GameState {
         GAME_WON,
         RANKING,
         SHOP,
+        PET_MENU,
         EXIT_CONFIRMATION,
         WAVE_CLEARED // This is a transient state
     }
