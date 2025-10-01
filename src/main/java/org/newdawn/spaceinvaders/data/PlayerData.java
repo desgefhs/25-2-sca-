@@ -61,7 +61,7 @@ public class PlayerData {
     }
 
     // Pet-related data
-    private java.util.List<String> ownedPets = new java.util.ArrayList<>();
+    private java.util.List<String> ownedPets = new java.util.ArrayList<>(java.util.Arrays.asList("ATTACK", "DEFENSE"));
     private String equippedPet;
 
     public java.util.List<String> getOwnedPets() {

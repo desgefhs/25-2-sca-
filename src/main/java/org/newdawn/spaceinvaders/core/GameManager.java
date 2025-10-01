@@ -204,7 +204,12 @@ public class GameManager implements GameContext {
                     case ATTACK:
                         addEntity(new AttackPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
                         break;
-                    // Add cases for other pet types here in the future
+                    case DEFENSE:
+                        DefensePetEntity defensePet = new DefensePetEntity(this, playerShip, playerShip.getX(), playerShip.getY());
+                        addEntity(defensePet);
+                        playerShip.setShield(true, defensePet); // Grant initial shield
+                        defensePet.resetAbilityCooldown();      // Start cooldown timer
+                        break;
                 }
             } catch (IllegalArgumentException e) {
                 System.err.println("Attempted to spawn unknown pet type: " + currentPlayer.getEquippedPet());
@@ -237,6 +242,12 @@ public class GameManager implements GameContext {
                 switch (petType) {
                     case ATTACK:
                         addEntity(new AttackPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
+                        break;
+                    case DEFENSE:
+                        DefensePetEntity defensePet = new DefensePetEntity(this, playerShip, playerShip.getX(), playerShip.getY());
+                        addEntity(defensePet);
+                        playerShip.setShield(true, defensePet); // Grant initial shield
+                        defensePet.resetAbilityCooldown();      // Start cooldown timer
                         break;
                     // Add cases for other pet types here in the future
                 }
