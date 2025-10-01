@@ -12,7 +12,7 @@ public class ThreeWayShooter extends Entity {
     private final EngineFireEntity fireEffect;
 
     public ThreeWayShooter(GameContext context, int x, int y) {
-        super("sprites/ThreeWayShooter.gif", x, y);
+        super("sprites/enemy/ThreeWayShooter.gif", x, y);
         this.context = context;
         this.health = new HealthComponent(5); // Example health
         dy = moveSpeed;
@@ -27,21 +27,23 @@ public class ThreeWayShooter extends Entity {
         }
         lastFire = System.currentTimeMillis();
 
-        double shotMoveSpeed = 250;
+        ProjectileType type = ProjectileType.NORMAL_SHOT;
+        int damage = 1;
+        double shotMoveSpeed = type.moveSpeed;
         double angle = Math.toRadians(30);
 
         // Center shot (0 degrees)
-        context.addEntity(new ThreeWayShotEntity(context, getX() + (width/2), getY() + height, 0, shotMoveSpeed));
+        context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, 0, shotMoveSpeed));
 
         // Left shot (-30 degrees)
         double dxLeft = -Math.sin(angle) * shotMoveSpeed;
         double dyLeft = Math.cos(angle) * shotMoveSpeed;
-        context.addEntity(new ThreeWayShotEntity(context, getX() + (width/2), getY() + height, dxLeft, dyLeft));
+        context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, dxLeft, dyLeft));
 
         // Right shot (+30 degrees)
         double dxRight = Math.sin(angle) * shotMoveSpeed;
         double dyRight = Math.cos(angle) * shotMoveSpeed;
-        context.addEntity(new ThreeWayShotEntity(context, getX() + (width/2), getY() + height, dxRight, dyRight));
+        context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, dxRight, dyRight));
     }
 
     @Override
@@ -52,35 +54,39 @@ public class ThreeWayShooter extends Entity {
 
         // if we have gone off the bottom of the screen, remove ourselves
         if (y > 600) {
-            context.removeEntity(this.fireEffect);
             context.removeEntity(this);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        // When this entity is destroyed, also remove its fire effect
+        if (fireEffect != null) {
+            context.removeEntity(fireEffect);
         }
     }
 
     @Override
     public void collidedWith(Entity other) {
         // if it's a shot from the player, take damage
-        if (other instanceof ShotEntity) {
-            if (!health.isAlive()) {
-                return;
-            }
+        if (other instanceof ProjectileEntity) {
+            ProjectileEntity shot = (ProjectileEntity) other;
+            if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
+                if (health.isAlive()) {
+                    if (!health.decreaseHealth(shot.getDamage())) {
+                        // Create, scale, and position the explosion to be centered on the shooter
+                        AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
+                        explosion.setScale(0.1);
+                        int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
+                        int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
+                        explosion.setX(centeredX);
+                        explosion.setY(centeredY);
+                        context.addEntity(explosion);
 
-            if (!health.decreaseHealth(((ShotEntity) other).getDamage())) {
-                // Create, scale, and position the explosion to be centered on the shooter
-                AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
-                explosion.setScale(0.1);
-                int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
-                int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
-                explosion.setX(centeredX);
-                explosion.setY(centeredY);
-                context.addEntity(explosion);
-
-                // Remove the fire effect as well
-                context.removeEntity(this.fireEffect);
-                // Remove the shooter from the game
-                context.removeEntity(this);
-                // This new alien type doesn't count towards the main alien count for wave progression
-                // but we could add a new notification if we wanted (e.g. notifySpecialAlienKilled)
+                        // Remove the shooter from the game
+                        context.removeEntity(this);
+                    }
+                }
             }
         }
     }

@@ -20,6 +20,7 @@ public class BombEntity extends Entity {
         this.health = new HealthComponent(3); // 체력 3으로 설정
         this.wave = wave;
         dy = moveSpeed;
+        setScale(2);
     }
 
     @Override
@@ -39,21 +40,24 @@ public class BombEntity extends Entity {
 
     @Override
     public void collidedWith(Entity other) {
-        if (other instanceof ShotEntity) {
-            if (!health.isAlive()) {
-                return;
-            }
-            // 총알 데미지만큼 체력 감소
-            if (!health.decreaseHealth(((ShotEntity) other).getDamage())) {
-                explode(); // 체력이 0이 되면 폭발
-                context.removeEntity(this);
+        if (other instanceof ProjectileEntity) {
+            ProjectileEntity shot = (ProjectileEntity) other;
+            if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
+                if (health.isAlive()) {
+                    // 총알 데미지만큼 체력 감소
+                    if (!health.decreaseHealth(shot.getDamage())) {
+                        explode(); // 체력이 0이 되면 폭발
+                        context.removeEntity(this);
+                    }
+                }
             }
         }
     }
 
     private void explode() {
         List<Entity> entities = context.getEntities();
-        int explosionRadius = 150;
+        // 폭발 범위
+        int explosionRadius = 100;
         int explosionDamage = 1 + (this.wave / 5); // 웨이브 기반 데미지 계산
 
         for (Entity entity : entities) {

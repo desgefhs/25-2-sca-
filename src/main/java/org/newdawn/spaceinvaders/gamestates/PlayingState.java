@@ -91,24 +91,12 @@ public class PlayingState implements GameState {
         if (input.isUpPressed() && !input.isDownPressed()) ship.setVerticalMovement(-gameManager.moveSpeed);
         if (input.isDownPressed() && !input.isUpPressed()) ship.setVerticalMovement(gameManager.moveSpeed);
 
-        if (input.isFirePressed()) tryToFire();
+        if (input.isFirePressed()) ship.tryToFire();
 
         if (input.isKPressedAndConsume()) {
             int targetWave = ((gameManager.wave / 5) * 5) + 5;
             gameManager.setWave(targetWave);
             gameManager.startNextWave();
-        }
-    }
-
-    private void tryToFire() {
-        if (System.currentTimeMillis() - gameManager.lastFire < gameManager.playerStats.getFiringInterval()) return;
-        gameManager.lastFire = System.currentTimeMillis();
-        ShipEntity ship = gameManager.getShip();
-
-        for (int i=0; i < gameManager.playerStats.getProjectileCount(); i++) {
-            int xOffset = (i - gameManager.playerStats.getProjectileCount() / 2) * 15;
-            ShotEntity shot = new ShotEntity(gameManager, "sprites/shot.gif", ship.getX() + 10 + xOffset, ship.getY() - 30, gameManager.playerStats.getBulletDamage());
-            gameManager.addEntity(shot);
         }
     }
 
@@ -149,7 +137,7 @@ public class PlayingState implements GameState {
             gameManager.lastBombSpawnTime = currentTime;
             int quantity = (int) (Math.random() * 2) + 2;
             for (int i = 0; i < quantity; i++) {
-                BombEntity bomb = new BombEntity(gameManager, "sprites/bomb.gif", 0, -50, 100, gameManager.wave);
+                BombEntity bomb = new BombEntity(gameManager, "sprites/enemy/bomb.gif", 0, -50, 100, gameManager.wave);
                 int x = (int) (Math.random() * (Game.GAME_WIDTH - bomb.getWidth()));
                 bomb.setX(x);
                 gameManager.addEntity(bomb);

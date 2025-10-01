@@ -55,24 +55,25 @@ public class BossEntity extends Entity {
         }
         lastFire = System.currentTimeMillis();
 
-        // Fire a spread of 3 shots
-        AlienShotEntity shot1 = new AlienShotEntity(context, "sprites/alien_shot.gif", getX() + 20, getY() + 50, SHOT_DAMAGE);
-        AlienShotEntity shot2 = new AlienShotEntity(context, "sprites/alien_shot.gif", getX() + 50, getY() + 50, SHOT_DAMAGE);
-        AlienShotEntity shot3 = new AlienShotEntity(context, "sprites/alien_shot.gif", getX() + 80, getY() + 50, SHOT_DAMAGE);
+        ProjectileType type = ProjectileType.FOLLOWING_SHOT;
+        int damage = 2;
 
-        context.addEntity(shot1);
-        context.addEntity(shot2);
-        context.addEntity(shot3);
+        // Fire a spread of 3 shots
+        context.addEntity(new ProjectileEntity(context, type, damage, getX() + 20, getY() + 50));
+        context.addEntity(new ProjectileEntity(context, type, damage, getX() + 50, getY() + 50));
+        context.addEntity(new ProjectileEntity(context, type, damage, getX() + 80, getY() + 50));
     }
 
     public void collidedWith(Entity other) {
-        if (other instanceof ShotEntity) {
-            if (!health.isAlive()) {
-                return;
-            }
-            if (!health.decreaseHealth(((ShotEntity) other).getDamage())) {
-                context.removeEntity(this);
-                context.notifyAlienKilled(); // Notify for score and wave progression
+        if (other instanceof ProjectileEntity) {
+            ProjectileEntity shot = (ProjectileEntity) other;
+            if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
+                if (health.isAlive()) {
+                    if (!health.decreaseHealth(shot.getDamage())) {
+                        context.removeEntity(this);
+                        context.notifyAlienKilled(); // Notify for score and wave progression
+                    }
+                }
             }
         }
     }

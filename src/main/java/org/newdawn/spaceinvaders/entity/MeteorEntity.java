@@ -26,12 +26,8 @@ public class MeteorEntity extends Entity {
 
     @Override
     public void collidedWith(Entity other) {
-        // Collision with the ship is now handled by ShipEntity to respect invincibility frames.
-
-        // If it collides with a shot, do nothing to the meteor.
-        // The shot will destroy itself because the meteor has a health component.
-        if (other instanceof ShotEntity) {
-            return;
+        if (other instanceof ShipEntity) {
+            context.notifyDeath();
         }
     }
 

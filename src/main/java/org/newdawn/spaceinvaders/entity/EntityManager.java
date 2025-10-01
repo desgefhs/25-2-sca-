@@ -91,6 +91,13 @@ public class EntityManager {
      * 이번 프레임에서 제거하기로 표시된 모든 엔티티를 실제로 제거합니다.
      */
     public void cleanup() {
+        // Create a copy to iterate over, to avoid ConcurrentModificationException
+        List<Entity> toDestroy = new ArrayList<>(removeList);
+        for (Entity entity : toDestroy) {
+            entity.onDestroy();
+        }
+
+        // Now the removeList may contain children (like fire effects), remove them all
         entities.removeAll(removeList);
         entities.addAll(addList);
         removeList.clear();

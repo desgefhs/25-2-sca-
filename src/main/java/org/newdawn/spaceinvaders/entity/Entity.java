@@ -180,5 +180,11 @@ public abstract class Entity {
 	 * 
 	 * @param other The entity with which this entity collided.
 	 */
-	public abstract void collidedWith(Entity other);
-}
+	    public abstract void collidedWith(Entity other);
+	
+	    /**
+	     * Notification that this entity is about to be removed from the game.
+	     * Subclasses can override this to perform cleanup.
+	     */
+	    public void onDestroy() {
+	    }}

@@ -27,7 +27,7 @@ public class AlienEntity extends Entity {
 
 
 	public AlienEntity(GameContext context, int x, int y, int health, int cycle) {
-		super("sprites/alien.gif", x, y);
+		super("sprites/enemy/alien.gif", x, y);
 		this.health = new HealthComponent(health);
 		this.context = context;
 		dx = 0;
@@ -57,11 +57,11 @@ public class AlienEntity extends Entity {
 			return;
 		}
 
-		// if (Math.random() < 0.01) { // Add randomness if desired
-			lastFire = System.currentTimeMillis();
-			AlienShotEntity shot = new AlienShotEntity(context, "sprites/alien_shot.gif", getX() + 10, getY() + 30, SHOT_DAMAGE);
-			context.addEntity(shot);
-		// }
+		lastFire = System.currentTimeMillis();
+        ProjectileType type = ProjectileType.FOLLOWING_SHOT;
+        int damage = 1; // Or get from somewhere else
+        ProjectileEntity shot = new ProjectileEntity(context, type, damage, getX() + 10, getY() + 30);
+        context.addEntity(shot);
 	}
 
 	/**
@@ -75,9 +75,9 @@ public class AlienEntity extends Entity {
 			tryToFire();
 		}
 
+
 		// if we have gone off the bottom of the screen, remove ourselfs
 		if (y > 600) {
-            context.removeEntity(this.fireEffect);
 			context.notifyAlienEscaped(this);
 		}
 
@@ -85,41 +85,41 @@ public class AlienEntity extends Entity {
 		super.move(delta);
 	}
 
+    @Override
+    public void onDestroy() {
+        // When this alien is destroyed, also remove its fire effect
+        if (fireEffect != null) {
+            context.removeEntity(fireEffect);
+        }
+    }
+
 	/**
 	 * Notification that this alien has collided with another entity
 	 *
 	 * @param other The other entity
 	 */
 	public void collidedWith(Entity other) {
-		// 우주선과 충돌한 경우 아무것도 하지 않는다 (우주선 쪽에서만 충돌을 처리).
-		if (other instanceof ShipEntity) {
-			return;
-		}
+		// if it's a shot from the player, take damage
+		if (other instanceof ProjectileEntity) {
+            ProjectileEntity shot = (ProjectileEntity) other;
+            if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
+                if (health.isAlive()) {
+                    if (!health.decreaseHealth(shot.getDamage())) {
+                        // Create a scaled, centered explosion
+                        AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
+                        explosion.setScale(0.1);
+                        int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
+                        int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
+                        explosion.setX(centeredX);
+                        explosion.setY(centeredY);
+                        context.addEntity(explosion);
 
-		// 총알과 충돌한 경우
-		if (other instanceof ShotEntity) {
-			// 이미 체력이 0 이하라면 아무것도 하지 않음
-			if (!health.isAlive()) {
-				return;
-			}
-
-			// 총알의 데미지만큼 체력을 감소시키고, 체력이 0 이하가 되면 사망 처리
-			            if (!health.decreaseHealth(((ShotEntity) other).getDamage())) {
-							// Create a scaled, centered explosion
-			                AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
-			                explosion.setScale(0.1);
-			                int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
-			                int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
-			                explosion.setX(centeredX);
-			                explosion.setY(centeredY);
-			                context.addEntity(explosion);
-			
-                            // Remove the fire effect as well
-                            context.removeEntity(this.fireEffect);
-							// 외계인 자신을 게임에서 제거
-							context.removeEntity(this);
-							// 외계인이 죽었음을 게임에 알림 (점수 증가, 카운트 감소 등)
-							context.notifyAlienKilled();
-						}		}
+                        // Remove self and notify game
+                        context.removeEntity(this);
+                        context.notifyAlienKilled();
+                    }
+                }
+            }
+        }
 	}
 }
