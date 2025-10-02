@@ -30,4 +30,10 @@ public interface GameContext {
     java.util.List<Entity> getEntities();
 
     ShipEntity getShip();
+
+    void notifyItemCollected();
+
+    boolean hasCollectedAllItems();
+
+    void resetItemCollection();
 }

@@ -47,6 +47,7 @@ public class GameManager implements GameContext {
     public boolean showHitboxes = false;
     public long lastFire = 0;
     public int lineCount = 0;
+    public int collectedItems = 0;
     public long lastLineSpawnTime = 0;
     public long lastMeteorSpawnTime = 0;
     public long lastBombSpawnTime = 0;
@@ -232,6 +233,10 @@ public class GameManager implements GameContext {
     // 다음 웨이브로 전환
      public void startNextWave() {
         wave++;
+        if (wave > 25) {
+            notifyWin();
+            return;
+        }
         lineCount = 0;
         lastLineSpawnTime = System.currentTimeMillis();
         message = "Wave " + wave;
@@ -305,4 +310,16 @@ public class GameManager implements GameContext {
     public DatabaseManager getDatabaseManager() { return databaseManager; }
     public PlayerData getCurrentPlayer() { return currentPlayer; }
     public GameStateManager getGsm() { return gsm; }
+
+    public void notifyItemCollected() {
+        collectedItems++;
+    }
+
+    public boolean hasCollectedAllItems() {
+        return collectedItems >= 2;
+    }
+
+    public void resetItemCollection() {
+        collectedItems = 0;
+    }
 }
