@@ -22,6 +22,7 @@ public class ShipEntity extends Entity {
     private boolean isBuffActive = false;
     private long buffTimer = 0;
     private static final long BUFF_DURATION = 3000; // 3 seconds
+    private int buffLevel = 0;
     private Runnable onBuffEnd = null;
 
     private long lastFire = 0;
@@ -73,8 +74,9 @@ public class ShipEntity extends Entity {
 
         // Apply buff if active
         if (isBuffActive) {
-            firingInterval *= 0.8; // 20% faster fire rate
-            bulletDamage *= 1.2;   // 20% more damage
+            double buffMultiplier = 1.20 + (buffLevel * 0.01);
+            firingInterval /= buffMultiplier; // Faster fire rate
+            bulletDamage *= buffMultiplier;   // More damage
         }
 
         // check that we have waiting long enough to fire
@@ -206,8 +208,9 @@ public class ShipEntity extends Entity {
 	                this.onShieldBreak = onBreak;
 	            }
 	        
-	            public void activateBuff(Runnable onEnd) {
+	            public void activateBuff(int level, Runnable onEnd) {
 	                this.isBuffActive = true;
 	                this.buffTimer = BUFF_DURATION;
+	                this.buffLevel = level;
 	                this.onBuffEnd = onEnd;
 	            }}
