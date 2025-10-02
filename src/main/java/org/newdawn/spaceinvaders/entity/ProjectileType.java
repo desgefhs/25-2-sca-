@@ -4,7 +4,6 @@ package org.newdawn.spaceinvaders.entity;
 public enum ProjectileType {
     // 타입(이미지 경로, 이동속도, 유도시간, 타겟 종류 )
     PLAYER_SHOT("sprites/shot/shot.gif", 300, 0, TargetType.ENEMY),
-    PET_SHOT("sprites/shot/Red_Razer.gif", 300, 0, TargetType.ENEMY), // For pet attacks
     NORMAL_SHOT("sprites/shot/nomalshot.gif", 250, 0, TargetType.PLAYER),
     FAST_NORMAL_SHOT("sprites/shot/fast_nomalshot.gif", 400, 0, TargetType.PLAYER),
     FOLLOWING_SHOT("sprites/shot/followingshot.gif", 150, 500, TargetType.PLAYER),

@@ -35,6 +35,8 @@ public class DatabaseManager {
         updates.put("highScore", playerData.getHighScore());
         updates.put("credit", playerData.getCredit());
         updates.put("upgradeLevels", playerData.getUpgradeLevels());
+        updates.put("petInventory", playerData.getPetInventory());
+        updates.put("petLevels", playerData.getPetLevels()); // Save pet levels
 
         ApiFuture<WriteResult> result = docRef.update(updates);
         try {

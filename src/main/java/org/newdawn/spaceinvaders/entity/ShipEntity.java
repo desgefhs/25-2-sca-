@@ -17,7 +17,12 @@ public class ShipEntity extends Entity {
     private static final long INVINCIBILITY_DURATION = 500; // 0.5 seconds
 
     private boolean hasShield = false;
-    private PetEntity shieldProvider = null;
+    private Runnable onShieldBreak = null;
+
+    private boolean isBuffActive = false;
+    private long buffTimer = 0;
+    private static final long BUFF_DURATION = 3000; // 3 seconds
+    private Runnable onBuffEnd = null;
 
     private long lastFire = 0;
 	
@@ -33,16 +38,24 @@ public class ShipEntity extends Entity {
 	    this.hpRender = new HpRender(health.getHp());
 	}
 	
-	public void move(long delta) {
-        if (invincible) {
-            invincibilityTimer -= delta;
-            if (invincibilityTimer <= 0) {
-                invincible = false;
-            }
-        }
-
-		super.move(delta);
-
+	    public void move(long delta) {
+	        if (invincible) {
+	            invincibilityTimer -= delta;
+	            if (invincibilityTimer <= 0) {
+	                invincible = false;
+	            }
+	        }
+	
+	                if (isBuffActive) {
+	                    buffTimer -= delta;
+	                    if (buffTimer <= 0) {
+	                        isBuffActive = false;
+	                        if (onBuffEnd != null) {
+	                            onBuffEnd.run();
+	                        }
+	                    }
+	                }	
+			super.move(delta);
 		if (x < 0) { x = 0; }
 		if (x > Game.GAME_WIDTH - width) { x = Game.GAME_WIDTH - width; }
 		if (y < 0) { y = 0; }
@@ -53,18 +66,30 @@ public class ShipEntity extends Entity {
         GameManager gm = (GameManager) context;
         PlayerStats stats = gm.playerStats;
 
-        if (System.currentTimeMillis() - lastFire < stats.getFiringInterval()) {
+        // Base stats
+        long firingInterval = stats.getFiringInterval();
+        int bulletDamage = stats.getBulletDamage();
+        int projectileCount = stats.getProjectileCount();
+
+        // Apply buff if active
+        if (isBuffActive) {
+            firingInterval *= 0.8; // 20% faster fire rate
+            bulletDamage *= 1.2;   // 20% more damage
+        }
+
+        // check that we have waiting long enough to fire
+        if (System.currentTimeMillis() - lastFire < firingInterval) {
             return;
         }
-        lastFire = System.currentTimeMillis();
 
+        // if we waited long enough, create the shot(s)
+        lastFire = System.currentTimeMillis();
         ProjectileType type = ProjectileType.PLAYER_SHOT;
-        int damage = stats.getBulletDamage();
         double moveSpeed = type.moveSpeed;
 
-        for (int i=0; i < stats.getProjectileCount(); i++) {
-            int xOffset = (i - stats.getProjectileCount() / 2) * 15;
-            ProjectileEntity shot = new ProjectileEntity(context, type, damage, getX() + 10 + xOffset, getY() - 30, 0, -moveSpeed);
+        for (int i=0; i < projectileCount; i++) {
+            int xOffset = (i - projectileCount / 2) * 15;
+            ProjectileEntity shot = new ProjectileEntity(context, type, bulletDamage, getX() + 10 + xOffset, getY() - 30, 0, -moveSpeed);
 			setScale(1);
             context.addEntity(shot);
         }
@@ -72,11 +97,18 @@ public class ShipEntity extends Entity {
 
 	@Override
 	public void draw(Graphics g) {
+        int effectSize = Math.max(width, height) + 10;
+
         // Draw shield visual if active
         if (hasShield) {
             g.setColor(new Color(100, 100, 255, 70)); // Semi-transparent blue
-            int shieldSize = Math.max(width, height) + 10;
-            g.fillOval((int) x - (shieldSize - width) / 2, (int) y - (shieldSize - height) / 2, shieldSize, shieldSize);
+            g.fillOval((int) x - (effectSize - width) / 2, (int) y - (effectSize - height) / 2, effectSize, effectSize);
+        }
+
+        // Draw buff visual if active
+        if (isBuffActive) {
+            g.setColor(new Color(255, 100, 100, 70)); // Semi-transparent red
+            g.fillOval((int) x - (effectSize - width) / 2, (int) y - (effectSize - height) / 2, effectSize, effectSize);
         }
 
 	    boolean shouldDraw = true;
@@ -106,10 +138,13 @@ public class ShipEntity extends Entity {
 	    if (other instanceof AlienEntity || other instanceof ProjectileEntity || other instanceof MeteorEntity) {
             // if the shield is active, absorb the hit
             if (hasShield) {
-                setShield(false, null);
-                if (shieldProvider != null) {
-                    shieldProvider.resetAbilityCooldown();
+                // Reset cooldown on the provider FIRST, by running the callback.
+                if (onShieldBreak != null) {
+                    onShieldBreak.run();
                 }
+                // Now deactivate the shield.
+                setShield(false, null);
+
                 // if the colliding entity is not a meteor, remove it
                 if (!(other instanceof MeteorEntity)) {
                     context.removeEntity(other);
@@ -150,20 +185,29 @@ public class ShipEntity extends Entity {
         }
 	}
 
-	        public void reset() {
-	    	    health.reset();
-	    	    invincible = false;
-	            invincibilityTimer = 0;
-	            setShield(false, null); // Also reset shield on reset
-	    	    x = Game.GAME_WIDTH / 2;
-	    	    y = 550;
-	    	}
-	    
-	    	public boolean hasShield() {
-	            return hasShield;
-	        }
-	    
-	        public void setShield(boolean hasShield, PetEntity provider) {
-	            this.hasShield = hasShield;
-	            this.shieldProvider = provider;
-	        }	}
+	            public void reset() {
+	        	    health.reset();
+	        	    invincible = false;
+	                invincibilityTimer = 0;
+	                setShield(false, null); // Also reset shield on reset
+	                isBuffActive = false; // Also reset buff
+	                buffTimer = 0;
+	                onBuffEnd = null;
+	        	    x = Game.GAME_WIDTH / 2;
+	        	    y = 550;
+	        	}
+	        
+	        	public boolean hasShield() {
+	                return hasShield;
+	            }
+	        
+	            public void setShield(boolean hasShield, Runnable onBreak) {
+	                this.hasShield = hasShield;
+	                this.onShieldBreak = onBreak;
+	            }
+	        
+	            public void activateBuff(Runnable onEnd) {
+	                this.isBuffActive = true;
+	                this.buffTimer = BUFF_DURATION;
+	                this.onBuffEnd = onEnd;
+	            }}

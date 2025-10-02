@@ -60,17 +60,36 @@ public class PlayerData {
         upgradeLevels.put(upgradeId, level);
     }
 
-    // Pet-related data
-    private java.util.List<String> ownedPets = new java.util.ArrayList<>(java.util.Arrays.asList("ATTACK", "DEFENSE", "HEAL"));
+    private Map<String, Integer> petLevels = new HashMap<>();
+
+    public Map<String, Integer> getPetLevels() {
+        return petLevels;
+    }
+
+    public void setPetLevels(Map<String, Integer> petLevels) {
+        this.petLevels = petLevels;
+    }
+
+    public int getPetLevel(String petType) {
+        return petLevels.getOrDefault(petType, 0);
+    }
+
+    public void increasePetLevel(String petType) {
+        petLevels.put(petType, getPetLevel(petType) + 1);
+    }
+
+    // Pet-related data: Map<PetTypeString, Count>
+    private Map<String, Integer> petInventory = new HashMap<>();
+
+    public Map<String, Integer> getPetInventory() {
+        return petInventory;
+    }
+
+    public void setPetInventory(Map<String, Integer> petInventory) {
+        this.petInventory = petInventory;
+    }
+
     private String equippedPet;
-
-    public java.util.List<String> getOwnedPets() {
-        return ownedPets;
-    }
-
-    public void setOwnedPets(java.util.List<String> ownedPets) {
-        this.ownedPets = ownedPets;
-    }
 
     public String getEquippedPet() {
         return equippedPet;

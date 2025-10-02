@@ -11,7 +11,6 @@ import org.newdawn.spaceinvaders.gamestates.PetMenuState;
 import org.newdawn.spaceinvaders.graphics.Sprite;
 import org.newdawn.spaceinvaders.graphics.SpriteStore;
 import org.newdawn.spaceinvaders.player.PlayerStats;
-import org.newdawn.spaceinvaders.player.PetStats;
 import org.newdawn.spaceinvaders.shop.ShopManager;
 import org.newdawn.spaceinvaders.shop.Upgrade;
 import org.newdawn.spaceinvaders.view.*;
@@ -40,7 +39,6 @@ public class GameManager implements GameContext {
     public final AuthenticatedUser user;
     public PlayerData currentPlayer;
     public PlayerStats playerStats;
-    public PetStats petStats; // Pet-specific stats
     public String message = "";
     public int score = 0;
     public int wave = 1;
@@ -77,7 +75,6 @@ public class GameManager implements GameContext {
         this.background = new Background("sprites/gamebackground.png");
         this.staticBackgroundSprite = SpriteStore.get().getSprite("sprites/background.jpg");
         this.playerStats = new PlayerStats();
-        this.petStats = new PetStats(); // Initialize pet stats
         this.confirmDialog = new ConfirmDialog("Are you sure you want to exit?");
 
         this.gsm = new GameStateManager();
@@ -207,11 +204,14 @@ public class GameManager implements GameContext {
                     case DEFENSE:
                         DefensePetEntity defensePet = new DefensePetEntity(this, playerShip, playerShip.getX(), playerShip.getY());
                         addEntity(defensePet);
-                        playerShip.setShield(true, defensePet); // Grant initial shield
+                        playerShip.setShield(true, defensePet::resetAbilityCooldown); // Grant initial shield
                         defensePet.resetAbilityCooldown();      // Start cooldown timer
                         break;
                     case HEAL:
                         addEntity(new HealPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
+                        break;
+                    case BUFF:
+                        addEntity(new BuffPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
                         break;
                 }
             } catch (IllegalArgumentException e) {
@@ -249,11 +249,14 @@ public class GameManager implements GameContext {
                     case DEFENSE:
                         DefensePetEntity defensePet = new DefensePetEntity(this, playerShip, playerShip.getX(), playerShip.getY());
                         addEntity(defensePet);
-                        playerShip.setShield(true, defensePet); // Grant initial shield
+                        playerShip.setShield(true, defensePet::resetAbilityCooldown); // Grant initial shield
                         defensePet.resetAbilityCooldown();      // Start cooldown timer
                         break;
                     case HEAL:
                         addEntity(new HealPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
+                        break;
+                    case BUFF:
+                        addEntity(new BuffPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
                         break;
                 }
             } catch (IllegalArgumentException e) {
@@ -285,6 +288,14 @@ public class GameManager implements GameContext {
         if (user == null || currentPlayer == null) return;
         currentPlayer.setCredit(currentPlayer.getCredit() + score);
         currentPlayer.setHighScore(Math.max(currentPlayer.getHighScore(), score));
+        savePlayerData(); // Use the new centralized save method
+    }
+
+    /**
+     * Saves the current state of the player data to the database.
+     */
+    public void savePlayerData() {
+        if (user == null || currentPlayer == null) return;
         databaseManager.updatePlayerData(user.getLocalId(), currentPlayer);
     }
 
