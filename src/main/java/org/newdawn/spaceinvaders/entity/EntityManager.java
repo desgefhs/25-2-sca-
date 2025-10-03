@@ -80,11 +80,17 @@ public class EntityManager {
     }
 
     public void spawnFormation(org.newdawn.spaceinvaders.wave.Formation formation) {
+        boolean upgradeThisFormation = ("V-Shape".equals(formation.getName()));
+
         for (SpawnInfo info : formation.getSpawnList()) {
             Entity newEntity = null;
             switch (info.entityType) {
                 case ALIEN:
-                    newEntity = new AlienEntity(context, info.x, info.y, 2, 0); // Default health/cycle
+                    AlienEntity alien = new AlienEntity(context, info.x, info.y, 2, 0);
+                    if (upgradeThisFormation) {
+                        alien.upgrade();
+                    }
+                    newEntity = alien;
                     break;
                 case THREE_WAY_SHOOTER:
                     newEntity = new ThreeWayShooter(context, info.x, info.y);
