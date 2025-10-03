@@ -133,11 +133,7 @@ public class PlayingState implements GameState {
 
     @Override
     public void onEnter() {
-        // When we enter this state (e.g., from the main menu or next wave), spawn a new formation.
-        if (gameManager.getEntityManager().getAlienCount() == 0) {
-            Formation formation = gameManager.formationManager.getRandomFormation();
-            gameManager.getEntityManager().spawnFormation(formation);
-        }
+        // Wave spawning logic has been moved to GameManager.startNextWave()
     }
 
     @Override

@@ -234,7 +234,7 @@ public class GameManager implements GameContext {
     }
 
     // 다음 웨이브로 전환
-     public void startNextWave() {
+    public void startNextWave() {
         wave++;
         if (wave > 25) {
             notifyWin();
@@ -244,6 +244,15 @@ public class GameManager implements GameContext {
         lastLineSpawnTime = System.currentTimeMillis();
         message = "Wave " + wave;
         entityManager.initShip(playerStats);
+
+        // 웨이브가 5의 배수이면 보스 생성
+        if (wave % 5 == 0) {
+            spawnBossNow();
+        } else {
+            // 일반 웨이브 포메이션 생성
+            org.newdawn.spaceinvaders.wave.Formation formation = formationManager.getRandomFormation();
+            entityManager.spawnFormation(formation);
+        }
 
         // Spawn the equipped pet, if any
         if (currentPlayer != null && currentPlayer.getEquippedPet() != null) {
@@ -335,7 +344,7 @@ public class GameManager implements GameContext {
         int cycle = (wave - 1) / 5;
         double cycleMultiplier = Math.pow(1.5, cycle);
         int bossHealth = (int) (50 * cycleMultiplier);
-        Entity boss = new BossEntity(this, Game.GAME_WIDTH / 2, 50, bossHealth, cycle);
+        Entity boss = new BossEntity(this, Game.GAME_WIDTH / 2, 50, bossHealth, cycle, wave);
         addEntity(boss);
         entityManager.setAlienCount(1);
     }
