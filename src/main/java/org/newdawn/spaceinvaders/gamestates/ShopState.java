@@ -22,60 +22,84 @@ public class ShopState implements GameState {
     @Override
     public void init() {}
 
-    @Override
-    public void handleInput(InputHandler input) {
-        int totalItems = upgrades.size() + 1; // +1 for the pet draw
-
-        if (input.isUpPressedAndConsume()) {
-            selectedIndex--;
-            if (selectedIndex < 0) {
-                selectedIndex = totalItems - 1;
-            }
-        }
-        if (input.isDownPressedAndConsume()) {
-            selectedIndex++;
-            if (selectedIndex >= totalItems) {
-                selectedIndex = 0;
-            }
-        }
-        if (input.isEscPressedAndConsume()) gameManager.setCurrentState(Type.MAIN_MENU);
-
-        if (input.isFirePressedAndConsume()) {
-            // Handle Upgrade Purchase
-            if (selectedIndex < upgrades.size()) {
-                Upgrade selectedUpgrade = upgrades.get(selectedIndex);
-                int currentLevel = gameManager.currentPlayer.getUpgradeLevel(selectedUpgrade.getId());
-                if (currentLevel >= selectedUpgrade.getMaxLevel()) {
-                    gameManager.message = "이미 최고 레벨입니다.";
-                    return;
-                }
-
-                int cost = selectedUpgrade.getCost(currentLevel + 1);
-                if (gameManager.currentPlayer.getCredit() >= cost) {
-                    gameManager.currentPlayer.setCredit(gameManager.currentPlayer.getCredit() - cost);
-                    gameManager.currentPlayer.setUpgradeLevel(selectedUpgrade.getId(), currentLevel + 1);
-                    gameManager.savePlayerData(); // Save after purchase
-                    gameManager.message = "업그레이드 성공!";
-                } else {
-                    gameManager.message = "크레딧이 부족합니다!";
-                }
-            } 
-            // Handle Pet Draw Purchase
-            else {
-                PetType drawnPet = gameManager.shopManager.drawPet(gameManager.currentPlayer);
-                if (drawnPet != null) {
-                    gameManager.savePlayerData(); // Save after purchase
-                    boolean isNew = gameManager.currentPlayer.getPetInventory().get(drawnPet.name()) <= 1;
-                    String resultMessage = isNew ? "새로운 펫 " : "중복 펫 ";
-                    gameManager.message = "축하합니다! " + resultMessage + "'" + drawnPet.getDisplayName() + "'" + " 을(를) 획득했습니다!";
-                } else {
-                    gameManager.message = "크레딧이 부족합니다!";
+        @Override
+        public void handleInput(InputHandler input) {
+            int totalItems = upgrades.size() + 1; // +1 for the draw
+    
+            if (input.isUpPressedAndConsume()) {
+                selectedIndex--;
+                if (selectedIndex < 0) {
+                    selectedIndex = totalItems - 1;
                 }
             }
+            if (input.isDownPressedAndConsume()) {
+                selectedIndex++;
+                if (selectedIndex >= totalItems) {
+                    selectedIndex = 0;
+                }
+            }
+            if (input.isEscPressedAndConsume()) {
+                gameManager.setCurrentState(Type.MAIN_MENU);
+            }
+    
+            if (input.isFirePressedAndConsume()) {
+                // Handle Upgrade Purchase
+                if (selectedIndex < upgrades.size()) {
+                    Upgrade selectedUpgrade = upgrades.get(selectedIndex);
+                    int currentLevel = gameManager.currentPlayer.getUpgradeLevel(selectedUpgrade.getId());
+                    if (currentLevel >= selectedUpgrade.getMaxLevel()) {
+                        gameManager.message = "이미 최고 레벨입니다.";
+                        return;
+                    }
+    
+                    int cost = selectedUpgrade.getCost(currentLevel + 1);
+                    if (gameManager.currentPlayer.getCredit() >= cost) {
+                        gameManager.currentPlayer.setCredit(gameManager.currentPlayer.getCredit() - cost);
+                        gameManager.currentPlayer.setUpgradeLevel(selectedUpgrade.getId(), currentLevel + 1);
+                        gameManager.savePlayerData(); // Save after purchase
+                        gameManager.message = "업그레이드 성공!";
+                    } else {
+                        gameManager.message = "크레딧이 부족합니다!";
+                    }
+                } else { // Handle Item Draw Purchase
+                    String result = gameManager.shopManager.drawItem(gameManager.currentPlayer);
+    
+                    switch (result) {
+                        case "INSUFFICIENT_FUNDS":
+                            gameManager.message = "크레딧이 부족합니다!";
+                            break;
+                        case "CREDIT_250":
+                            gameManager.message = "250 크레딧에 당첨되었습니다!";
+                            break;
+                        case "PET_ATTACK":
+                            gameManager.message = "'공격형 펫'을 획득했습니다!";
+                            break;
+                        case "PET_DEFENSE":
+                            gameManager.message = "'방어형 펫'을 획득했습니다!";
+                            break;
+                        case "PET_HEAL":
+                            gameManager.message = "'치유형 펫'을 획득했습니다!";
+                            break;
+                        case "PET_BUFF":
+                            gameManager.message = "'버프형 펫'을 획득했습니다!";
+                            break;
+                        case "WEAPON_FLAMETHROWER":
+                            gameManager.playerStats.getWeaponLevels().put("Flamethrower", 1);
+                            gameManager.message = "새로운 무기 '화염방사기'를 잠금 해제했습니다!";
+                            break;
+                        case "WEAPON_LASER":
+                            gameManager.playerStats.getWeaponLevels().put("Laser", 1);
+                            gameManager.message = "새로운 무기 '레이저'를 잠금 해제했습니다!";
+                            break;
+                        case "DUPLICATE_WEAPON":
+                            gameManager.message = "이미 보유한 무기입니다! 300 크레딧을 돌려받습니다.";
+                            break;
+                    }
+                    gameManager.savePlayerData(); // Save the result of the draw
+                }
+            }
         }
-    }
-
-    @Override
+        @Override
     public void update(long delta) {}
 
     @Override
@@ -125,18 +149,18 @@ public class ShopState implements GameState {
             g.drawString(costString, 550, startY + (i * itemHeight));
         }
 
-        // Draw Pet Draw Item
-        int petDrawY = startY + (upgrades.size() * itemHeight);
+        // Draw Item Draw Item
+        int itemDrawY = startY + (upgrades.size() * itemHeight);
         if (selectedIndex == upgrades.size()) {
             g.setColor(Color.CYAN);
         } else {
             g.setColor(Color.WHITE);
         }
         g.setFont(new Font("Dialog", Font.BOLD, 20));
-        g.drawString("펫 뽑기", 100, petDrawY);
+        g.drawString("뽑기", 100, itemDrawY);
 
         g.setFont(new Font("Dialog", Font.PLAIN, 16));
-        g.drawString("비용: " + gameManager.shopManager.getPetDrawCost(), 550, petDrawY);
+        g.drawString("비용: " + gameManager.shopManager.getItemDrawCost(), 550, itemDrawY);
     }
 
     @Override

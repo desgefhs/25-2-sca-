@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class ShopManager {
 
     private final Map<String, Upgrade> upgrades;
-    private static final int PET_DRAW_COST = 500;
+    private static final int ITEM_DRAW_COST = 500;
 
     public ShopManager() {
         List<Upgrade> upgradeList = new ArrayList<>();
@@ -68,24 +68,63 @@ public class ShopManager {
         return new ArrayList<>(upgrades.values());
     }
 
-    public int getPetDrawCost() {
-        return PET_DRAW_COST;
+    public int getItemDrawCost() {
+        return ITEM_DRAW_COST;
     }
 
-    public PetType drawPet(PlayerData playerData) {
-        if (playerData.getCredit() < PET_DRAW_COST) {
-            return null; // Not enough credits
+    public String drawItem(PlayerData playerData) {
+        if (playerData.getCredit() < ITEM_DRAW_COST) {
+            return "INSUFFICIENT_FUNDS";
         }
+        playerData.setCredit(playerData.getCredit() - ITEM_DRAW_COST);
 
-        playerData.setCredit(playerData.getCredit() - PET_DRAW_COST);
-
-        PetType[] allPets = PetType.values();
         Random rand = new Random();
-        PetType drawnPet = allPets[rand.nextInt(allPets.length)];
+        int roll = rand.nextInt(100);
 
-        Map<String, Integer> inventory = playerData.getPetInventory();
-        inventory.put(drawnPet.name(), inventory.getOrDefault(drawnPet.name(), 0) + 1);
-
-        return drawnPet;
+        // 40% chance for 250 credits
+        if (roll < 40) {
+            playerData.setCredit(playerData.getCredit() + 250);
+            return "CREDIT_250";
+        }
+        // 10% chance for Attack Pet
+        else if (roll < 50) {
+            playerData.getPetInventory().put(PetType.ATTACK.name(), playerData.getPetInventory().getOrDefault(PetType.ATTACK.name(), 0) + 1);
+            return "PET_ATTACK";
+        }
+        // 10% chance for Defense Pet
+        else if (roll < 60) {
+            playerData.getPetInventory().put(PetType.DEFENSE.name(), playerData.getPetInventory().getOrDefault(PetType.DEFENSE.name(), 0) + 1);
+            return "PET_DEFENSE";
+        }
+        // 10% chance for Heal Pet
+        else if (roll < 70) {
+            playerData.getPetInventory().put(PetType.HEAL.name(), playerData.getPetInventory().getOrDefault(PetType.HEAL.name(), 0) + 1);
+            return "PET_HEAL";
+        }
+        // 10% chance for Buff Pet
+        else if (roll < 80) {
+            playerData.getPetInventory().put(PetType.BUFF.name(), playerData.getPetInventory().getOrDefault(PetType.BUFF.name(), 0) + 1);
+            return "PET_BUFF";
+        }
+        // 10% chance for Flamethrower
+        else if (roll < 90) {
+            if (playerData.getWeaponLevels().getOrDefault("Flamethrower", 0) > 0) {
+                playerData.setCredit(playerData.getCredit() + 300);
+                return "DUPLICATE_WEAPON";
+            } else {
+                playerData.getWeaponLevels().put("Flamethrower", 1);
+                return "WEAPON_FLAMETHROWER";
+            }
+        }
+        // 10% chance for Laser
+        else {
+            if (playerData.getWeaponLevels().getOrDefault("Laser", 0) > 0) {
+                playerData.setCredit(playerData.getCredit() + 300);
+                return "DUPLICATE_WEAPON";
+            } else {
+                playerData.getWeaponLevels().put("Laser", 1);
+                return "WEAPON_LASER";
+            }
+        }
     }
 }

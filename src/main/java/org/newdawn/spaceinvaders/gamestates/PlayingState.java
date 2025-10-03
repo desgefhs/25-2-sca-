@@ -97,6 +97,26 @@ public class PlayingState implements GameState {
 
         if (input.isFirePressed()) ship.tryToFire();
 
+        if (input.isOnePressedAndConsume()) {
+            org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameManager.getWeapons().get("DefaultGun");
+            weapon.setLevel(gameManager.playerStats.getWeaponLevel("DefaultGun"));
+            ship.setWeapon(weapon);
+        }
+        if (input.isTwoPressedAndConsume()) {
+            if (gameManager.playerStats.getWeaponLevel("Flamethrower") > 0) {
+                org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameManager.getWeapons().get("Flamethrower");
+                weapon.setLevel(gameManager.playerStats.getWeaponLevel("Flamethrower"));
+                ship.setWeapon(weapon);
+            }
+        }
+        if (input.isThreePressedAndConsume()) {
+            if (gameManager.playerStats.getWeaponLevel("Laser") > 0) {
+                org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameManager.getWeapons().get("Laser");
+                weapon.setLevel(gameManager.playerStats.getWeaponLevel("Laser"));
+                ship.setWeapon(weapon);
+            }
+        }
+
         if (input.isKPressedAndConsume()) {
             int targetWave = ((gameManager.wave / 5) * 5) + 5;
             gameManager.setWave(targetWave);

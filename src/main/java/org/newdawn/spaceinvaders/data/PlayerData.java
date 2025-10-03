@@ -98,4 +98,14 @@ public class PlayerData {
     public void setEquippedPet(String equippedPet) {
         this.equippedPet = equippedPet;
     }
+
+    private Map<String, Integer> weaponLevels = new HashMap<>();
+
+    public Map<String, Integer> getWeaponLevels() {
+        return weaponLevels;
+    }
+
+    public void setWeaponLevels(Map<String, Integer> weaponLevels) {
+        this.weaponLevels = weaponLevels;
+    }
 }

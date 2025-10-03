@@ -2,6 +2,7 @@ package org.newdawn.spaceinvaders.entity;
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.core.GameManager;
+import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.graphics.HpRender;
 import org.newdawn.spaceinvaders.player.PlayerStats;
 
@@ -25,13 +26,14 @@ public class ShipEntity extends Entity {
     private int buffLevel = 0;
     private Runnable onBuffEnd = null;
 
-    private long lastFire = 0;
+    private Weapon currentWeapon;
 	
 	public ShipEntity(GameContext context,String ref,int x,int y, int maxHealth) {
 		super(ref,x,y);
 		this.health = new HealthComponent(maxHealth);
 		this.context = context;
 		this.hpRender = new HpRender(health.getHp());
+		this.currentWeapon = new org.newdawn.spaceinvaders.entity.weapon.DefaultGun();
 	}
 
 	public void setMaxHealth(int maxHealth) {
@@ -63,39 +65,21 @@ public class ShipEntity extends Entity {
 		if (y > Game.GAME_HEIGHT - height) { y = Game.GAME_HEIGHT - height; }
 	}
 
-    public void tryToFire() {
-        GameManager gm = (GameManager) context;
-        PlayerStats stats = gm.playerStats;
-
-        // Base stats
-        long firingInterval = stats.getFiringInterval();
-        int bulletDamage = stats.getBulletDamage();
-        int projectileCount = stats.getProjectileCount();
-
-        // Apply buff if active
-        if (isBuffActive) {
-            double buffMultiplier = 1.20 + (buffLevel * 0.01);
-            firingInterval /= buffMultiplier; // Faster fire rate
-            bulletDamage *= buffMultiplier;   // More damage
-        }
-
-        // check that we have waiting long enough to fire
-        if (System.currentTimeMillis() - lastFire < firingInterval) {
-            return;
-        }
-
-        // if we waited long enough, create the shot(s)
-        lastFire = System.currentTimeMillis();
-        ProjectileType type = ProjectileType.PLAYER_SHOT;
-        double moveSpeed = type.moveSpeed;
-
-        for (int i=0; i < projectileCount; i++) {
-            int xOffset = (i - projectileCount / 2) * 15;
-            ProjectileEntity shot = new ProjectileEntity(context, type, bulletDamage, getX() + 10 + xOffset, getY() - 30, 0, -moveSpeed);
-			setScale(1);
-            context.addEntity(shot);
-        }
+    public void setWeapon(Weapon weapon) {
+        this.currentWeapon = weapon;
     }
+
+    public void tryToFire() {
+        currentWeapon.fire(context, this);
+    }
+
+	public boolean isBuffActive() {
+		return isBuffActive;
+	}
+
+	public int getBuffLevel() {
+		return buffLevel;
+	}
 
 	@Override
 	public void draw(Graphics g) {
