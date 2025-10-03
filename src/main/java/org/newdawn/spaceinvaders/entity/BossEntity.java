@@ -115,16 +115,14 @@ public class BossEntity extends Entity {
                         break;
                     case CHARGING_LASER:
                         if (timeSinceStateChange > 3000) { // Wait 3 seconds after spawning items
-                            ProjectileType type = ProjectileType.FAST_NORMAL_SHOT;
-                            int damage = 1;
-                            int segmentWidth = 10; // Width of each shot
-                            for (int x = 0; x < Game.GAME_WIDTH; x += segmentWidth) {
-                                context.addEntity(new ProjectileEntity(context, type, damage, x, 100, 0, type.moveSpeed));
+                            int laserWidth = 30; // Assuming this is the original image width
+                            for (int x = 0; x < Game.GAME_WIDTH; x += laserWidth) {
+                                context.addEntity(new LaserEntity(context, x, laserWidth));
                             }
 
                             // Reset for the next cycle
                             boss5State = Boss5State.ATTACKING;
-                            stateTimer = System.currentTimeMillis() + 1000; // Add laser duration to delay next attack
+                            stateTimer = System.currentTimeMillis() + 4000; // Add laser duration to delay next attack
                         }
                         break;
                 }
