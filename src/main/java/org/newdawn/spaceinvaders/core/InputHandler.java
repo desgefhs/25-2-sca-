@@ -19,6 +19,7 @@ public class InputHandler extends KeyAdapter {
     private boolean kPressed = false;
     private boolean hPressed = false;
     private boolean uPressed = false; // For Upgrade
+    private boolean bPressed = false; // For Boss
     private boolean onePressed = false;
     private boolean twoPressed = false;
     private boolean threePressed = false;
@@ -33,6 +34,7 @@ public class InputHandler extends KeyAdapter {
     private boolean kKeyProcessed = false;
     private boolean hKeyProcessed = false;
     private boolean uKeyProcessed = false; // For Upgrade
+    private boolean bKeyProcessed = false; // For Boss
     private boolean oneKeyProcessed = false;
     private boolean twoKeyProcessed = false;
     private boolean threeKeyProcessed = false;
@@ -59,6 +61,14 @@ public class InputHandler extends KeyAdapter {
     public boolean isHPressedAndConsume() {
         if (hPressed && !hKeyProcessed) {
             hKeyProcessed = true;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isBPressedAndConsume() {
+        if (bPressed && !bKeyProcessed) {
+            bKeyProcessed = true;
             return true;
         }
         return false;
@@ -190,6 +200,9 @@ public class InputHandler extends KeyAdapter {
         if (keyCode == KeyEvent.VK_U) {
             uKeyProcessed = false;
         }
+        if (keyCode == KeyEvent.VK_B) {
+            bKeyProcessed = false;
+        }
         if (keyCode == KeyEvent.VK_1) {
             oneKeyProcessed = false;
         }
@@ -228,6 +241,9 @@ public class InputHandler extends KeyAdapter {
         }
         if (keyCode == KeyEvent.VK_U) {
             uPressed = pressed;
+        }
+        if (keyCode == KeyEvent.VK_B) {
+            bPressed = pressed;
         }
         if (keyCode == KeyEvent.VK_1) {
             onePressed = pressed;

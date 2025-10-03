@@ -26,9 +26,6 @@ public class PlayingState implements GameState {
             gameManager.setCurrentState(Type.PAUSED);
             return;
         }
-        if (input.isBpressedAndConsume()) { // B for Boss
-            gameManager.spawnBossNow();
-        }
 
         handlePlayingInput(input);
     }

@@ -211,7 +211,27 @@ public class GameManager implements GameContext {
         wave = 1;
         lineCount = 0;
         lastLineSpawnTime = System.currentTimeMillis();
-        entityManager.initShip(playerStats);
+
+        // Create and set the player's equipped weapon
+        String equippedWeaponName = currentPlayer.getEquippedWeapon();
+        org.newdawn.spaceinvaders.entity.weapon.Weapon selectedWeapon;
+        if (equippedWeaponName != null) {
+            switch (equippedWeaponName) {
+                case "Flamethrower":
+                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Flamethrower();
+                    break;
+                case "Laser":
+                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Laser();
+                    break;
+                default:
+                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.DefaultGun();
+                    break;
+            }
+        } else {
+            selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.DefaultGun();
+        }
+
+        entityManager.initShip(playerStats, selectedWeapon);
         getShip().reset();
 
         // Spawn the equipped pet, if any
@@ -261,13 +281,32 @@ public class GameManager implements GameContext {
         lineCount = 0;
         lastLineSpawnTime = System.currentTimeMillis();
         message = "Wave " + wave;
-        entityManager.initShip(playerStats);
 
-        // 웨이브가 5의 배수이면 보스 생성
+        // Create and set the player's equipped weapon
+        String equippedWeaponName = currentPlayer.getEquippedWeapon();
+        org.newdawn.spaceinvaders.entity.weapon.Weapon selectedWeapon;
+        if (equippedWeaponName != null) {
+            switch (equippedWeaponName) {
+                case "Flamethrower":
+                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Flamethrower();
+                    break;
+                case "Laser":
+                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Laser();
+                    break;
+                default:
+                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.DefaultGun();
+                    break;
+            }
+        } else {
+            selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.DefaultGun();
+        }
+
+        entityManager.initShip(playerStats, selectedWeapon);
+
+        // 웨이브가 5의 배수이면 보스 생성, 아니면 일반 포메이션 생성
         if (wave % 5 == 0) {
             spawnBossNow();
         } else {
-            // 일반 웨이브 포메이션 생성
             org.newdawn.spaceinvaders.wave.Formation formation = formationManager.getRandomFormation();
             entityManager.spawnFormation(formation);
         }

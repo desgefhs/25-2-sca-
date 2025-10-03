@@ -3,13 +3,11 @@ package org.newdawn.spaceinvaders.gamestates;
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameManager;
 import org.newdawn.spaceinvaders.core.InputHandler;
-import org.newdawn.spaceinvaders.entity.weapon.Weapon;
-import org.newdawn.spaceinvaders.player.PlayerStats;
+import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.view.WeaponMenu;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class WeaponMenuState implements GameState {
 
@@ -22,7 +20,6 @@ public class WeaponMenuState implements GameState {
 
     @Override
     public void init() {
-        PlayerStats stats = gameManager.playerStats;
         ArrayList<String> weaponNames = new ArrayList<>();
         // Show all weapons, indicating their status
         weaponNames.add("DefaultGun");
@@ -42,7 +39,28 @@ public class WeaponMenuState implements GameState {
         if (input.isEscPressedAndConsume()) {
             gameManager.setCurrentState(Type.MAIN_MENU);
         }
-        // Fire/upgrade logic is removed
+
+        if (input.isFirePressedAndConsume()) {
+            String selectedWeapon = weaponMenu.getSelectedItem();
+            PlayerData playerData = gameManager.currentPlayer;
+
+            // DefaultGun is always available
+            if (selectedWeapon.equals("DefaultGun")) {
+                playerData.setEquippedWeapon(selectedWeapon);
+                gameManager.savePlayerData();
+                gameManager.message = selectedWeapon + " 장착됨";
+                return;
+            }
+
+            int level = playerData.getWeaponLevels().getOrDefault(selectedWeapon, 0);
+            if (level > 0) {
+                playerData.setEquippedWeapon(selectedWeapon);
+                gameManager.savePlayerData();
+                gameManager.message = selectedWeapon + " 장착됨";
+            } else {
+                gameManager.message = "상점에서 먼저 무기를 잠금 해제해야 합니다.";
+            }
+        }
     }
 
     @Override
@@ -60,20 +78,38 @@ public class WeaponMenuState implements GameState {
         int yPos = 100;
         for (int i = 0; i < weaponMenu.getItems().size(); i++) {
             String weaponName = weaponMenu.getItems().get(i);
-            int level = gameManager.playerStats.getWeaponLevel(weaponName);
+            int level = gameManager.currentPlayer.getWeaponLevels().getOrDefault(weaponName, 0);
+            String equippedWeapon = gameManager.currentPlayer.getEquippedWeapon();
 
             if (i == weaponMenu.getSelectedIndex()) {
                 g.setColor(Color.GREEN);
             } else {
                 g.setColor(Color.WHITE);
             }
-            
-            String status = level > 0 ? "Level " + level : "[LOCKED]";
-            g.drawString(weaponName + " - " + status, 100, yPos);
+
+            String status;
+            if (weaponName.equals("DefaultGun")) {
+                status = "기본 무기";
+            } else {
+                status = level > 0 ? "Level " + level : "[LOCKED]";
+            }
+
+            String displayText = weaponName + " - " + status;
+            if (weaponName.equals(equippedWeapon)) {
+                g.setColor(Color.CYAN);
+                displayText += " [EQUIPPED]";
+            }
+
+            g.drawString(displayText, 100, yPos);
             yPos += 40;
         }
 
-        g.setColor(Color.YELLOW);
+        if (gameManager.message != null && !gameManager.message.isEmpty()) {
+            g.setColor(Color.YELLOW);
+            g.drawString(gameManager.message, 50, 500);
+        }
+
+        g.setColor(Color.GRAY);
         g.drawString("Go to the Shop to unlock new weapons.", 50, 450);
     }
 
