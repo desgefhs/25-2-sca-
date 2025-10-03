@@ -55,7 +55,7 @@ public class EntityManager {
                 int baseBossHealth = (int) (50 * cycleMultiplier);
                 int fixedBossBonus = waveInCycle * 10; // Add 10 health for each wave in the cycle
                 int bossHealth = baseBossHealth + fixedBossBonus;
-                Entity boss = new BossEntity(context, Game.GAME_WIDTH / 2, 50, bossHealth, cycle);
+                Entity boss = new BossEntity(context, Game.GAME_WIDTH / 2, 50, bossHealth, cycle, wave);
                 addList.add(boss);
                 alienCount++;
             }

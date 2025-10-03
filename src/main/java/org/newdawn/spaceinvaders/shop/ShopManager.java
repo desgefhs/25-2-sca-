@@ -1,9 +1,9 @@
 package org.newdawn.spaceinvaders.shop;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import org.newdawn.spaceinvaders.data.PlayerData;
+import org.newdawn.spaceinvaders.entity.PetType;
+
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class ShopManager {
 
     private final Map<String, Upgrade> upgrades;
+    private static final int PET_DRAW_COST = 500;
 
     public ShopManager() {
         List<Upgrade> upgradeList = new ArrayList<>();
@@ -65,5 +66,26 @@ public class ShopManager {
 
     public List<Upgrade> getAllUpgrades() {
         return new ArrayList<>(upgrades.values());
+    }
+
+    public int getPetDrawCost() {
+        return PET_DRAW_COST;
+    }
+
+    public PetType drawPet(PlayerData playerData) {
+        if (playerData.getCredit() < PET_DRAW_COST) {
+            return null; // Not enough credits
+        }
+
+        playerData.setCredit(playerData.getCredit() - PET_DRAW_COST);
+
+        PetType[] allPets = PetType.values();
+        Random rand = new Random();
+        PetType drawnPet = allPets[rand.nextInt(allPets.length)];
+
+        Map<String, Integer> inventory = playerData.getPetInventory();
+        inventory.put(drawnPet.name(), inventory.getOrDefault(drawnPet.name(), 0) + 1);
+
+        return drawnPet;
     }
 }

@@ -5,7 +5,9 @@ import org.newdawn.spaceinvaders.auth.AuthenticatedUser;
 import org.newdawn.spaceinvaders.data.DatabaseManager;
 import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.entity.*;
+import org.newdawn.spaceinvaders.entity.PetType;
 import org.newdawn.spaceinvaders.gamestates.*;
+import org.newdawn.spaceinvaders.gamestates.PetMenuState;
 import org.newdawn.spaceinvaders.graphics.Sprite;
 import org.newdawn.spaceinvaders.graphics.SpriteStore;
 import org.newdawn.spaceinvaders.player.PlayerStats;
@@ -47,6 +49,7 @@ public class GameManager implements GameContext {
     public boolean showHitboxes = false;
     public long lastFire = 0;
     public int lineCount = 0;
+    public int collectedItems = 0;
     public long lastLineSpawnTime = 0;
     public long lastMeteorSpawnTime = 0;
     public long lastBombSpawnTime = 0;
@@ -105,6 +108,7 @@ public class GameManager implements GameContext {
             case GAME_WON -> new GameOverState(this, true);
             case RANKING -> new RankingState(this);
             case SHOP -> new ShopState(this);
+            case PET_MENU -> new PetMenuState(this);
             case EXIT_CONFIRMATION -> new ExitConfirmationState(this);
             case WAVE_CLEARED -> {
                 startNextWave();
@@ -191,6 +195,34 @@ public class GameManager implements GameContext {
         lastLineSpawnTime = System.currentTimeMillis();
         entityManager.initShip(playerStats);
         getShip().reset();
+
+        // Spawn the equipped pet, if any
+        if (currentPlayer != null && currentPlayer.getEquippedPet() != null) {
+            try {
+                ShipEntity playerShip = getShip();
+                PetType petType = PetType.valueOf(currentPlayer.getEquippedPet());
+                switch (petType) {
+                    case ATTACK:
+                        addEntity(new AttackPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
+                        break;
+                    case DEFENSE:
+                        DefensePetEntity defensePet = new DefensePetEntity(this, playerShip, playerShip.getX(), playerShip.getY());
+                        addEntity(defensePet);
+                        playerShip.setShield(true, defensePet::resetAbilityCooldown); // Grant initial shield
+                        defensePet.resetAbilityCooldown();      // Start cooldown timer
+                        break;
+                    case HEAL:
+                        addEntity(new HealPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
+                        break;
+                    case BUFF:
+                        addEntity(new BuffPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
+                        break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.err.println("Attempted to spawn unknown pet type: " + currentPlayer.getEquippedPet());
+            }
+        }
+
         message = "";
         setCurrentState(GameState.Type.PLAYING);
 
@@ -204,10 +236,42 @@ public class GameManager implements GameContext {
     // 다음 웨이브로 전환
      public void startNextWave() {
         wave++;
+        if (wave > 25) {
+            notifyWin();
+            return;
+        }
         lineCount = 0;
         lastLineSpawnTime = System.currentTimeMillis();
         message = "Wave " + wave;
         entityManager.initShip(playerStats);
+
+        // Spawn the equipped pet, if any
+        if (currentPlayer != null && currentPlayer.getEquippedPet() != null) {
+            try {
+                ShipEntity playerShip = getShip();
+                PetType petType = PetType.valueOf(currentPlayer.getEquippedPet());
+                switch (petType) {
+                    case ATTACK:
+                        addEntity(new AttackPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
+                        break;
+                    case DEFENSE:
+                        DefensePetEntity defensePet = new DefensePetEntity(this, playerShip, playerShip.getX(), playerShip.getY());
+                        addEntity(defensePet);
+                        playerShip.setShield(true, defensePet::resetAbilityCooldown); // Grant initial shield
+                        defensePet.resetAbilityCooldown();      // Start cooldown timer
+                        break;
+                    case HEAL:
+                        addEntity(new HealPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
+                        break;
+                    case BUFF:
+                        addEntity(new BuffPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
+                        break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.err.println("Attempted to spawn unknown pet type: " + currentPlayer.getEquippedPet());
+            }
+        }
+
         setCurrentState(GameState.Type.PLAYING);
     }
 
@@ -232,6 +296,14 @@ public class GameManager implements GameContext {
         if (user == null || currentPlayer == null) return;
         currentPlayer.setCredit(currentPlayer.getCredit() + score);
         currentPlayer.setHighScore(Math.max(currentPlayer.getHighScore(), score));
+        savePlayerData(); // Use the new centralized save method
+    }
+
+    /**
+     * Saves the current state of the player data to the database.
+     */
+    public void savePlayerData() {
+        if (user == null || currentPlayer == null) return;
         databaseManager.updatePlayerData(user.getLocalId(), currentPlayer);
     }
 
@@ -241,17 +313,4 @@ public class GameManager implements GameContext {
     public DatabaseManager getDatabaseManager() { return databaseManager; }
     public PlayerData getCurrentPlayer() { return currentPlayer; }
     public GameStateManager getGsm() { return gsm; }
-
-    public void spawnBossNow() {
-        // Clear all entities except the player
-        getEntityManager().getEntities().removeIf(entity -> !(entity instanceof ShipEntity));
-
-        // Spawn the boss
-        int cycle = (wave - 1) / 5;
-        double cycleMultiplier = Math.pow(1.5, cycle);
-        int bossHealth = (int) (50 * cycleMultiplier);
-        Entity boss = new BossEntity(this, Game.GAME_WIDTH / 2, 50, bossHealth, cycle);
-        addEntity(boss);
-        entityManager.setAlienCount(1);
-    }
 }
