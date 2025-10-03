@@ -84,11 +84,11 @@ public class ShopState implements GameState {
                             gameManager.message = "'버프형 펫'을 획득했습니다!";
                             break;
                         case "WEAPON_FLAMETHROWER":
-                            gameManager.playerStats.getWeaponLevels().put("Flamethrower", 1);
+                            gameManager.currentPlayer.getWeaponLevels().put("Flamethrower", 1);
                             gameManager.message = "새로운 무기 '화염방사기'를 잠금 해제했습니다!";
                             break;
                         case "WEAPON_LASER":
-                            gameManager.playerStats.getWeaponLevels().put("Laser", 1);
+                            gameManager.currentPlayer.getWeaponLevels().put("Laser", 1);
                             gameManager.message = "새로운 무기 '레이저'를 잠금 해제했습니다!";
                             break;
                         case "DUPLICATE_WEAPON":

@@ -33,7 +33,6 @@ public class ShipEntity extends Entity {
 		this.health = new HealthComponent(maxHealth);
 		this.context = context;
 		this.hpRender = new HpRender(health.getHp());
-		this.currentWeapon = new org.newdawn.spaceinvaders.entity.weapon.DefaultGun();
 	}
 
 	public void setMaxHealth(int maxHealth) {

@@ -24,13 +24,14 @@ public class EntityManager {
         this.context = context;
     }
 
-    public void initShip(PlayerStats stats) {
+    public void initShip(PlayerStats stats, org.newdawn.spaceinvaders.entity.weapon.Weapon weapon) {
         if (ship == null) {
             ship = new ShipEntity(context, "sprites/ship.gif", Game.GAME_WIDTH / 2, 550, stats.getMaxHealth());
             entities.add(ship);
         } else {
             ship.setMaxHealth(stats.getMaxHealth());
         }
+        ship.setWeapon(weapon);
         ship.reset();
 
         // Remove all entities except the ship

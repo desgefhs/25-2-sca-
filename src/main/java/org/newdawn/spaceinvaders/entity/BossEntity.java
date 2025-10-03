@@ -7,25 +7,32 @@ import org.newdawn.spaceinvaders.graphics.HpRender;
 
 public class BossEntity extends Entity {
     private double moveSpeed = 50;
+    private double dy = 50; // Add vertical movement speed
     private GameContext context;
     private static final int MAX_HEALTH = 50;
     private static final int SHOT_DAMAGE = 2;
     private long lastFire = 0;
-    private long firingInterval = 3000; // Fires every 3 seconds
+    private long firingInterval = 2000; // Fires every 2 seconds
     private HpRender hpRender;
     private int waveNumber;
     private enum Boss5State { ATTACKING, SPAWNING_ITEMS, CHARGING_LASER }
     private Boss5State boss5State = Boss5State.ATTACKING;
     private long stateTimer = 0;
+    private boolean boss10PatternToggle = false; // To alternate patterns for wave 10
 
     public BossEntity(GameContext context, int x, int y, int health, int cycle, int waveNumber) {
-        super(waveNumber == 5 ? "sprites/kraken_anim.gif" : "sprites/boss_cycle" + cycle + ".gif", x, y);
+        super(waveNumber == 10 ? "sprites/bosses/Hydra.png" : (waveNumber == 5 ? "sprites/bosses/kraken_anim.gif" : "sprites/boss_cycle" + cycle + ".gif"), x, y);
         this.context = context;
         this.health = new HealthComponent(health);
         this.hpRender = new HpRender(this.health.getHp());
         this.waveNumber = waveNumber;
         dx = -moveSpeed;
-        setScale(2.0);
+        if (waveNumber == 10) { // Enable vertical movement for wave 10 boss
+            dy = moveSpeed;
+        } else {
+            dy = 0;
+        }
+        setScale(2.5);
         if (waveNumber == 5) {
             stateTimer = System.currentTimeMillis();
             context.resetItemCollection();
@@ -51,11 +58,23 @@ public class BossEntity extends Entity {
     }
 
     public void move(long delta) {
+        // Horizontal bouncing
         if ((dx < 0) && (x < 0)) {
-            dx = -dx; // Bounce off the left wall
+            dx = -dx;
         }
         if ((dx > 0) && (x > Game.GAME_WIDTH - width)) {
-            dx = -dx; // Bounce off the right wall
+            dx = -dx;
+        }
+
+        // Vertical bouncing for wave 10 boss
+        if (waveNumber == 10) {
+            if ((dy < 0) && (y < 0)) {
+                dy = -dy;
+            }
+            // Prevent boss from moving too far down
+            if ((dy > 0) && (y > 250)) {
+                dy = -dy;
+            }
         }
 
         tryToFire();
@@ -78,7 +97,8 @@ public class BossEntity extends Entity {
                         // Randomly choose between two patterns during normal attack phase
                         if (rand.nextBoolean()) {
                             fireCirclePattern();
-                        } else {
+                        }
+                        else {
                             fireThreeWayPattern();
                         }
                         if (timeSinceStateChange > 5000) { // Attack for 5 seconds
@@ -110,12 +130,13 @@ public class BossEntity extends Entity {
                 }
                 break;
             case 10:
-                // Wave 10 boss randomly uses three-way or following shot
-                if (rand.nextBoolean()) {
-                    fireThreeWayPattern();
-                } else {
+                // Wave 10 boss alternates between following shot and curtain pattern
+                if (boss10PatternToggle) {
                     fireFollowingShotPattern();
+                } else {
+                    fireCurtainPattern();
                 }
+                boss10PatternToggle = !boss10PatternToggle; // Flip the toggle for the next shot
                 break;
             case 15:
                 // Wave 15 boss randomly uses following shot or circle pattern
@@ -151,7 +172,7 @@ public class BossEntity extends Entity {
     }
 
     private void fireCurtainPattern() {
-        ProjectileType type = ProjectileType.NORMAL_SHOT;
+        ProjectileType type = ProjectileType.HYDRA_CURTAIN;
         int damage = 1;
         double shotMoveSpeed = type.moveSpeed;
         int gapWidth = 100; // Width of the safe zone
