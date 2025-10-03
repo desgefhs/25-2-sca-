@@ -6,6 +6,10 @@ import org.newdawn.spaceinvaders.data.DatabaseManager;
 import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.entity.PetType;
+import org.newdawn.spaceinvaders.entity.weapon.DefaultGun;
+import org.newdawn.spaceinvaders.entity.weapon.Flamethrower;
+import org.newdawn.spaceinvaders.entity.weapon.Laser;
+import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.gamestates.*;
 import org.newdawn.spaceinvaders.gamestates.PetMenuState;
 import org.newdawn.spaceinvaders.graphics.Sprite;
@@ -17,12 +21,15 @@ import org.newdawn.spaceinvaders.view.*;
 
 
 import java.awt.Graphics2D;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GameManager implements GameContext {
 
     private final InputHandler inputHandler;
     private final EntityManager entityManager;
     private final GameStateManager gsm;
+    private final Map<String, Weapon> weapons;
 
     public final DatabaseManager databaseManager;
     public final GameWindow gameWindow;
@@ -78,13 +85,23 @@ public class GameManager implements GameContext {
         this.playerStats = new PlayerStats();
         this.confirmDialog = new ConfirmDialog("Are you sure you want to exit?");
 
+        this.weapons = new HashMap<>();
+        weapons.put("DefaultGun", new DefaultGun());
+        weapons.put("Flamethrower", new Flamethrower());
+        weapons.put("Laser", new Laser());
+
         this.gsm = new GameStateManager();
         this.setCurrentState(GameState.Type.MAIN_MENU);
+    }
+
+    public Map<String, Weapon> getWeapons() {
+        return weapons;
     }
 
     //
     public void initializePlayer() {
         this.currentPlayer = databaseManager.loadPlayerData(user.getLocalId(), user.getUsername());
+        this.currentPlayer.setCredit(100000); // Grant 100,000 credits for testing
         this.shopMenu = new ShopMenu(shopManager.getAllUpgrades());
         calculatePlayerStats();
     }
@@ -106,6 +123,7 @@ public class GameManager implements GameContext {
             case RANKING -> new RankingState(this);
             case SHOP -> new ShopState(this);
             case PET_MENU -> new PetMenuState(this);
+            case WEAPON_MENU -> new WeaponMenuState(this);
             case EXIT_CONFIRMATION -> new ExitConfirmationState(this);
             case WAVE_CLEARED -> {
                 startNextWave();
@@ -275,6 +293,17 @@ public class GameManager implements GameContext {
     // 업그레이드 정보 바탕으로 능력치 설정
     public void calculatePlayerStats() {
         playerStats = new PlayerStats();
+
+        // First, set the defaults for weapon levels
+        playerStats.getWeaponLevels().put("DefaultGun", 1);
+        playerStats.getWeaponLevels().put("Flamethrower", 0);
+        playerStats.getWeaponLevels().put("Laser", 0);
+
+        // Then, overwrite with saved data if it exists
+        if (currentPlayer.getWeaponLevels() != null && !currentPlayer.getWeaponLevels().isEmpty()) {
+            playerStats.getWeaponLevels().putAll(currentPlayer.getWeaponLevels());
+        }
+
         for (Upgrade upgrade : shopManager.getAllUpgrades()) {
             int level = currentPlayer.getUpgradeLevel(upgrade.getId());
             if (level > 0) {
@@ -301,6 +330,7 @@ public class GameManager implements GameContext {
      */
     public void savePlayerData() {
         if (user == null || currentPlayer == null) return;
+        currentPlayer.getWeaponLevels().putAll(playerStats.getWeaponLevels());
         databaseManager.updatePlayerData(user.getLocalId(), currentPlayer);
     }
 

@@ -19,6 +19,9 @@ public class InputHandler extends KeyAdapter {
     private boolean kPressed = false;
     private boolean hPressed = false;
     private boolean uPressed = false; // For Upgrade
+    private boolean onePressed = false;
+    private boolean twoPressed = false;
+    private boolean threePressed = false;
 
     // 키 한 번 누름을 처리하기 위한 플래그들
     private boolean leftKeyProcessed = false;
@@ -30,6 +33,9 @@ public class InputHandler extends KeyAdapter {
     private boolean kKeyProcessed = false;
     private boolean hKeyProcessed = false;
     private boolean uKeyProcessed = false; // For Upgrade
+    private boolean oneKeyProcessed = false;
+    private boolean twoKeyProcessed = false;
+    private boolean threeKeyProcessed = false;
 
     private final List<Character> typedChars = new ArrayList<>();
 
@@ -114,6 +120,30 @@ public class InputHandler extends KeyAdapter {
         return false;
     }
 
+    public boolean isOnePressedAndConsume() {
+        if (onePressed && !oneKeyProcessed) {
+            oneKeyProcessed = true;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isTwoPressedAndConsume() {
+        if (twoPressed && !twoKeyProcessed) {
+            twoKeyProcessed = true;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isThreePressedAndConsume() {
+        if (threePressed && !threeKeyProcessed) {
+            threeKeyProcessed = true;
+            return true;
+        }
+        return false;
+    }
+
     public char consumeTypedChar() {
         synchronized (typedChars) {
             if (typedChars.isEmpty()) {
@@ -160,6 +190,15 @@ public class InputHandler extends KeyAdapter {
         if (keyCode == KeyEvent.VK_U) {
             uKeyProcessed = false;
         }
+        if (keyCode == KeyEvent.VK_1) {
+            oneKeyProcessed = false;
+        }
+        if (keyCode == KeyEvent.VK_2) {
+            twoKeyProcessed = false;
+        }
+        if (keyCode == KeyEvent.VK_3) {
+            threeKeyProcessed = false;
+        }
     }
 
     private void updateKeyState(int keyCode, boolean pressed) {
@@ -189,6 +228,15 @@ public class InputHandler extends KeyAdapter {
         }
         if (keyCode == KeyEvent.VK_U) {
             uPressed = pressed;
+        }
+        if (keyCode == KeyEvent.VK_1) {
+            onePressed = pressed;
+        }
+        if (keyCode == KeyEvent.VK_2) {
+            twoPressed = pressed;
+        }
+        if (keyCode == KeyEvent.VK_3) {
+            threePressed = pressed;
         }
     }
 

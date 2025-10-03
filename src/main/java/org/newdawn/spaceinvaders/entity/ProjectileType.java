@@ -7,7 +7,8 @@ public enum ProjectileType {
     NORMAL_SHOT("sprites/shot/nomalshot.gif", 250, 0, TargetType.PLAYER),
     FAST_NORMAL_SHOT("sprites/shot/fast_nomalshot.gif", 400, 0, TargetType.PLAYER),
     FOLLOWING_SHOT("sprites/shot/followingshot.gif", 150, 500, TargetType.PLAYER),
-    FAST_FOLLOWING_SHOT("sprites/shot/fast_followingshot.gif", 250, 500, TargetType.PLAYER);
+    FAST_FOLLOWING_SHOT("sprites/shot/fast_followingshot.gif", 250, 500, TargetType.PLAYER),
+    LASER_SHOT("sprites/texture_laser.PNG", 600, 0, TargetType.ENEMY);
 
     public enum TargetType {
         PLAYER, ENEMY

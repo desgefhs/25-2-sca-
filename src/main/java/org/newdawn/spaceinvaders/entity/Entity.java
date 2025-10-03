@@ -1,5 +1,6 @@
 package org.newdawn.spaceinvaders.entity;
 
+import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.graphics.Sprite;
 import org.newdawn.spaceinvaders.graphics.SpriteStore;
 
@@ -21,6 +22,8 @@ import java.awt.Rectangle;
  * @author Kevin Glass
  */
 public abstract class Entity {
+	/** The game context to which this entity belongs */
+	protected GameContext context;
 	/** The current x location of this entity */ 
 	protected double x;
 	/** The current y location of this entity */

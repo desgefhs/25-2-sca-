@@ -37,6 +37,7 @@ public class DatabaseManager {
         updates.put("upgradeLevels", playerData.getUpgradeLevels());
         updates.put("petInventory", playerData.getPetInventory());
         updates.put("petLevels", playerData.getPetLevels()); // Save pet levels
+        updates.put("weaponLevels", playerData.getWeaponLevels()); // Save weapon levels
 
         ApiFuture<WriteResult> result = docRef.update(updates);
         try {
@@ -59,6 +60,19 @@ public class DatabaseManager {
             DocumentSnapshot document = future.get();
             if (document.exists()) {
                 PlayerData playerData = document.toObject(PlayerData.class);
+                if (playerData != null && document.contains("weaponLevels")) {
+                    // Safely handle number types (e.g., Long from Firestore) by converting to Integer
+                    Map<String, Object> rawWeaponLevels = (Map<String, Object>) document.get("weaponLevels");
+                    Map<String, Integer> weaponLevels = new HashMap<>();
+                    if (rawWeaponLevels != null) {
+                        for (Map.Entry<String, Object> entry : rawWeaponLevels.entrySet()) {
+                            if (entry.getValue() instanceof Number) {
+                                weaponLevels.put(entry.getKey(), ((Number) entry.getValue()).intValue());
+                            }
+                        }
+                    }
+                    playerData.setWeaponLevels(weaponLevels);
+                }
                 System.out.println(username + " 사용자의 데이터 불러오기 성공. 최고 점수: " + playerData.getHighScore() + ", 크레딧: " + playerData.getCredit());
                 return playerData;
             } else {
