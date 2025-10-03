@@ -313,4 +313,30 @@ public class GameManager implements GameContext {
     public DatabaseManager getDatabaseManager() { return databaseManager; }
     public PlayerData getCurrentPlayer() { return currentPlayer; }
     public GameStateManager getGsm() { return gsm; }
+
+
+    public void notifyItemCollected() {
+        collectedItems++;
+    }
+
+    public boolean hasCollectedAllItems() {
+        return collectedItems >= 2;
+    }
+
+    public void resetItemCollection() {
+        collectedItems = 0;
+    }
+
+    public void spawnBossNow() {
+        // Clear all entities except the player
+        getEntityManager().getEntities().removeIf(entity -> !(entity instanceof ShipEntity));
+
+        // Spawn the boss
+        int cycle = (wave - 1) / 5;
+        double cycleMultiplier = Math.pow(1.5, cycle);
+        int bossHealth = (int) (50 * cycleMultiplier);
+        Entity boss = new BossEntity(this, Game.GAME_WIDTH / 2, 50, bossHealth, cycle);
+        addEntity(boss);
+        entityManager.setAlienCount(1);
+    }
 }
