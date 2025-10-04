@@ -6,16 +6,24 @@ package org.newdawn.spaceinvaders.entity;
  */
 public class HealthComponent {
 
+    private final Entity owner;
     private HP hp;
 
-    public HealthComponent(int maxHp) {
+    public HealthComponent(Entity owner, int maxHp) {
+        this.owner = owner;
         this.hp = new HP(maxHp, maxHp);
     }
 
     // 데미지 처리
     public boolean decreaseHealth(double amount) {
         hp.setCurrentHp(hp.getCurrentHp() - amount);
-        return hp.getCurrentHp() > 0;
+        boolean alive = hp.getCurrentHp() > 0;
+
+        if (alive && owner instanceof ShipEntity) {
+            ((ShipEntity) owner).activateInvincibility();
+        }
+
+        return alive;
     }
 
     //체력 초기화
@@ -27,9 +35,12 @@ public class HealthComponent {
         return hp;
     }
 
-
     //생존 여부 확인
     public boolean isAlive() {
         return hp.getCurrentHp() > 0;
+    }
+
+    public int getCurrentHealth() {
+        return (int) hp.getCurrentHp();
     }
 }

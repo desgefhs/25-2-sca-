@@ -4,8 +4,7 @@ import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.graphics.Sprite;
 import org.newdawn.spaceinvaders.graphics.SpriteStore;
 
-import java.awt.Graphics;
-import java.awt.Rectangle;
+import java.awt.*;
 
 
 /**
@@ -125,7 +124,27 @@ public abstract class Entity {
 	 * @param g The graphics context on which to draw
 	 */
 	public void draw(Graphics g) {
-		g.drawImage(sprite.getImage(), (int) x, (int) y, width, height, null);
+		Graphics2D g2d = (Graphics2D) g;
+		java.awt.geom.AffineTransform oldTransform = g2d.getTransform();
+
+		try {
+			// Translate and rotate the graphics context
+			g2d.translate(x + width / 2.0, y + height / 2.0);
+
+			// Only rotate if the entity is actually moving
+			if (dx != 0 || dy != 0) {
+				// Add PI/2 because sprites are typically drawn facing "up" (negative Y)
+				double angle = Math.atan2(dy, dx) + Math.PI / 2;
+				g2d.rotate(angle);
+			}
+
+			// Draw the sprite centered at the new origin
+			g2d.drawImage(sprite.getImage(), -width / 2, -height / 2, width, height, null);
+
+		} finally {
+			// Restore the original transform
+			g2d.setTransform(oldTransform);
+		}
 	}
 	
 	/**

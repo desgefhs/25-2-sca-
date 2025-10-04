@@ -42,65 +42,36 @@ public class EntityManager {
         alienCount = 0;
     }
 
-    public void spawnNext(int wave, int lineCount) {
-        int effectiveWave = ((wave - 1) % 5) + 1;
+    public void spawnFormation(org.newdawn.spaceinvaders.wave.Formation formation, int wave) {
         int cycle = (wave - 1) / 5;
-        int waveInCycle = (wave - 1) % 5;
-
-        // Exponential scaling per cycle (1.5x every 5 waves)
-        double cycleMultiplier = Math.pow(1.5, cycle);
-
-        if (effectiveWave == 5) {
-            // Boss wave - spawn boss on the first line count
-            if (lineCount == 0) {
-                int baseBossHealth = (int) (50 * cycleMultiplier);
-                int fixedBossBonus = waveInCycle * 10; // Add 10 health for each wave in the cycle
-                int bossHealth = baseBossHealth + fixedBossBonus;
-                Entity boss = new BossEntity(context, Game.GAME_WIDTH / 2, 50, bossHealth, cycle, wave);
-                addList.add(boss);
-                alienCount++;
-            }
-        } else {
-            // Normal alien wave: spawn a single line
-            int baseAlienHealth = (int) (2 * cycleMultiplier);
-            int fixedAlienBonus = waveInCycle; // Add 1 health for each wave in the cycle
-            int alienHealth = baseAlienHealth + fixedAlienBonus;
-            int aliensInLine = 10;
-            int screenWidth = Game.GAME_WIDTH;
-            int padding = 50;
-            int availableWidth = screenWidth - (padding * 2);
-            int spacing = availableWidth / (aliensInLine - 1);
-
-            for (int i = 0; i < aliensInLine; i++) {
-                int xPos = padding + (i * spacing);
-                Entity alien = new AlienEntity(context, xPos, -50, alienHealth, cycle);
-                addList.add(alien);
-                alienCount++;
-            }
-        }
-    }
-
-    public void spawnFormation(org.newdawn.spaceinvaders.wave.Formation formation) {
-        boolean upgradeThisFormation = ("V-Shape".equals(formation.getName()));
+        double cycleMultiplier = Math.pow(1.2, cycle); // Slower scaling for normal aliens
+        int baseAlienHealth = 2;
 
         for (SpawnInfo info : formation.getSpawnList()) {
             Entity newEntity = null;
             switch (info.entityType) {
                 case ALIEN:
-                    AlienEntity alien = new AlienEntity(context, info.x, info.y, 2, 0);
-                    if (upgradeThisFormation) {
+                    // Calculate health based on wave
+                    int alienHealth = (int) (baseAlienHealth * cycleMultiplier) + (wave / 2);
+
+                    // Create alien with movement pattern
+                    AlienEntity alien = new AlienEntity(context, info.x, info.y, alienHealth, cycle, info.movementPattern);
+
+                    // Handle random upgrade
+                    if (info.upgradeChance > 0 && Math.random() < info.upgradeChance) {
                         alien.upgrade();
                     }
                     newEntity = alien;
                     break;
                 case THREE_WAY_SHOOTER:
+                    // This entity type also needs to be updated to support the new spawning system
                     newEntity = new ThreeWayShooter(context, info.x, info.y);
                     break;
                 // Add cases for other entity types here
             }
             if (newEntity != null) {
                 addEntity(newEntity);
-                if (!(newEntity instanceof BombEntity) && !(newEntity instanceof MeteorEntity)) {
+                if (!(newEntity instanceof MeteorEntity)) {
                     alienCount++;
                 }
             }
@@ -119,6 +90,15 @@ public class EntityManager {
      * 이번 프레임에서 제거하기로 표시된 모든 엔티티를 실제로 제거합니다.
      */
     public void cleanup() {
+        // Garbage collect entities that have gone off-screen
+        for (Entity entity : entities) {
+            if (entity.getX() < -50 || entity.getX() > 550 || entity.getY() < -50 || entity.getY() > 650) {
+                if (!(entity instanceof ShipEntity) && !(entity instanceof PetEntity)) {
+                    removeList.add(entity);
+                }
+            }
+        }
+
         // Create a copy to iterate over, to avoid ConcurrentModificationException
         List<Entity> toDestroy = new ArrayList<>(removeList);
         for (Entity entity : toDestroy) {

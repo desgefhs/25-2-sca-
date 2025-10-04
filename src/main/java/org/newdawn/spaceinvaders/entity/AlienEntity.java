@@ -1,7 +1,10 @@
 package org.newdawn.spaceinvaders.entity;
 
-
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.graphics.Sprite;
+import org.newdawn.spaceinvaders.graphics.SpriteStore;
+
+import java.awt.Graphics;
 
 /**
  * An entity which represents one of our space invader aliens.
@@ -17,27 +20,43 @@ public class AlienEntity extends Entity {
 	private long lastFire = 0;
 	private static final long firingInterval = 1000;
 
-    private final EngineFireEntity fireEffect;
     private boolean isUpgraded = false;
 
+    private final MovementPattern movementPattern;
+    private final double initialX;
+
+    // Integrated engine fire effect
+    private final Sprite[] fireFrames = new Sprite[3];
+    private final long fireFrameDuration = 100; // ms
+    private long fireLastFrameChange;
+    private int fireFrameNumber;
+    private final double fireSpriteScale = 0.8;
+
+
+	public AlienEntity(GameContext context, int x, int y, int health, int cycle, MovementPattern movementPattern) {
+		super("sprites/enemy/alien.gif", x, y);
+		this.health = new HealthComponent(this, health);
+		this.context = context;
+		this.movementPattern = movementPattern;
+		this.initialX = x;
+		this.dy = moveSpeed; // Default downward movement
+
+        // Pre-load all fire frames
+        fireFrames[0] = SpriteStore.get().getSprite("sprites/fire effect/18 Ion.png");
+        fireFrames[1] = SpriteStore.get().getSprite("sprites/fire effect/19 Ion.png");
+        fireFrames[2] = SpriteStore.get().getSprite("sprites/fire effect/20 Ion.png");
+	}
 
 	public AlienEntity(GameContext context, int x, int y, int health, int cycle) {
-		super("sprites/enemy/alien.gif", x, y);
-		this.health = new HealthComponent(health);
-		this.context = context;
-		dx = 0;
-		dy = moveSpeed;
-
-        this.fireEffect = new EngineFireEntity(context, this);
-        this.context.addEntity(this.fireEffect);
+		this(context, x, y, health, cycle, MovementPattern.STRAIGHT_DOWN);
 	}
 
 	public AlienEntity(GameContext context, int x, int y, int health) {
-		this(context, x, y, health, 0);
+		this(context, x, y, health, 0, MovementPattern.STRAIGHT_DOWN);
 	}
 
 	public AlienEntity(GameContext context, int x, int y) {
-		this(context, x, y, MAX_HEALTH);
+		this(context, x, y, MAX_HEALTH, 0, MovementPattern.STRAIGHT_DOWN);
 	}
 
     public void upgrade() {
@@ -69,18 +88,64 @@ public class AlienEntity extends Entity {
 			tryToFire();
 		}
 
-		if (y > 600) {
-			context.notifyAlienEscaped(this);
-		}
+        // Update fire animation
+        fireLastFrameChange += delta;
+        if (fireLastFrameChange > fireFrameDuration) {
+            fireLastFrameChange = 0;
+            fireFrameNumber = (fireFrameNumber + 1) % fireFrames.length;
+        }
+
+        // Movement pattern logic
+        switch (movementPattern) {
+            case STRAIGHT_DOWN:
+                dx = 0;
+                break;
+            case SINUSOIDAL:
+                // This pattern now calculates X directly based on Y for a smooth wave.
+                // The entity will oscillate around its initial drop path.
+                double waveAmplitude = 50;
+                double waveFrequency = 0.02;
+                // We calculate the desired X and let super.move() handle the Y movement.
+                double newX = initialX + (Math.sin(y * waveFrequency) * waveAmplitude);
+                setX((int)newX);
+                dx = 0; // dx is not used for this pattern's horizontal movement
+                break;
+            case STATIC:
+                dx = 0;
+                dy = 0;
+                break;
+            default:
+                break;
+        }
 
 		super.move(delta);
+
+        // Screen boundary bouncing logic
+        if ((dx < 0 && x < 10) || (dx > 0 && x > 490 - width)) {
+            dx = -dx;
+        }
+        if ((dy < 0 && y < 10) || (dy > 0 && y > 590 - height)) {
+            dy = -dy;
+        }
 	}
 
     @Override
+    public void draw(Graphics g) {
+        // Draw the fire effect first, so it's behind the alien
+        Sprite fireSprite = fireFrames[fireFrameNumber];
+        int fireWidth = (int) (fireSprite.getWidth() * fireSpriteScale);
+        int fireHeight = (int) (fireSprite.getHeight() * fireSpriteScale);
+        double fireX = this.x + (this.width / 2.0) - (fireWidth / 2.0);
+        double fireY = this.y - fireHeight + 20; // Position it at the top-rear
+        g.drawImage(fireSprite.getImage(), (int) fireX, (int) fireY, fireWidth, fireHeight-30, null);
+
+        // Now draw the alien itself
+        super.draw(g);
+    }
+
+    @Override
     public void onDestroy() {
-        if (fireEffect != null) {
-            context.removeEntity(fireEffect);
-        }
+        // No special cleanup needed for the integrated fire effect
     }
 
 	public void collidedWith(Entity other) {

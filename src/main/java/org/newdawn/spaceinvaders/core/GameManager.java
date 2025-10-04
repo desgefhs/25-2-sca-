@@ -24,6 +24,7 @@ import org.newdawn.spaceinvaders.wave.FormationManager;
 import java.awt.Graphics2D;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class GameManager implements GameContext {
 
@@ -31,6 +32,7 @@ public class GameManager implements GameContext {
     private final EntityManager entityManager;
     private final GameStateManager gsm;
     private final Map<String, Weapon> weapons;
+    private final Random random = new Random();
 
     public final DatabaseManager databaseManager;
     public final GameWindow gameWindow;
@@ -50,24 +52,21 @@ public class GameManager implements GameContext {
     public PlayerStats playerStats;
     public String message = "";
     public int score = 0;
-    public int wave = 1;
+    public int wave = 0;
+
+    // Wave Management
+    public int formationsPerWave;
+    public int formationsSpawnedInWave;
+    public long nextFormationSpawnTime;
 
     public boolean logicRequiredThisLoop = false;
     public boolean showHitboxes = false;
     public long lastFire = 0;
-    public int lineCount = 0;
     public int collectedItems = 0;
-    public long lastLineSpawnTime = 0;
-    public long lastMeteorSpawnTime = 0;
-    public long lastBombSpawnTime = 0;
 
     // 설정
     public final double moveSpeed = 300;
     public static final int ALIEN_SCORE = 10;
-    public final long lineSpawnInterval = 3000;
-    public final int LINES_PER_WAVE = 10;
-    public final long meteorSpawnInterval = 3000;
-    public final long bombSpawnInterval = 5000;
 
     private boolean gameRunning = true;
 
@@ -175,11 +174,13 @@ public class GameManager implements GameContext {
     public void notifyAlienKilled() {
         increaseScore(ALIEN_SCORE);
         entityManager.decreaseAlienCount();
+
         if (entityManager.getAlienCount() == 0) {
-            int effectiveWave = ((wave - 1) % 5) + 1;
-            boolean isBossWave = (effectiveWave == 5);
-            if (isBossWave || lineCount >= LINES_PER_WAVE) {
+            if (formationsSpawnedInWave >= formationsPerWave) {
                 setCurrentState(GameState.Type.WAVE_CLEARED);
+            } else {
+                // Screen is clear, but more formations are coming. Spawn next one immediately.
+                spawnNextFormationInWave();
             }
         }
     }
@@ -189,9 +190,20 @@ public class GameManager implements GameContext {
     public void notifyAlienEscaped(Entity entity) {
         entityManager.removeEntity(entity);
         entityManager.decreaseAlienCount();
-        if (entityManager.getAlienCount() == 0 && lineCount >= LINES_PER_WAVE) {
-            setCurrentState(GameState.Type.WAVE_CLEARED);
+
+        if (entityManager.getAlienCount() == 0) {
+            if (formationsSpawnedInWave >= formationsPerWave) {
+                setCurrentState(GameState.Type.WAVE_CLEARED);
+            } else {
+                // Screen is clear, but more formations are coming. Spawn next one immediately.
+                spawnNextFormationInWave();
+            }
         }
+    }
+
+    @Override
+    public void notifyMeteorDestroyed(int scoreValue) {
+        increaseScore(scoreValue);
     }
 
     @Override
@@ -208,67 +220,16 @@ public class GameManager implements GameContext {
     public void startGameplay() {
         calculatePlayerStats();
         resetScore();
-        wave = 1;
-        lineCount = 0;
-        lastLineSpawnTime = System.currentTimeMillis();
+        wave = 0; // Start at wave 0, so startNextWave() increments to 1
+        startNextWave();
 
-        // Create and set the player's equipped weapon
-        String equippedWeaponName = currentPlayer.getEquippedWeapon();
-        org.newdawn.spaceinvaders.entity.weapon.Weapon selectedWeapon;
-        if (equippedWeaponName != null) {
-            switch (equippedWeaponName) {
-                case "Flamethrower":
-                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Flamethrower();
-                    break;
-                case "Laser":
-                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Laser();
-                    break;
-                default:
-                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.DefaultGun();
-                    break;
-            }
-        } else {
-            selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.DefaultGun();
-        }
-
-        entityManager.initShip(playerStats, selectedWeapon);
-        getShip().reset();
-
-        // Spawn the equipped pet, if any
-        if (currentPlayer != null && currentPlayer.getEquippedPet() != null) {
-            try {
-                ShipEntity playerShip = getShip();
-                PetType petType = PetType.valueOf(currentPlayer.getEquippedPet());
-                switch (petType) {
-                    case ATTACK:
-                        addEntity(new AttackPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
-                        break;
-                    case DEFENSE:
-                        DefensePetEntity defensePet = new DefensePetEntity(this, playerShip, playerShip.getX(), playerShip.getY());
-                        addEntity(defensePet);
-                        playerShip.setShield(true, defensePet::resetAbilityCooldown); // Grant initial shield
-                        defensePet.resetAbilityCooldown();      // Start cooldown timer
-                        break;
-                    case HEAL:
-                        addEntity(new HealPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
-                        break;
-                    case BUFF:
-                        addEntity(new BuffPetEntity(this, playerShip, playerShip.getX(), playerShip.getY()));
-                        break;
-                }
-            } catch (IllegalArgumentException e) {
-                System.err.println("Attempted to spawn unknown pet type: " + currentPlayer.getEquippedPet());
-            }
-        }
-
-        message = "";
-        setCurrentState(GameState.Type.PLAYING);
-
-        // 엔티티 테스트용
+        // Spawn three upgraded ThreeWayShooters for an immediate challenge
         int shooterY = -50;
-        entityManager.addEntity(new ThreeWayShooter(this, Game.GAME_WIDTH / 4, shooterY));
-        entityManager.addEntity(new ThreeWayShooter(this, Game.GAME_WIDTH / 2, shooterY));
-        entityManager.addEntity(new ThreeWayShooter(this, (Game.GAME_WIDTH * 3) / 4, shooterY));
+
+        // Spawn a new BurstShooter for testing
+        BurstShooterEntity s1 = new BurstShooterEntity(this, Game.GAME_WIDTH / 2, shooterY + 50);
+        s1.upgrade();
+        addEntity(s1);
     }
 
     // 다음 웨이브로 전환
@@ -278,8 +239,6 @@ public class GameManager implements GameContext {
             notifyWin();
             return;
         }
-        lineCount = 0;
-        lastLineSpawnTime = System.currentTimeMillis();
         message = "Wave " + wave;
 
         // Create and set the player's equipped weapon
@@ -303,14 +262,6 @@ public class GameManager implements GameContext {
 
         entityManager.initShip(playerStats, selectedWeapon);
 
-        // 웨이브가 5의 배수이면 보스 생성, 아니면 일반 포메이션 생성
-        if (wave % 5 == 0) {
-            spawnBossNow();
-        } else {
-            org.newdawn.spaceinvaders.wave.Formation formation = formationManager.getRandomFormation();
-            entityManager.spawnFormation(formation);
-        }
-
         // Spawn the equipped pet, if any
         if (currentPlayer != null && currentPlayer.getEquippedPet() != null) {
             try {
@@ -338,7 +289,34 @@ public class GameManager implements GameContext {
             }
         }
 
+        // 웨이브가 5의 배수이면 보스 생성, 아니면 일반 포메이션 생성
+        if (wave % 5 == 0) {
+            formationsPerWave = 1;
+            formationsSpawnedInWave = 0;
+            spawnBossNow();
+            formationsSpawnedInWave = 1; // The boss is the only formation
+        } else {
+            formationsPerWave = Math.min(1 + wave, 5);
+            formationsSpawnedInWave = 0;
+            spawnNextFormationInWave();
+        }
+
         setCurrentState(GameState.Type.PLAYING);
+    }
+
+    public void spawnNextFormationInWave() {
+        if (formationsSpawnedInWave >= formationsPerWave || wave % 5 == 0) {
+            return; // Safeguard: Don't spawn more if wave is complete or it's a boss wave
+        }
+
+        org.newdawn.spaceinvaders.wave.Formation formation = formationManager.getRandomFormation();
+        entityManager.spawnFormation(formation, wave);
+
+        formationsSpawnedInWave++;
+
+        // Set timer for the next spawn with a random delay
+        long delay = (random.nextBoolean()) ? 100 : 2000 + random.nextInt(3000);
+        nextFormationSpawnTime = System.currentTimeMillis() + delay;
     }
 
     // 업그레이드 정보 바탕으로 능력치 설정

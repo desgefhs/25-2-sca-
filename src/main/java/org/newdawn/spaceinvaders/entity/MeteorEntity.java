@@ -3,36 +3,69 @@ package org.newdawn.spaceinvaders.entity;
 import org.newdawn.spaceinvaders.core.GameContext;
 
 public class MeteorEntity extends Entity {
-    private double moveSpeed;
-    private GameContext context;
-    private HealthComponent health;
 
-    public MeteorEntity(GameContext context, String sprite, int x, int y, double moveSpeed) {
-        super(sprite, x, y);
-        this.context = context;
-        this.moveSpeed = moveSpeed;
-        this.health = new HealthComponent(2);
-        dy = moveSpeed;
-        setScale(1.5);
+    public enum MeteorType {
+        SMALL("sprites/meteors2.gif", 1),
+        MEDIUM("sprites/meteors3.gif", 2),
+        LARGE("sprites/meteors4.gif", 3);
+
+        public final String spritePath;
+        public final int maxHealth;
+
+        MeteorType(String spritePath, int maxHealth) {
+            this.spritePath = spritePath;
+            this.maxHealth = maxHealth;
+        }
     }
 
-    @Override
-    public void move(long delta) {
-        super.move(delta);
-        if (y > 600) {
-            context.removeEntity(this);
-        }
+    private final GameContext context;
+    private final int scoreValue;
+
+    public MeteorEntity(GameContext context, MeteorType type, int x, int y) {
+        super(type.spritePath, x, y);
+        this.context = context;
+        this.health = new HealthComponent(this, type.maxHealth);
+        this.scoreValue = type.maxHealth * 5; // Score is proportional to health
+        this.dy = (Math.random() * 50) + 50; // Random downward speed between 50 and 100
     }
 
     @Override
     public void collidedWith(Entity other) {
-        if (other instanceof ShipEntity) {
-            context.notifyDeath();
-        }
-    }
+        // Check for collision with player projectiles
+        if (other instanceof ProjectileEntity) {
+            ProjectileEntity shot = (ProjectileEntity) other;
 
-    @Override
-    public HealthComponent getHealth() {
-        return health;
+            // Ensure it's a player's shot
+            if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
+                // Remove the projectile on impact
+                context.removeEntity(shot);
+
+                // Decrease health by a fixed amount of 1, regardless of shot damage
+                if (!health.decreaseHealth(1)) {
+                    // This meteor is destroyed
+                    context.removeEntity(this);
+                    context.notifyMeteorDestroyed(this.scoreValue);
+
+                    // Create a scaled and centered explosion effect
+                    AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
+                    explosion.setScale(0.1);
+                    int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
+                    int centeredY = this.getY() + (this.getHeight() / 2) - (explosion.getHeight() / 2);
+                    explosion.setX(centeredX);
+                    explosion.setY(centeredY);
+                    context.addEntity(explosion);
+                }
+            }
+        }
+
+        // Optional: Handle collision with the player's ship
+        if (other instanceof ShipEntity) {
+            // Damage the player equal to the meteor's remaining health
+            ShipEntity ship = (ShipEntity) other;
+            ship.getHealth().decreaseHealth(this.health.getCurrentHealth());
+
+            // Destroy the meteor on impact
+            context.removeEntity(this);
+        }
     }
 }

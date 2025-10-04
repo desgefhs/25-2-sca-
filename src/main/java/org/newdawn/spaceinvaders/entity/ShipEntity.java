@@ -30,13 +30,13 @@ public class ShipEntity extends Entity {
 	
 	public ShipEntity(GameContext context,String ref,int x,int y, int maxHealth) {
 		super(ref,x,y);
-		this.health = new HealthComponent(maxHealth);
+		this.health = new HealthComponent(this, maxHealth);
 		this.context = context;
 		this.hpRender = new HpRender(health.getHp());
 	}
 
 	public void setMaxHealth(int maxHealth) {
-	    this.health = new HealthComponent(maxHealth);
+	    this.health = new HealthComponent(this, maxHealth);
 	    this.hpRender = new HpRender(health.getHp());
 	}
 	
@@ -147,9 +147,6 @@ public class ShipEntity extends Entity {
                 context.removeEntity(other);
                 if(!health.decreaseHealth(COLLISION_DAMAGE)){
                     context.notifyDeath();
-                } else {
-                    invincible = true;
-                    invincibilityTimer = INVINCIBILITY_DURATION;
                 }
             }
 
@@ -157,17 +154,14 @@ public class ShipEntity extends Entity {
                 // We already checked the targetType, so we know it's hostile.
                 if (!health.decreaseHealth(((ProjectileEntity) other).getDamage())) {
                     context.notifyDeath();
-                } else {
-                    invincible = true;
-                    invincibilityTimer = INVINCIBILITY_DURATION;
                 }
             }
-
-            if (other instanceof MeteorEntity) {
-                context.removeEntity(other);
-                context.notifyDeath();
-            }
         }
+	}
+
+	public void activateInvincibility() {
+	    invincible = true;
+	    invincibilityTimer = INVINCIBILITY_DURATION;
 	}
 
 	            public void reset() {

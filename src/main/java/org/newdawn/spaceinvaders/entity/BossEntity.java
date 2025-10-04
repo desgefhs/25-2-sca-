@@ -23,7 +23,7 @@ public class BossEntity extends Entity {
     public BossEntity(GameContext context, int x, int y, int health, int cycle, int waveNumber) {
         super(waveNumber == 10 ? "sprites/bosses/Hydra.png" : (waveNumber == 5 ? "sprites/bosses/kraken_anim.gif" : "sprites/boss_cycle" + cycle + ".gif"), x, y);
         this.context = context;
-        this.health = new HealthComponent(health);
+        this.health = new HealthComponent(this,health);
         this.hpRender = new HpRender(this.health.getHp());
         this.waveNumber = waveNumber;
         dx = -moveSpeed;
