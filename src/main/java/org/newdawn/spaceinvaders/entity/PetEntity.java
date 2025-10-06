@@ -31,7 +31,6 @@ public abstract class PetEntity extends Entity {
         this.player = player;
         this.offsetX = player.getWidth(); // Position the pet to the right
         this.abilityCooldown = cooldown;
-        setScale(0.07);
     }
 
     /**

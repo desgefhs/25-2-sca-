@@ -7,7 +7,7 @@ import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.entity.PetType;
 import org.newdawn.spaceinvaders.entity.weapon.DefaultGun;
-import org.newdawn.spaceinvaders.entity.weapon.Flamethrower;
+import org.newdawn.spaceinvaders.entity.weapon.Shotgun;
 import org.newdawn.spaceinvaders.entity.weapon.Laser;
 import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.gamestates.*;
@@ -48,6 +48,7 @@ public class GameManager implements GameContext {
     public final AuthenticatedUser user;
     public PlayerData currentPlayer;
     public PlayerStats playerStats;
+    public GameState.Type nextState = null;
     public String message = "";
     public int score = 0;
     public int wave = 1;
@@ -90,7 +91,7 @@ public class GameManager implements GameContext {
 
         this.weapons = new HashMap<>();
         weapons.put("DefaultGun", new DefaultGun());
-        weapons.put("Flamethrower", new Flamethrower());
+        weapons.put("Shotgun", new Shotgun());
         weapons.put("Laser", new Laser());
 
         this.gsm = new GameStateManager();
@@ -148,6 +149,11 @@ public class GameManager implements GameContext {
 
             gsm.update(delta);
 
+            if (nextState != null) {
+                setCurrentState(nextState);
+                nextState = null;
+            }
+
 
             Graphics2D g = gameWindow.getGameCanvas().getGraphics2D();
             if (g != null) {
@@ -179,7 +185,7 @@ public class GameManager implements GameContext {
             int effectiveWave = ((wave - 1) % 5) + 1;
             boolean isBossWave = (effectiveWave == 5);
             if (isBossWave || lineCount >= LINES_PER_WAVE) {
-                setCurrentState(GameState.Type.WAVE_CLEARED);
+                nextState = GameState.Type.WAVE_CLEARED;
             }
         }
     }
@@ -217,8 +223,8 @@ public class GameManager implements GameContext {
         org.newdawn.spaceinvaders.entity.weapon.Weapon selectedWeapon;
         if (equippedWeaponName != null) {
             switch (equippedWeaponName) {
-                case "Flamethrower":
-                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Flamethrower();
+                case "Shotgun":
+                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Shotgun();
                     break;
                 case "Laser":
                     selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Laser();
@@ -232,9 +238,7 @@ public class GameManager implements GameContext {
         }
 
         entityManager.initShip(playerStats, selectedWeapon);
-        getShip().reset();
-
-        // Spawn the equipped pet, if any
+        getShip().reset();        // Spawn the equipped pet, if any
         if (currentPlayer != null && currentPlayer.getEquippedPet() != null) {
             try {
                 ShipEntity playerShip = getShip();
@@ -287,8 +291,8 @@ public class GameManager implements GameContext {
         org.newdawn.spaceinvaders.entity.weapon.Weapon selectedWeapon;
         if (equippedWeaponName != null) {
             switch (equippedWeaponName) {
-                case "Flamethrower":
-                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Flamethrower();
+                case "Shotgun":
+                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Shotgun();
                     break;
                 case "Laser":
                     selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Laser();
@@ -347,7 +351,7 @@ public class GameManager implements GameContext {
 
         // First, set the defaults for weapon levels
         playerStats.getWeaponLevels().put("DefaultGun", 1);
-        playerStats.getWeaponLevels().put("Flamethrower", 0);
+        playerStats.getWeaponLevels().put("Shotgun", 0);
         playerStats.getWeaponLevels().put("Laser", 0);
 
         // Then, overwrite with saved data if it exists
@@ -381,7 +385,7 @@ public class GameManager implements GameContext {
      */
     public void savePlayerData() {
         if (user == null || currentPlayer == null) return;
-        currentPlayer.getWeaponLevels().putAll(playerStats.getWeaponLevels());
+
         databaseManager.updatePlayerData(user.getLocalId(), currentPlayer);
     }
 

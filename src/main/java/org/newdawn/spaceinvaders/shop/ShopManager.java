@@ -106,14 +106,14 @@ public class ShopManager {
             playerData.getPetInventory().put(PetType.BUFF.name(), playerData.getPetInventory().getOrDefault(PetType.BUFF.name(), 0) + 1);
             return "PET_BUFF";
         }
-        // 10% chance for Flamethrower
+        // 10% chance for Shotgun
         else if (roll < 90) {
-            if (playerData.getWeaponLevels().getOrDefault("Flamethrower", 0) > 0) {
+            if (playerData.getWeaponLevels().getOrDefault("Shotgun", 0) > 0) {
                 playerData.setCredit(playerData.getCredit() + 300);
                 return "DUPLICATE_WEAPON";
             } else {
-                playerData.getWeaponLevels().put("Flamethrower", 1);
-                return "WEAPON_FLAMETHROWER";
+                playerData.getWeaponLevels().put("Shotgun", 1);
+                return "WEAPON_SHOTGUN";
             }
         }
         // 10% chance for Laser

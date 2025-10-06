@@ -23,13 +23,24 @@ public class AttackPetEntity extends PetEntity {
      */
     public AttackPetEntity(GameContext game, ShipEntity player, int x, int y) {
         super(game, player, ATTACK_PET_SPRITE, x, y, ATTACK_COOLDOWN);
+        setScale(0.07);
     }
 
     @Override
     public void activateAbility() {
         GameManager gm = (GameManager) game;
         int level = gm.getCurrentPlayer().getPetLevel(PetType.ATTACK.name());
-        int projectileCount = 1 + level; // Level 0 = 1 projectile, Level 1 = 2, etc.
+        int projectileCount = 1;
+        if (level >= 3) {
+            projectileCount++;
+        }
+        if (level >= 6) {
+            projectileCount++;
+        }
+        if (level >= 10) {
+            projectileCount++;
+        }
+
         int damage = 1; // Base damage, can be upgraded later
 
         ProjectileType type = ProjectileType.PLAYER_SHOT; // Use player's shot sprite
@@ -38,6 +49,7 @@ public class AttackPetEntity extends PetEntity {
         for (int i=0; i < projectileCount; i++) {
             int xOffset = (i - projectileCount / 2) * 15;
             ProjectileEntity shot = new ProjectileEntity(game, type, damage, getX() + (getWidth()/2) + xOffset, getY() - 30, 0, -moveSpeed);
+            shot.setScale(0.8);
             game.addEntity(shot);
         }
     }

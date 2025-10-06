@@ -100,9 +100,9 @@ public class PlayingState implements GameState {
             ship.setWeapon(weapon);
         }
         if (input.isTwoPressedAndConsume()) {
-            if (gameManager.playerStats.getWeaponLevel("Flamethrower") > 0) {
-                org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameManager.getWeapons().get("Flamethrower");
-                weapon.setLevel(gameManager.playerStats.getWeaponLevel("Flamethrower"));
+            if (gameManager.playerStats.getWeaponLevel("Shotgun") > 0) {
+                org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameManager.getWeapons().get("Shotgun");
+                weapon.setLevel(gameManager.playerStats.getWeaponLevel("Shotgun"));
                 ship.setWeapon(weapon);
             }
         }

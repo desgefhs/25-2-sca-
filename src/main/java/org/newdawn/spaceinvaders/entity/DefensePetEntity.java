@@ -24,6 +24,7 @@ public class DefensePetEntity extends PetEntity {
      */
     public DefensePetEntity(GameContext game, ShipEntity player, int x, int y) {
         super(game, player, DEFENSE_PET_SPRITE, x, y, BASE_COOLDOWN);
+        setScale(0.5);
     }
 
     @Override

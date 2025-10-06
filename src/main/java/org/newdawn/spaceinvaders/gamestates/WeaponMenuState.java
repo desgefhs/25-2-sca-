@@ -23,7 +23,7 @@ public class WeaponMenuState implements GameState {
         ArrayList<String> weaponNames = new ArrayList<>();
         // Show all weapons, indicating their status
         weaponNames.add("DefaultGun");
-        weaponNames.add("Flamethrower");
+        weaponNames.add("Shotgun");
         weaponNames.add("Laser");
         this.weaponMenu = new WeaponMenu(weaponNames);
     }
@@ -59,6 +59,43 @@ public class WeaponMenuState implements GameState {
                 gameManager.message = selectedWeapon + " 장착됨";
             } else {
                 gameManager.message = "상점에서 먼저 무기를 잠금 해제해야 합니다.";
+            }
+        }
+
+        if (input.isUPressedAndConsume()) { // Assuming 'U' key for upgrade
+            String selectedWeapon = weaponMenu.getSelectedItem();
+            if (selectedWeapon.equals("Shotgun")) {
+                PlayerData playerData = gameManager.currentPlayer;
+                int currentLevel = playerData.getWeaponLevels().getOrDefault("Shotgun", 0);
+                if (currentLevel > 0 && currentLevel < 5) { // Max level 5 for shotgun
+                    int cost = getShotgunUpgradeCost(currentLevel + 1);
+                    if (playerData.getCredit() >= cost) {
+                        playerData.setCredit(playerData.getCredit() - cost);
+                        playerData.getWeaponLevels().put("Shotgun", currentLevel + 1);
+                        gameManager.savePlayerData();
+                        gameManager.message = "Shotgun upgraded to Level " + (currentLevel + 1) + "!";
+                    } else {
+                        gameManager.message = "Not enough credits!";
+                    }
+                } else if (currentLevel >= 5) {
+                    gameManager.message = "Shotgun is already at max level.";
+                }
+            } else if (selectedWeapon.equals("Laser")) {
+                PlayerData playerData = gameManager.currentPlayer;
+                int currentLevel = playerData.getWeaponLevels().getOrDefault("Laser", 0);
+                if (currentLevel > 0 && currentLevel < 5) { // Max level 5 for laser
+                    int cost = getLaserUpgradeCost(currentLevel + 1);
+                    if (playerData.getCredit() >= cost) {
+                        playerData.setCredit(playerData.getCredit() - cost);
+                        playerData.getWeaponLevels().put("Laser", currentLevel + 1);
+                        gameManager.savePlayerData();
+                        gameManager.message = "Laser upgraded to Level " + (currentLevel + 1) + "!";
+                    } else {
+                        gameManager.message = "Not enough credits!";
+                    }
+                } else if (currentLevel >= 5) {
+                    gameManager.message = "Laser is already at max level.";
+                }
             }
         }
     }
@@ -101,6 +138,17 @@ public class WeaponMenuState implements GameState {
             }
 
             g.drawString(displayText, 100, yPos);
+
+            if (weaponName.equals("Shotgun") && level > 0 && level < 5) {
+                g.setFont(new Font("Dialog", Font.PLAIN, 14));
+                g.setColor(Color.YELLOW);
+                g.drawString("Upgrade Cost: " + getShotgunUpgradeCost(level + 1), 300, yPos);
+            } else if (weaponName.equals("Laser") && level > 0 && level < 5) {
+                g.setFont(new Font("Dialog", Font.PLAIN, 14));
+                g.setColor(Color.YELLOW);
+                g.drawString("Upgrade Cost: " + getLaserUpgradeCost(level + 1), 300, yPos);
+            }
+
             yPos += 40;
         }
 
@@ -111,6 +159,27 @@ public class WeaponMenuState implements GameState {
 
         g.setColor(Color.GRAY);
         g.drawString("Go to the Shop to unlock new weapons.", 50, 450);
+        g.drawString("Press 'U' to upgrade selected weapon.", 50, 470);
+    }
+
+    public int getShotgunUpgradeCost(int level) {
+        switch (level) {
+            case 2: return 1000;
+            case 3: return 2000;
+            case 4: return 4000;
+            case 5: return 8000;
+            default: return 999999; // Should not happen
+        }
+    }
+
+    public int getLaserUpgradeCost(int level) {
+        switch (level) {
+            case 2: return 1000;
+            case 3: return 2000;
+            case 4: return 4000;
+            case 5: return 8000;
+            default: return 999999; // Should not happen
+        }
     }
 
     @Override

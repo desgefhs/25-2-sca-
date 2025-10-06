@@ -22,6 +22,7 @@ public class HealPetEntity extends PetEntity {
      */
     public HealPetEntity(GameContext game, ShipEntity player, int x, int y) {
         super(game, player, HEAL_PET_SPRITE, x, y, HEAL_COOLDOWN);
+        setScale(1.0);
     }
 
     @Override

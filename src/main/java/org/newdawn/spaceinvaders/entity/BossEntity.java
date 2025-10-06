@@ -3,6 +3,7 @@ package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.entity.LaserBeamEntity;
 import org.newdawn.spaceinvaders.graphics.HpRender;
 
 public class BossEntity extends Entity {
@@ -238,6 +239,15 @@ public class BossEntity extends Entity {
                         context.removeEntity(this);
                         context.notifyAlienKilled(); // Notify for score and wave progression
                     }
+                }
+            }
+        } else if (other instanceof LaserBeamEntity) {
+            LaserBeamEntity laser = (LaserBeamEntity) other;
+            if (health.isAlive()) {
+                if (!health.decreaseHealth(laser.getDamage())) {
+                    context.removeEntity(this);
+                    context.removeEntity(laser);
+                    context.notifyAlienKilled(); // Notify for score and wave progression
                 }
             }
         }

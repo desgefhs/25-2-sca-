@@ -23,6 +23,7 @@ public class BuffPetEntity extends PetEntity {
      */
     public BuffPetEntity(GameContext game, ShipEntity player, int x, int y) {
         super(game, player, BUFF_PET_SPRITE, x, y, BUFF_COOLDOWN);
+        setScale(1.0);
     }
 
     @Override

@@ -1,8 +1,7 @@
 package org.newdawn.spaceinvaders.entity.weapon;
 
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.entity.ProjectileEntity;
-import org.newdawn.spaceinvaders.entity.ProjectileType;
+import org.newdawn.spaceinvaders.entity.LaserBeamEntity;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
 
 public class Laser implements Weapon {
@@ -10,6 +9,7 @@ public class Laser implements Weapon {
     private long lastFire = 0;
     private long firingInterval = 1500; // 1.5 seconds cooldown
     private int level = 1;
+    private int damage = 3;
 
     @Override
     public void fire(GameContext context, ShipEntity owner) {
@@ -20,21 +20,20 @@ public class Laser implements Weapon {
         }
         lastFire = System.currentTimeMillis();
 
-        int damage = 5 + (level * 2);
-        ProjectileEntity laserShot = new ProjectileEntity(context, ProjectileType.LASER_SHOT, damage, owner.getX() + 22, owner.getY() - 30, 0, -ProjectileType.LASER_SHOT.moveSpeed);
-        context.addEntity(laserShot);
+        int duration = 500; // 500ms duration
+        LaserBeamEntity laserBeam = new LaserBeamEntity(context, owner, duration, damage);
+        context.addEntity(laserBeam);
     }
 
     @Override
     public void upgrade(org.newdawn.spaceinvaders.player.PlayerStats stats) {
-        stats.upgradeWeapon("Laser");
-        this.level = stats.getWeaponLevel("Laser");
-        this.firingInterval = 1500 - (level * 100);
+        // This weapon will have its own upgrade system, independent of PlayerStats
     }
 
     @Override
     public void setLevel(int level) {
         this.level = level;
-        this.firingInterval = 1500 - (level * 100);
+        this.damage = 3 + (level - 1);
+        this.firingInterval = 1500 - ((level - 1) * 250);
     }
 }

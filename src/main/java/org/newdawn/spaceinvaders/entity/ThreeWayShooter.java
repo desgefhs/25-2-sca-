@@ -1,6 +1,7 @@
 package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.entity.LaserBeamEntity;
 
 public class ThreeWayShooter extends Entity {
     private double moveSpeed = 100; // Movement speed of the shooter itself
@@ -9,7 +10,7 @@ public class ThreeWayShooter extends Entity {
     private long lastFire = 0;
     private long firingInterval = 2000; // Fires every 2 seconds
 
-    private final EngineFireEntity fireEffect;
+    // private final EngineFireEntity fireEffect;
 
     public ThreeWayShooter(GameContext context, int x, int y) {
         super("sprites/enemy/ThreeWayShooter.gif", x, y);
@@ -17,8 +18,8 @@ public class ThreeWayShooter extends Entity {
         this.health = new HealthComponent(5); // Example health
         dy = moveSpeed;
 
-        this.fireEffect = new EngineFireEntity(context, this);
-        this.context.addEntity(this.fireEffect);
+        // this.fireEffect = new EngineFireEntity(context, this);
+        // this.context.addEntity(this.fireEffect);
     }
 
     private void tryToFire() {
@@ -61,9 +62,9 @@ public class ThreeWayShooter extends Entity {
     @Override
     public void onDestroy() {
         // When this entity is destroyed, also remove its fire effect
-        if (fireEffect != null) {
-            context.removeEntity(fireEffect);
-        }
+        // if (fireEffect != null) {
+        //     context.removeEntity(fireEffect);
+        // }
     }
 
     @Override
@@ -86,6 +87,24 @@ public class ThreeWayShooter extends Entity {
                         // Remove the shooter from the game
                         context.removeEntity(this);
                     }
+                }
+            }
+        } else if (other instanceof LaserBeamEntity) {
+            LaserBeamEntity laser = (LaserBeamEntity) other;
+            if (health.isAlive()) {
+                if (!health.decreaseHealth(laser.getDamage())) {
+                    // Create, scale, and position the explosion to be centered on the shooter
+                    AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
+                    explosion.setScale(0.1);
+                    int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
+                    int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
+                    explosion.setX(centeredX);
+                    explosion.setY(centeredY);
+                    context.addEntity(explosion);
+
+                    // Remove the shooter from the game
+                    context.removeEntity(this);
+                    context.removeEntity(laser);
                 }
             }
         }

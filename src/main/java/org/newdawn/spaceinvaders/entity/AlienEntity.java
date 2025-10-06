@@ -2,6 +2,7 @@ package org.newdawn.spaceinvaders.entity;
 
 
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.entity.LaserBeamEntity;
 
 /**
  * An entity which represents one of our space invader aliens.
@@ -17,7 +18,7 @@ public class AlienEntity extends Entity {
 	private long lastFire = 0;
 	private static final long firingInterval = 1000;
 
-    private final EngineFireEntity fireEffect;
+    // private final EngineFireEntity fireEffect;
     private boolean isUpgraded = false;
 
 
@@ -28,8 +29,8 @@ public class AlienEntity extends Entity {
 		dx = 0;
 		dy = moveSpeed;
 
-        this.fireEffect = new EngineFireEntity(context, this);
-        this.context.addEntity(this.fireEffect);
+        // this.fireEffect = new EngineFireEntity(context, this);
+        // this.context.addEntity(this.fireEffect);
 	}
 
 	public AlienEntity(GameContext context, int x, int y, int health) {
@@ -78,30 +79,45 @@ public class AlienEntity extends Entity {
 
     @Override
     public void onDestroy() {
-        if (fireEffect != null) {
-            context.removeEntity(fireEffect);
-        }
+        // if (fireEffect != null) {
+        //     context.removeEntity(fireEffect);
+        // }
     }
 
-	public void collidedWith(Entity other) {
-		if (other instanceof ProjectileEntity) {
-            ProjectileEntity shot = (ProjectileEntity) other;
-            if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
-                if (health.isAlive()) {
-                    if (!health.decreaseHealth(shot.getDamage())) {
-                        AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
-                        explosion.setScale(0.1);
-                        int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
-                        int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
-                        explosion.setX(centeredX);
-                        explosion.setY(centeredY);
-                        context.addEntity(explosion);
-
-                        context.removeEntity(this);
-                        context.notifyAlienKilled();
-                    }
-                }
-            }
-        }
-	}
-}
+	    public void collidedWith(Entity other) {
+	        if (other instanceof ProjectileEntity) {
+	            ProjectileEntity shot = (ProjectileEntity) other;
+	            if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
+	                if (health.isAlive()) {
+	                    if (!health.decreaseHealth(shot.getDamage())) {
+	                        AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
+	                        explosion.setScale(0.1);
+	                        int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
+	                        int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
+	                        explosion.setX(centeredX);
+	                        explosion.setY(centeredY);
+	                        context.addEntity(explosion);
+	
+	                        context.removeEntity(this);
+	                        context.notifyAlienKilled();
+	                    }
+	                }
+	            }
+	                } else if (other instanceof LaserBeamEntity) {
+	                    LaserBeamEntity laser = (LaserBeamEntity) other;
+	                    if (health.isAlive()) {
+	                        if (!health.decreaseHealth(laser.getDamage())) {
+	                            AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
+	                            explosion.setScale(0.1);
+	                            int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
+	                            int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
+	                            explosion.setX(centeredX);
+	                            explosion.setY(centeredY);
+	                            context.addEntity(explosion);
+	        
+	                            context.removeEntity(this);
+	                            context.removeEntity(laser);
+	                            context.notifyAlienKilled();
+	                        }
+	                    }
+	                }	    }}
