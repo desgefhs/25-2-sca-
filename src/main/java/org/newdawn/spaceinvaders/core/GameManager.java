@@ -61,6 +61,7 @@ public class GameManager implements GameContext {
     public long lastLineSpawnTime = 0;
     public long lastMeteorSpawnTime = 0;
     public long lastBombSpawnTime = 0;
+    private long playerAttackDisabledUntil = 0;
 
     // 설정
     public final double moveSpeed = 300;
@@ -407,6 +408,25 @@ public class GameManager implements GameContext {
 
     public void resetItemCollection() {
         collectedItems = 0;
+    }
+
+    public void stunPlayer(long duration) {
+        this.playerAttackDisabledUntil = System.currentTimeMillis() + duration;
+    }
+
+    @Override
+    public boolean canPlayerAttack() {
+        return System.currentTimeMillis() > playerAttackDisabledUntil;
+    }
+
+    @Override
+    public void notifyBossMinionEscaped(Entity minion) {
+        for (Entity entity : entityManager.getEntities()) {
+            if (entity instanceof BossEntity) {
+                ((BossEntity) entity).minionEscaped(minion);
+                break;
+            }
+        }
     }
 
     public void spawnBossNow() {

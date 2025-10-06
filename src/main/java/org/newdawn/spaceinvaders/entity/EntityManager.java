@@ -26,7 +26,7 @@ public class EntityManager {
 
     public void initShip(PlayerStats stats, org.newdawn.spaceinvaders.entity.weapon.Weapon weapon) {
         if (ship == null) {
-            ship = new ShipEntity(context, "sprites/ship.gif", Game.GAME_WIDTH / 2, 550, stats.getMaxHealth());
+            ship = new ShipEntity(context, "sprites/ship.gif", Game.GAME_WIDTH / 2, 550, stats, weapon);
             entities.add(ship);
         } else {
             ship.setMaxHealth(stats.getMaxHealth());

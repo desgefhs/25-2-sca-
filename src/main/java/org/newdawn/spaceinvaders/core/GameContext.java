@@ -36,4 +36,10 @@ public interface GameContext {
     boolean hasCollectedAllItems();
 
     void resetItemCollection();
+
+    void stunPlayer(long duration);
+
+    void notifyBossMinionEscaped(Entity minion);
+
+    boolean canPlayerAttack();
 }

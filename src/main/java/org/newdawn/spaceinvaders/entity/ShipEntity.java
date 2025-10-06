@@ -6,7 +6,11 @@ import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.graphics.HpRender;
 import org.newdawn.spaceinvaders.player.PlayerStats;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ShipEntity extends Entity {
 	private GameContext context;
@@ -28,9 +32,11 @@ public class ShipEntity extends Entity {
 
     private Weapon currentWeapon;
 	
-	public ShipEntity(GameContext context,String ref,int x,int y, int maxHealth) {
+    private final Map<PetType, PetEntity> activePets = new HashMap<>();
+
+    public ShipEntity(GameContext context, String ref, int x, int y, PlayerStats stats, Weapon weapon) {
 		super(ref,x,y);
-		this.health = new HealthComponent(maxHealth);
+		this.health = new HealthComponent(stats.getMaxHealth());
 		this.context = context;
 		this.hpRender = new HpRender(health.getHp());
 	}
@@ -41,6 +47,8 @@ public class ShipEntity extends Entity {
 	}
 	
 	    public void move(long delta) {
+        // if we're moving left and have reached the left hand side
+        // of the screen, don't move
 	        if (invincible) {
 	            invincibilityTimer -= delta;
 	            if (invincibilityTimer <= 0) {
@@ -69,6 +77,9 @@ public class ShipEntity extends Entity {
     }
 
     public void tryToFire() {
+        if (!context.canPlayerAttack()) {
+            return; // GameManager가 공격 불가 상태라고 판단하면 발사하지 않음
+        }
         currentWeapon.fire(context, this);
     }
 

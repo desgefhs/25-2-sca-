@@ -7,6 +7,15 @@ import org.newdawn.spaceinvaders.entity.LaserBeamEntity;
 import org.newdawn.spaceinvaders.graphics.HpRender;
 
 public class BossEntity extends Entity {
+    @FunctionalInterface
+    private interface BossPattern {
+        void execute();
+    }
+
+    private final java.util.List<BossPattern> availablePatterns = new java.util.ArrayList<>();
+    private BossPattern lastUsedPattern = null;
+    private long lastSpecialAttack = 0;
+
     private double moveSpeed = 50;
     private double dy = 50; // Add vertical movement speed
     private GameContext context;
@@ -22,11 +31,12 @@ public class BossEntity extends Entity {
     private boolean boss10PatternToggle = false; // To alternate patterns for wave 10
 
     public BossEntity(GameContext context, int x, int y, int health, int cycle, int waveNumber) {
-        super(waveNumber == 10 ? "sprites/bosses/Hydra.png" : (waveNumber == 5 ? "sprites/bosses/kraken_anim.gif" : "sprites/boss_cycle" + cycle + ".gif"), x, y);
+        super(waveNumber == 15 ? "sprites/bosses/Grifin.png" : (waveNumber == 10 ? "sprites/bosses/Hydra.png" : (waveNumber == 5 ? "sprites/bosses/kraken_anim.gif" : "sprites/boss_cycle" + cycle + ".gif")), x, y);
         this.context = context;
         this.health = new HealthComponent(health);
         this.hpRender = new HpRender(this.health.getHp());
         this.waveNumber = waveNumber;
+        this.firingInterval = 2000; // 2초 딜레이
         dx = -moveSpeed;
         if (waveNumber == 10) { // Enable vertical movement for wave 10 boss
             dy = moveSpeed;
@@ -37,6 +47,38 @@ public class BossEntity extends Entity {
         if (waveNumber == 5) {
             stateTimer = System.currentTimeMillis();
             context.resetItemCollection();
+        }
+        setupPatterns();
+    }
+
+    private void setupPatterns() {
+        switch (waveNumber) {
+            case 5:
+                availablePatterns.add(this::fireCirclePattern);
+                availablePatterns.add(this::fireThreeWayPattern);
+                break;
+            case 10:
+                availablePatterns.add(this::fireFollowingShotPattern);
+                availablePatterns.add(this::fireCurtainPattern);
+                break;
+            case 15:
+                availablePatterns.add(this::fireFollowingShotPattern);
+                availablePatterns.add(this::fireCirclePattern);
+                availablePatterns.add(this::spawnMinions);
+                break;
+            case 20:
+                availablePatterns.add(this::fireCurtainPattern);
+                availablePatterns.add(this::fireThreeWayPattern);
+                break;
+            case 25:
+                availablePatterns.add(this::fireThreeWayPattern);
+                availablePatterns.add(this::fireCirclePattern);
+                availablePatterns.add(this::fireFollowingShotPattern);
+                availablePatterns.add(this::fireCurtainPattern);
+                break;
+            default:
+                availablePatterns.add(this::fireFollowingShotPattern);
+                break;
         }
     }
 
@@ -88,86 +130,28 @@ public class BossEntity extends Entity {
         }
         lastFire = System.currentTimeMillis();
 
-        java.util.Random rand = new java.util.Random();
-
-        switch (waveNumber) {
-            case 5:
-                long timeSinceStateChange = System.currentTimeMillis() - stateTimer;
-                switch (boss5State) {
-                    case ATTACKING:
-                        // Randomly choose between two patterns during normal attack phase
-                        if (rand.nextBoolean()) {
-                            fireCirclePattern();
-                        }
-                        else {
-                            fireThreeWayPattern();
-                        }
-                        if (timeSinceStateChange > 5000) { // Attack for 5 seconds
-                            boss5State = Boss5State.SPAWNING_ITEMS;
-                            stateTimer = System.currentTimeMillis();
-                        }
-                        break;
-                    case SPAWNING_ITEMS:
-                        context.resetItemCollection(); // Reset counter before spawning new items
-                        context.addEntity(new ItemEntity(context, Game.GAME_WIDTH / 4, 100));
-                        context.addEntity(new ItemEntity(context, Game.GAME_WIDTH * 3 / 4, 100));
-                        boss5State = Boss5State.CHARGING_LASER;
-                        stateTimer = System.currentTimeMillis();
-                        break;
-                    case CHARGING_LASER:
-                        if (timeSinceStateChange > 3000) { // Wait 3 seconds after spawning items
-                            int laserWidth = 30; // Assuming this is the original image width
-                            for (int x = 0; x < Game.GAME_WIDTH; x += laserWidth) {
-                                context.addEntity(new LaserEntity(context, x, laserWidth));
-                            }
-
-                            // Reset for the next cycle
-                            boss5State = Boss5State.ATTACKING;
-                            stateTimer = System.currentTimeMillis() + 4000; // Add laser duration to delay next attack
-                        }
-                        break;
-                }
-                break;
-            case 10:
-                // Wave 10 boss alternates between following shot and curtain pattern
-                if (boss10PatternToggle) {
-                    fireFollowingShotPattern();
-                } else {
-                    fireCurtainPattern();
-                }
-                boss10PatternToggle = !boss10PatternToggle; // Flip the toggle for the next shot
-                break;
-            case 15:
-                // Wave 15 boss randomly uses following shot or circle pattern
-                if (rand.nextBoolean()) {
-                    fireFollowingShotPattern();
-                } else {
-                    fireCirclePattern();
-                }
-                break;
-            case 20:
-                // Wave 20 boss randomly uses curtain or three-way pattern
-                if (rand.nextBoolean()) {
-                    fireCurtainPattern();
-                } else {
-                    fireThreeWayPattern();
-                }
-                break;
-            case 25:
-                // Final boss uses one of four patterns randomly
-                int pattern = rand.nextInt(4);
-                switch (pattern) {
-                    case 0: fireThreeWayPattern(); break;
-                    case 1: fireCirclePattern(); break;
-                    case 2: fireFollowingShotPattern(); break;
-                    case 3: fireCurtainPattern(); break;
-                }
-                break;
-            default:
-                // Default pattern for other waves if any
-                fireFollowingShotPattern();
-                break;
+        if (availablePatterns.isEmpty()) {
+            return;
         }
+
+        // 마지막에 사용한 패턴을 제외한 새로운 목록 생성
+        java.util.List<BossPattern> selectablePatterns = new java.util.ArrayList<>(availablePatterns);
+        if (lastUsedPattern != null) {
+            selectablePatterns.remove(lastUsedPattern);
+        }
+
+        // 만약 필터링된 목록이 비어있으면 (예: 패턴이 1개뿐인 경우), 전체 목록을 다시 사용
+        if (selectablePatterns.isEmpty()) {
+            selectablePatterns.addAll(availablePatterns);
+        }
+
+        // 선택 가능한 패턴 목록에서 무작위로 하나를 선택
+        java.util.Random rand = new java.util.Random();
+        BossPattern selectedPattern = selectablePatterns.get(rand.nextInt(selectablePatterns.size()));
+
+        // 패턴 실행 및 마지막 사용 패턴으로 기록
+        selectedPattern.execute();
+        this.lastUsedPattern = selectedPattern;
     }
 
     private void fireCurtainPattern() {
@@ -228,6 +212,19 @@ public class BossEntity extends Entity {
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + 20, getY() + 50));
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + 50, getY() + 50));
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + 80, getY() + 50));
+    }
+
+    private void spawnMinions() {
+        String minionSprite = "sprites/bosses/Grifin_small.png";
+        for (int i = 0; i < 3; i++) {
+            AlienEntity minion = new AlienEntity(context, minionSprite, (i + 1) * (Game.GAME_WIDTH / 4), (int) (getY() + height + 50));
+            minion.setAsBossMinion(); // 보스 쫄몹으로 설정
+            context.addEntity(minion);
+        }
+    }
+
+    public void minionEscaped(Entity minion) {
+        context.stunPlayer(2000); // 쫄몹이 탈출하면 플레이어 2초 기절
     }
 
     public void collidedWith(Entity other) {

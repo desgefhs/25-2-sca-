@@ -9,7 +9,8 @@ public enum ProjectileType {
     FOLLOWING_SHOT("sprites/shot/followingshot.gif", 150, 500, TargetType.PLAYER),
     FAST_FOLLOWING_SHOT("sprites/shot/fast_followingshot.gif", 250, 500, TargetType.PLAYER),
     LASER_SHOT("sprites/texture_laser.PNG", 600, 0, TargetType.ENEMY),
-    HYDRA_CURTAIN("sprites/explosion.gif", 250, 0, TargetType.PLAYER);
+    HYDRA_CURTAIN("sprites/explosion.gif", 250, 0, TargetType.PLAYER),
+    FEATHER_SHOT("sprites/projectiles/feather.png", 220, 0, TargetType.PLAYER);
 
     public enum TargetType {
         PLAYER, ENEMY

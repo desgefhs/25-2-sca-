@@ -10,8 +10,15 @@ import org.newdawn.spaceinvaders.entity.LaserBeamEntity;
  * @author Kevin Glass
  */
 public class AlienEntity extends Entity {
-	private double moveSpeed = 100;
-	private GameContext context;
+    private double moveSpeed = 75;
+    private GameContext context;
+    private boolean isBossMinion = false;
+
+    public void setAsBossMinion() {
+        this.isBossMinion = true;
+    }
+
+    private int cycle = 0;
 	private static final int MAX_HEALTH = 2;
 	private static final int SHOT_DAMAGE = 1;
 
@@ -21,6 +28,14 @@ public class AlienEntity extends Entity {
     // private final EngineFireEntity fireEffect;
     private boolean isUpgraded = false;
 
+
+	public AlienEntity(GameContext context, String sprite, int x, int y) {
+		super(sprite, x, y);
+		this.health = new HealthComponent(MAX_HEALTH);
+		this.context = context;
+		dx = 0;
+		dy = moveSpeed;
+	}
 
 	public AlienEntity(GameContext context, int x, int y, int health, int cycle) {
 		super("sprites/enemy/alien.gif", x, y);
@@ -71,7 +86,11 @@ public class AlienEntity extends Entity {
 		}
 
 		if (y > 600) {
-			context.notifyAlienEscaped(this);
+			if (isBossMinion) {
+				context.notifyBossMinionEscaped(this);
+			} else {
+				context.notifyAlienEscaped(this);
+			}
 		}
 
 		super.move(delta);
@@ -89,19 +108,12 @@ public class AlienEntity extends Entity {
 	            ProjectileEntity shot = (ProjectileEntity) other;
 	            if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
 	                if (health.isAlive()) {
-	                    if (!health.decreaseHealth(shot.getDamage())) {
-	                        AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
-	                        explosion.setScale(0.1);
-	                        int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
-	                        int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
-	                        explosion.setX(centeredX);
-	                        explosion.setY(centeredY);
-	                        context.addEntity(explosion);
-	
-	                        context.removeEntity(this);
-	                        context.notifyAlienKilled();
-	                    }
-	                }
+	                                        if (!health.decreaseHealth(shot.getDamage())) {
+	                                            context.removeEntity(this);
+	                                            if (!isBossMinion) {
+	                                                context.notifyAlienKilled(); // 보스 쫄몹이 아니면 카운트 감소
+	                                            }
+	                                        }	                }
 	            }
 	                } else if (other instanceof LaserBeamEntity) {
 	                    LaserBeamEntity laser = (LaserBeamEntity) other;
