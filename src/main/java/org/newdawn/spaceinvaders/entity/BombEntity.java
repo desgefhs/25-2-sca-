@@ -2,7 +2,6 @@ package org.newdawn.spaceinvaders.entity;
 
 
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.entity.LaserBeamEntity;
 
 import java.util.List;
 
@@ -50,14 +49,6 @@ public class BombEntity extends Entity {
                         explode(); // 체력이 0이 되면 폭발
                         context.removeEntity(this);
                     }
-                }
-            }
-        } else if (other instanceof LaserBeamEntity) {
-            LaserBeamEntity laser = (LaserBeamEntity) other;
-            if (health.isAlive()) {
-                if (!health.decreaseHealth(laser.getDamage())) {
-                    explode(); // 체력이 0이 되면 폭발
-                    context.removeEntity(this);
                 }
             }
         }

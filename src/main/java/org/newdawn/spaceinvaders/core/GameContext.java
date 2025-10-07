@@ -26,6 +26,8 @@ public interface GameContext {
     // 적 엔티티 처리함
     void notifyAlienKilled();
 
+    void notifyMeteorDestroyed(int scoreValue);
+
     //게임에 존재하는 모든 엔티티를 가져옴
     java.util.List<Entity> getEntities();
 

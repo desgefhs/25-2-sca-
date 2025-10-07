@@ -2,7 +2,6 @@ package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.*;
 import org.newdawn.spaceinvaders.entity.*;
-import org.newdawn.spaceinvaders.wave.Formation;
 
 import org.newdawn.spaceinvaders.view.BuffUI;
 
@@ -11,6 +10,8 @@ import java.awt.*;
 public class PlayingState implements GameState {
 
     private final GameManager gameManager;
+    private long lastMeteorSpawnTime;
+    private long nextMeteorSpawnInterval;
     private final BuffUI buffUI;
 
     public PlayingState(GameManager gameManager) {
@@ -39,6 +40,7 @@ public class PlayingState implements GameState {
         gameManager.background.update(delta);
 
         handleSpawning(delta);
+        handleMeteorSpawning();
 
         gameManager.getEntityManager().moveAll(delta);
         new CollisionDetector().checkCollisions(gameManager.getEntityManager().getEntities());
@@ -57,18 +59,28 @@ public class PlayingState implements GameState {
         g.fillRect(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
         gameManager.background.draw(g);
 
-        // Draw Entities
-        for (Entity entity : gameManager.getEntityManager().getEntities()) {
-            entity.draw(g);
-        }
+        // --- Start of Clipped Drawing ---
+        Shape originalClip = g.getClip();
+        try {
+            g.setClip(0, 0, Game.GAME_WIDTH, Game.GAME_HEIGHT);
 
-        // Draw Hitboxes if enabled
-        if (gameManager.showHitboxes) {
-            g.setColor(Color.RED);
+            // Draw Entities
             for (Entity entity : gameManager.getEntityManager().getEntities()) {
-                g.drawRect(entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight());
+                entity.draw(g);
             }
+
+            // Draw Hitboxes if enabled
+            if (gameManager.showHitboxes) {
+                g.setColor(Color.RED);
+                for (Entity entity : gameManager.getEntityManager().getEntities()) {
+                    g.drawRect(entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight());
+                }
+            }
+        } finally {
+            // Restore original clip to draw UI elements outside the game area
+            g.setClip(originalClip);
         }
+        // --- End of Clipped Drawing ---
 
         // Draw UI
         g.setColor(Color.white);
@@ -131,37 +143,44 @@ public class PlayingState implements GameState {
     }
 
     private void handleSpawning(long delta) {
-        // This method now only handles non-wave-based spawning like meteors and bombs.
-        long currentTime = System.currentTimeMillis();
-
-        if (currentTime - gameManager.lastMeteorSpawnTime > gameManager.meteorSpawnInterval) {
-            gameManager.lastMeteorSpawnTime = currentTime;
-            int quantity = (int) (Math.random() * 2) + 2;
-            for (int i = 0; i < quantity; i++) {
-                MeteorEntity meteor = new MeteorEntity(gameManager, "sprites/meteor.gif", 0, -50, 150);
-                int x = (int) (Math.random() * (Game.GAME_WIDTH - meteor.getWidth()));
-                meteor.setX(x);
-                gameManager.addEntity(meteor);
-            }
-        }
-
-        if (currentTime - gameManager.lastBombSpawnTime > gameManager.bombSpawnInterval) {
-            gameManager.lastBombSpawnTime = currentTime;
-            int quantity = (int) (Math.random() * 2) + 2;
-            for (int i = 0; i < quantity; i++) {
-                BombEntity bomb = new BombEntity(gameManager, "sprites/enemy/bomb.gif", 0, -50, 100, gameManager.wave);
-                int x = (int) (Math.random() * (Game.GAME_WIDTH - bomb.getWidth()));
-                bomb.setX(x);
-                gameManager.addEntity(bomb);
-            }
+        // Check if it's time to spawn the next formation in the wave
+        if (gameManager.formationsSpawnedInWave < gameManager.formationsPerWave &&
+            System.currentTimeMillis() > gameManager.nextFormationSpawnTime) {
+            gameManager.spawnNextFormationInWave();
         }
     }
 
     @Override
     public void onEnter() {
-        // Wave spawning logic has been moved to GameManager.startNextWave()
+        lastMeteorSpawnTime = System.currentTimeMillis();
+        // Set initial random interval between 1-2 seconds
+        nextMeteorSpawnInterval = 1000 + (long) (Math.random() * 1000);
     }
 
     @Override
     public void onExit() {}
+
+    private void handleMeteorSpawning() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime > lastMeteorSpawnTime + nextMeteorSpawnInterval) {
+            lastMeteorSpawnTime = currentTime;
+            nextMeteorSpawnInterval = 1000 + (long) (Math.random() * 1000); // Reset for next spawn
+
+            // 1. Select a random meteor type
+            MeteorEntity.MeteorType[] types = MeteorEntity.MeteorType.values();
+            MeteorEntity.MeteorType randomType = types[(int) (Math.random() * types.length)];
+
+            // 2. Create the meteor at a random X position at the top of the screen
+            int xPos = (int) (Math.random() * (Game.GAME_WIDTH - 50)); // -50 to avoid spawning partially off-screen
+            MeteorEntity meteor = new MeteorEntity(gameManager, randomType, xPos, -50);
+
+            // 3. Set a random downward-diagonal velocity
+            double speed = (Math.random() * 50) + 50; // Random base speed
+            double angle = Math.toRadians(30 + Math.random() * 120); // Angle between 30 and 150 degrees (downward cone)
+            meteor.setVerticalMovement(Math.sin(angle) * speed);
+            meteor.setHorizontalMovement(Math.cos(angle) * speed);
+
+            gameManager.addEntity(meteor);
+        }
+    }
 }

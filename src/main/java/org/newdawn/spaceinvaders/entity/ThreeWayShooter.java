@@ -2,6 +2,10 @@ package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.entity.LaserBeamEntity;
+import org.newdawn.spaceinvaders.graphics.Sprite;
+import org.newdawn.spaceinvaders.graphics.SpriteStore;
+
+import java.awt.Graphics;
 
 public class ThreeWayShooter extends Entity {
     private double moveSpeed = 100; // Movement speed of the shooter itself
@@ -10,16 +14,33 @@ public class ThreeWayShooter extends Entity {
     private long lastFire = 0;
     private long firingInterval = 2000; // Fires every 2 seconds
 
-    // private final EngineFireEntity fireEffect;
+    // Upgrade state
+    private boolean isUpgraded = false;
+    private boolean specialShotPending = false;
+    private long normalShotTime = 0;
+    private static final long SPECIAL_SHOT_DELAY = 500; // 0.5 seconds
+
+    // Integrated engine fire effect
+    private final Sprite[] fireFrames = new Sprite[3];
+    private final long fireFrameDuration = 100; // ms
+    private long fireLastFrameChange;
+    private int fireFrameNumber;
+    private final double fireSpriteScale = 0.8;
 
     public ThreeWayShooter(GameContext context, int x, int y) {
         super("sprites/enemy/ThreeWayShooter.gif", x, y);
         this.context = context;
-        this.health = new HealthComponent(5); // Example health
+        this.health = new HealthComponent(this,5); // Example health
         dy = moveSpeed;
 
-        // this.fireEffect = new EngineFireEntity(context, this);
-        // this.context.addEntity(this.fireEffect);
+        // Pre-load all fire frames
+        fireFrames[0] = SpriteStore.get().getSprite("sprites/fire effect/18 Ion.png");
+        fireFrames[1] = SpriteStore.get().getSprite("sprites/fire effect/19 Ion.png");
+        fireFrames[2] = SpriteStore.get().getSprite("sprites/fire effect/20 Ion.png");
+    }
+
+    public void upgrade() {
+        this.isUpgraded = true;
     }
 
     private void tryToFire() {
@@ -45,13 +66,33 @@ public class ThreeWayShooter extends Entity {
         double dxRight = Math.sin(angle) * shotMoveSpeed;
         double dyRight = Math.cos(angle) * shotMoveSpeed;
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, dxRight, dyRight));
+
+        if (isUpgraded) {
+            specialShotPending = true;
+            normalShotTime = System.currentTimeMillis();
+        }
     }
 
     @Override
     public void move(long delta) {
         super.move(delta);
 
+        // Update fire animation
+        fireLastFrameChange += delta;
+        if (fireLastFrameChange > fireFrameDuration) {
+            fireLastFrameChange = 0;
+            fireFrameNumber = (fireFrameNumber + 1) % fireFrames.length;
+        }
+
         tryToFire();
+
+        // Handle delayed special shot if pending
+        if (specialShotPending && System.currentTimeMillis() > normalShotTime + SPECIAL_SHOT_DELAY) {
+            ProjectileType specialType = ProjectileType.FAST_FOLLOWING_SHOT;
+            int specialDamage = 2; // Or whatever damage is appropriate
+            context.addEntity(new ProjectileEntity(context, specialType, specialDamage, getX() + (width/2), getY() + height));
+            specialShotPending = false; // Reset the flag
+        }
 
         // if we have gone off the bottom of the screen, remove ourselves
         if (y > 600) {
@@ -60,11 +101,22 @@ public class ThreeWayShooter extends Entity {
     }
 
     @Override
+    public void draw(Graphics g) {
+        // Draw the fire effect first, so it's behind the entity
+        Sprite fireSprite = fireFrames[fireFrameNumber];
+        int fireWidth = (int) (fireSprite.getWidth() * fireSpriteScale);
+        int fireHeight = (int) (fireSprite.getHeight() * fireSpriteScale);
+        double fireX = this.x + (this.width / 2.0) - (fireWidth / 2.0);
+        double fireY = this.y - fireHeight + 20; // Position it at the top-rear
+        g.drawImage(fireSprite.getImage(), (int) fireX, (int) fireY, fireWidth, fireHeight, null);
+
+        // Now draw the entity itself
+        super.draw(g);
+    }
+
+    @Override
     public void onDestroy() {
-        // When this entity is destroyed, also remove its fire effect
-        // if (fireEffect != null) {
-        //     context.removeEntity(fireEffect);
-        // }
+        // No special cleanup needed for the integrated fire effect
     }
 
     @Override

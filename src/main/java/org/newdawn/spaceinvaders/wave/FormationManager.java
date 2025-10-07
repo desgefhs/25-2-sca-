@@ -2,6 +2,7 @@ package org.newdawn.spaceinvaders.wave;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.entity.EntityType;
+import org.newdawn.spaceinvaders.entity.MovementPattern;
 import org.newdawn.spaceinvaders.entity.SpawnInfo;
 
 import java.util.ArrayList;
@@ -21,21 +22,28 @@ public class FormationManager {
     }
 
     private void createFormations() {
-        // Formation 1: Straight Line
-        Formation lineFormation = new Formation("Straight Line");
+        formations.add(createLineFormation());
+        formations.add(createVFormation());
+    }
+
+    private Formation createLineFormation() {
+        Formation formation = new Formation("Wavy Line");
         for (int i = 0; i < 10; i++) {
             int xPos = 50 + (i * 35);
-            lineFormation.add(new SpawnInfo(EntityType.ALIEN, xPos, -50));
+            // This formation moves in a sine wave and has a 10% chance to upgrade
+            formation.add(new SpawnInfo(EntityType.ALIEN, xPos, -50, MovementPattern.SINUSOIDAL, 0.1));
         }
-        formations.add(lineFormation);
+        return formation;
+    }
 
-        // Formation 2: V-Shape
-        Formation vFormation = new Formation("V-Shape");
+    private Formation createVFormation() {
+        Formation formation = new Formation("V-Shape");
         for (int i = 0; i < 5; i++) {
-            vFormation.add(new SpawnInfo(EntityType.ALIEN, (Game.GAME_WIDTH / 2) - 20 - (i * 30), -50 - (i * 30)));
-            vFormation.add(new SpawnInfo(EntityType.ALIEN, (Game.GAME_WIDTH / 2) + 20 + (i * 30), -50 - (i * 30)));
+            // This formation moves straight down but has a 30% chance to upgrade
+            formation.add(new SpawnInfo(EntityType.ALIEN, (Game.GAME_WIDTH / 2) - 20 - (i * 30), -50 - (i * 30), MovementPattern.STRAIGHT_DOWN, 0.3));
+            formation.add(new SpawnInfo(EntityType.ALIEN, (Game.GAME_WIDTH / 2) + 20 + (i * 30), -50 - (i * 30), MovementPattern.STRAIGHT_DOWN, 0.3));
         }
-        formations.add(vFormation);
+        return formation;
     }
 
     public Formation getRandomFormation() {
