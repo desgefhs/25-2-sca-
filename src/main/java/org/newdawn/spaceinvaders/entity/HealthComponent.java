@@ -23,6 +23,10 @@ public class HealthComponent {
         hp.setCurrentHp(hp.getMAX_HP());
     }
 
+    public void fullyHeal() {
+        hp.setCurrentHp(hp.getMAX_HP());
+    }
+
     public HP getHp() {
         return hp;
     }

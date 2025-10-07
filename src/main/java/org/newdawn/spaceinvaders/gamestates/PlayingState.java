@@ -4,14 +4,18 @@ import org.newdawn.spaceinvaders.core.*;
 import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.wave.Formation;
 
+import org.newdawn.spaceinvaders.view.BuffUI;
+
 import java.awt.*;
 
 public class PlayingState implements GameState {
 
     private final GameManager gameManager;
+    private final BuffUI buffUI;
 
     public PlayingState(GameManager gameManager) {
         this.gameManager = gameManager;
+        this.buffUI = new BuffUI();
     }
 
     @Override
@@ -72,6 +76,11 @@ public class PlayingState implements GameState {
         g.drawString(String.format("점수: %03d", gameManager.score), 680, 30);
         g.drawString(String.format("Wave: %d", gameManager.wave), 20, 30);
 
+        // Draw Buff UI
+        if (gameManager.getShip() != null) {
+            buffUI.draw(g, gameManager.getShip().getBuffManager());
+        }
+
         // Draw Message if any
         if (gameManager.message != null && !gameManager.message.isEmpty()) {
             g.setColor(Color.white);
@@ -86,8 +95,8 @@ public class PlayingState implements GameState {
         ship.setHorizontalMovement(0);
         ship.setVerticalMovement(0);
 
-        if (input.isLeftPressed() && !input.isRightPressed()) ship.setHorizontalMovement(-gameManager.moveSpeed);
-        else if (input.isRightPressed() && !input.isLeftPressed()) ship.setHorizontalMovement(gameManager.moveSpeed);
+        if (input.isLeftPressed() && !input.isRightPressed()) ship.setHorizontalMovement(-ship.getMoveSpeed());
+        else if (input.isRightPressed() && !input.isLeftPressed()) ship.setHorizontalMovement(ship.getMoveSpeed());
 
         if (input.isUpPressed() && !input.isDownPressed()) ship.setVerticalMovement(-gameManager.moveSpeed);
         if (input.isDownPressed() && !input.isUpPressed()) ship.setVerticalMovement(gameManager.moveSpeed);

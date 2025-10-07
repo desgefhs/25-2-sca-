@@ -20,8 +20,8 @@ public class DefaultGun implements Weapon {
         int bulletDamage = stats.getBulletDamage();
         int projectileCount = stats.getProjectileCount();
 
-        if (owner.isBuffActive()) {
-            double buffMultiplier = 1.20 + (owner.getBuffLevel() * 0.01);
+        if (owner.getBuffManager().hasBuff(org.newdawn.spaceinvaders.player.BuffType.DAMAGE_BOOST)) {
+            double buffMultiplier = 1.20 + (owner.getBuffManager().getBuffLevel(org.newdawn.spaceinvaders.player.BuffType.DAMAGE_BOOST) * 0.01);
             firingInterval /= buffMultiplier; // Faster fire rate
             bulletDamage *= buffMultiplier;   // More damage
         }

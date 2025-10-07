@@ -182,6 +182,17 @@ public class GameManager implements GameContext {
     public void notifyAlienKilled() {
         increaseScore(ALIEN_SCORE);
         entityManager.decreaseAlienCount();
+
+        // Buff drop logic
+        double roll = Math.random();
+        if (roll < 0.05) { // 5% chance for invincibility
+            getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.INVINCIBILITY);
+        } else if (roll < 0.10) { // 5% chance for speed boost
+            getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.SPEED_BOOST);
+        } else if (roll < 0.15) { // 5% chance for heal
+            getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.HEAL);
+        }
+
         if (entityManager.getAlienCount() == 0) {
             int effectiveWave = ((wave - 1) % 5) + 1;
             boolean isBossWave = (effectiveWave == 5);

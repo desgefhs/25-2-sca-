@@ -1,9 +1,11 @@
 package org.newdawn.spaceinvaders.entity;
+
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.core.GameManager;
 import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.graphics.HpRender;
+import org.newdawn.spaceinvaders.player.BuffManager;
+import org.newdawn.spaceinvaders.player.BuffType;
 import org.newdawn.spaceinvaders.player.PlayerStats;
 
 import java.awt.Color;
@@ -13,64 +15,65 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ShipEntity extends Entity {
-	private GameContext context;
-	private HpRender hpRender;
-	private static final int COLLISION_DAMAGE = 1;
+    private GameContext context;
+    private HpRender hpRender;
+    private static final int COLLISION_DAMAGE = 1;
 
-	private boolean invincible = false;
+    private boolean invincible = false;
     private long invincibilityTimer = 0;
     private static final long INVINCIBILITY_DURATION = 500; // 0.5 seconds
 
     private boolean hasShield = false;
     private Runnable onShieldBreak = null;
 
-    private boolean isBuffActive = false;
-    private long buffTimer = 0;
-    private static final long BUFF_DURATION = 3000; // 3 seconds
-    private int buffLevel = 0;
-    private Runnable onBuffEnd = null;
-
     private Weapon currentWeapon;
-	
     private final Map<PetType, PetEntity> activePets = new HashMap<>();
 
-    public ShipEntity(GameContext context, String ref, int x, int y, PlayerStats stats, Weapon weapon) {
-		super(ref,x,y);
-		this.health = new HealthComponent(stats.getMaxHealth());
-		this.context = context;
-		this.hpRender = new HpRender(health.getHp());
-	}
+    private BuffManager buffManager;
+    private float moveSpeed = 300; // pixels/sec
 
-	public void setMaxHealth(int maxHealth) {
-	    this.health = new HealthComponent(maxHealth);
-	    this.hpRender = new HpRender(health.getHp());
-	}
-	
-	    public void move(long delta) {
-        // if we're moving left and have reached the left hand side
-        // of the screen, don't move
-	        if (invincible) {
-	            invincibilityTimer -= delta;
-	            if (invincibilityTimer <= 0) {
-	                invincible = false;
-	            }
-	        }
-	
-	                if (isBuffActive) {
-	                    buffTimer -= delta;
-	                    if (buffTimer <= 0) {
-	                        isBuffActive = false;
-	                        if (onBuffEnd != null) {
-	                            onBuffEnd.run();
-	                        }
-	                    }
-	                }	
-			super.move(delta);
-		if (x < 0) { x = 0; }
-		if (x > Game.GAME_WIDTH - width) { x = Game.GAME_WIDTH - width; }
-		if (y < 0) { y = 0; }
-		if (y > Game.GAME_HEIGHT - height) { y = Game.GAME_HEIGHT - height; }
-	}
+    public ShipEntity(GameContext context, String ref, int x, int y, PlayerStats stats, Weapon weapon) {
+        super(ref, x, y);
+        this.health = new HealthComponent(stats.getMaxHealth());
+        this.context = context;
+        this.hpRender = new HpRender(health.getHp());
+        this.buffManager = new BuffManager(this);
+    }
+
+    public void activateBuff(int level, Runnable onEnd) {
+        buffManager.addBuff(BuffType.DAMAGE_BOOST);
+        onEnd.run();
+    }
+
+    public void setMaxHealth(int maxHealth) {
+        this.health = new HealthComponent(maxHealth);
+        this.hpRender = new HpRender(health.getHp());
+    }
+
+    public void move(long delta) {
+        buffManager.update();
+
+        if (invincible) {
+            invincibilityTimer -= delta;
+            if (invincibilityTimer <= 0) {
+                invincible = false;
+            }
+        }
+
+        super.move(delta);
+        if (x < 0) {
+            x = 0;
+        }
+        if (x > Game.GAME_WIDTH - width) {
+            x = Game.GAME_WIDTH - width;
+        }
+        if (y < 0) {
+            y = 0;
+        }
+        if (y > Game.GAME_HEIGHT - height) {
+            y = Game.GAME_HEIGHT - height;
+        }
+    }
 
     public void setWeapon(Weapon weapon) {
         this.currentWeapon = weapon;
@@ -78,37 +81,22 @@ public class ShipEntity extends Entity {
 
     public void tryToFire() {
         if (!context.canPlayerAttack()) {
-            return; // GameManager가 공격 불가 상태라고 판단하면 발사하지 않음
+            return;
         }
         currentWeapon.fire(context, this);
     }
 
-	public boolean isBuffActive() {
-		return isBuffActive;
-	}
-
-	public int getBuffLevel() {
-		return buffLevel;
-	}
-
-	@Override
-	public void draw(Graphics g) {
+    @Override
+    public void draw(Graphics g) {
         int effectSize = Math.max(width, height) + 10;
 
-        // Draw shield visual if active
         if (hasShield) {
             g.setColor(new Color(100, 100, 255, 70)); // Semi-transparent blue
             g.fillOval((int) x - (effectSize - width) / 2, (int) y - (effectSize - height) / 2, effectSize, effectSize);
         }
 
-        // Draw buff visual if active
-        if (isBuffActive) {
-            g.setColor(new Color(255, 100, 100, 70)); // Semi-transparent red
-            g.fillOval((int) x - (effectSize - width) / 2, (int) y - (effectSize - height) / 2, effectSize, effectSize);
-        }
-
-	    boolean shouldDraw = true;
-        if (invincible) {
+        boolean shouldDraw = true;
+        if (invincible || buffManager.hasBuff(BuffType.INVINCIBILITY)) {
             if ((System.currentTimeMillis() / 100) % 2 == 0) {
                 shouldDraw = false;
             }
@@ -118,45 +106,40 @@ public class ShipEntity extends Entity {
             super.draw(g);
         }
 
-		hpRender.hpRender((Graphics2D) g, this);
-	}
+        hpRender.hpRender((Graphics2D) g, this);
+    }
 
-	public void collidedWith(Entity other) {
-        // If the colliding entity is a projectile, check if it's hostile before doing anything else.
+    public void collidedWith(Entity other) {
+        if (buffManager.hasBuff(BuffType.INVINCIBILITY)) {
+            return;
+        }
+
         if (other instanceof ProjectileEntity) {
             ProjectileEntity shot = (ProjectileEntity) other;
             if (shot.getType().targetType != ProjectileType.TargetType.PLAYER) {
-                return; // It's a friendly shot, ignore the collision.
+                return;
             }
         }
 
-        // Proceed with collision logic only for hostile projectiles, aliens, or meteors.
-	    if (other instanceof AlienEntity || other instanceof ProjectileEntity || other instanceof MeteorEntity) {
-            // if the shield is active, absorb the hit
+        if (other instanceof AlienEntity || other instanceof ProjectileEntity || other instanceof MeteorEntity) {
             if (hasShield) {
-                // Reset cooldown on the provider FIRST, by running the callback.
                 if (onShieldBreak != null) {
                     onShieldBreak.run();
                 }
-                // Now deactivate the shield.
                 setShield(false, null);
-
-                // if the colliding entity is not a meteor, remove it
                 if (!(other instanceof MeteorEntity)) {
                     context.removeEntity(other);
                 }
-                return; // Damage absorbed
+                return;
             }
 
-            // if invincible, no damage
             if (invincible) {
                 return;
             }
 
-            // otherwise, take damage
             if (other instanceof AlienEntity) {
                 context.removeEntity(other);
-                if(!health.decreaseHealth(COLLISION_DAMAGE)){
+                if (!health.decreaseHealth(COLLISION_DAMAGE)) {
                     context.notifyDeath();
                 } else {
                     invincible = true;
@@ -165,7 +148,6 @@ public class ShipEntity extends Entity {
             }
 
             if (other instanceof ProjectileEntity) {
-                // We already checked the targetType, so we know it's hostile.
                 if (!health.decreaseHealth(((ProjectileEntity) other).getDamage())) {
                     context.notifyDeath();
                 } else {
@@ -179,32 +161,36 @@ public class ShipEntity extends Entity {
                 context.notifyDeath();
             }
         }
-	}
+    }
 
-	            public void reset() {
-	        	    health.reset();
-	        	    invincible = false;
-	                invincibilityTimer = 0;
-	                setShield(false, null); // Also reset shield on reset
-	                isBuffActive = false; // Also reset buff
-	                buffTimer = 0;
-	                onBuffEnd = null;
-	        	    x = Game.GAME_WIDTH / 2;
-	        	    y = 550;
-	        	}
-	        
-	        	public boolean hasShield() {
-	                return hasShield;
-	            }
-	        
-	            public void setShield(boolean hasShield, Runnable onBreak) {
-	                this.hasShield = hasShield;
-	                this.onShieldBreak = onBreak;
-	            }
-	        
-	            public void activateBuff(int level, Runnable onEnd) {
-	                this.isBuffActive = true;
-	                this.buffTimer = BUFF_DURATION;
-	                this.buffLevel = level;
-	                this.onBuffEnd = onEnd;
-	            }}
+    public void reset() {
+        health.reset();
+        invincible = false;
+        invincibilityTimer = 0;
+        setShield(false, null);
+        buffManager = new BuffManager(this);
+        x = Game.GAME_WIDTH / 2;
+        y = 550;
+    }
+
+    public boolean hasShield() {
+        return hasShield;
+    }
+
+    public void setShield(boolean hasShield, Runnable onBreak) {
+        this.hasShield = hasShield;
+        this.onShieldBreak = onBreak;
+    }
+
+    public BuffManager getBuffManager() {
+        return buffManager;
+    }
+
+    public float getMoveSpeed() {
+        return this.moveSpeed;
+    }
+
+    public void setMoveSpeed(float moveSpeed) {
+        this.moveSpeed = moveSpeed;
+    }
+}
