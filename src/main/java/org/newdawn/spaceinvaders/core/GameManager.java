@@ -19,6 +19,7 @@ import org.newdawn.spaceinvaders.player.PlayerStats;
 import org.newdawn.spaceinvaders.shop.ShopManager;
 import org.newdawn.spaceinvaders.shop.Upgrade;
 import org.newdawn.spaceinvaders.view.*;
+import org.newdawn.spaceinvaders.wave.Formation;
 import org.newdawn.spaceinvaders.wave.FormationManager;
 
 
@@ -83,7 +84,7 @@ public class GameManager implements GameContext {
         this.pauseMenu = new PauseMenu();
         this.gameOverMenu = new GameOverMenu();
         this.shopManager = new ShopManager();
-        this.formationManager = new org.newdawn.spaceinvaders.wave.FormationManager();
+        this.formationManager = new FormationManager();
 
         this.background = new Background("sprites/gamebackground.png");
         this.staticBackgroundSprite = SpriteStore.get().getSprite("sprites/background.jpg");
@@ -261,21 +262,21 @@ public class GameManager implements GameContext {
 
         // Create and set the player's equipped weapon
         String equippedWeaponName = currentPlayer.getEquippedWeapon();
-        org.newdawn.spaceinvaders.entity.weapon.Weapon selectedWeapon;
+        Weapon selectedWeapon;
         if (equippedWeaponName != null) {
             switch (equippedWeaponName) {
                 case "Shotgun":
-                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Shotgun();
+                    selectedWeapon = new Shotgun();
                     break;
                 case "Laser":
-                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.Laser();
+                    selectedWeapon = new Laser();
                     break;
                 default:
-                    selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.DefaultGun();
+                    selectedWeapon = new DefaultGun();
                     break;
             }
         } else {
-            selectedWeapon = new org.newdawn.spaceinvaders.entity.weapon.DefaultGun();
+            selectedWeapon = new DefaultGun();
         }
 
         entityManager.initShip(playerStats, selectedWeapon);
@@ -327,7 +328,7 @@ public class GameManager implements GameContext {
             return; // Safeguard: Don't spawn more if wave is complete or it's a boss wave
         }
 
-        org.newdawn.spaceinvaders.wave.Formation formation = formationManager.getRandomFormation();
+        Formation formation = formationManager.getRandomFormation();
         entityManager.spawnFormation(formation, wave);
 
         formationsSpawnedInWave++;

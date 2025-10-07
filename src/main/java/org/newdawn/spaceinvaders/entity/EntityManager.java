@@ -7,7 +7,9 @@ import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.MeteorEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.ThreeWayShooter;
 import org.newdawn.spaceinvaders.entity.Pet.PetEntity;
+import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.player.PlayerStats;
+import org.newdawn.spaceinvaders.wave.Formation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +30,7 @@ public class EntityManager {
         this.context = context;
     }
 
-    public void initShip(PlayerStats stats, org.newdawn.spaceinvaders.entity.weapon.Weapon weapon) {
+    public void initShip(PlayerStats stats, Weapon weapon) {
         if (ship == null) {
             ship = new ShipEntity(context, "sprites/ship.gif", Game.GAME_WIDTH / 2, 550, stats.getMaxHealth());
             entities.add(ship);
@@ -46,7 +48,7 @@ public class EntityManager {
         alienCount = 0;
     }
 
-    public void spawnFormation(org.newdawn.spaceinvaders.wave.Formation formation, int wave) {
+    public void spawnFormation(Formation formation, int wave) {
         int cycle = (wave - 1) / 5;
         double cycleMultiplier = Math.pow(1.2, cycle); // Slower scaling for normal aliens
         int baseAlienHealth = 2;
@@ -59,7 +61,20 @@ public class EntityManager {
                     int alienHealth = (int) (baseAlienHealth * cycleMultiplier) + (wave / 2);
 
                     // Create alien with movement pattern
-                    AlienEntity alien = new AlienEntity(context, info.x, info.y, alienHealth, cycle, info.movementPattern);
+                    AlienEntity alien = new AlienEntity(context, info.x, info.y, alienHealth, info.movementPattern);
+
+                    // Set vertical direction based on movement pattern
+                    switch (info.movementPattern) {
+                        case STRAIGHT_UP:
+                            alien.setVerticalMovement(-alien.getMoveSpeed());
+                            break;
+                        case STRAIGHT_DOWN:
+                        case SINUSOIDAL:
+                        case STATIC:
+                        default:
+                            // Default behavior is downward, which is already set in AlienEntity's constructor.
+                            break;
+                    }
 
                     // Handle random upgrade
                     if (info.upgradeChance > 0 && Math.random() < info.upgradeChance) {
@@ -68,8 +83,7 @@ public class EntityManager {
                     newEntity = alien;
                     break;
                 case THREE_WAY_SHOOTER:
-                    // This entity type also needs to be updated to support the new spawning system
-                    newEntity = new ThreeWayShooter(context, info.x, info.y);
+                    newEntity = new ThreeWayShooter(context, info.x, info.y, info.movementPattern);
                     break;
                 // Add cases for other entity types here
             }
@@ -96,7 +110,7 @@ public class EntityManager {
     public void cleanup() {
         // Garbage collect entities that have gone off-screen
         for (Entity entity : entities) {
-            if (entity.getX() < -50 || entity.getX() > 550 || entity.getY() < -50 || entity.getY() > 650) {
+            if (entity.getX() < -50 || entity.getX() > 550 || entity.getY() < -300 || entity.getY() > 650) {
                 if (!(entity instanceof ShipEntity) && !(entity instanceof PetEntity)) {
                     removeList.add(entity);
                 }

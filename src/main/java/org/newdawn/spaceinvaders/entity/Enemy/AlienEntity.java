@@ -38,7 +38,7 @@ public class AlienEntity extends Entity {
     private final double fireSpriteScale = 0.8;
 
 
-	public AlienEntity(GameContext context, int x, int y, int health, int cycle, MovementPattern movementPattern) {
+	public AlienEntity(GameContext context, int x, int y, int health, MovementPattern movementPattern) {
 		super("sprites/enemy/alien.gif", x, y);
 		this.health = new HealthComponent(this, health);
 		this.context = context;
@@ -139,6 +139,10 @@ public class AlienEntity extends Entity {
     @Override
     public void onDestroy() {
         // No special cleanup needed for the integrated fire effect
+    }
+
+    public double getMoveSpeed() {
+        return moveSpeed;
     }
 
     public void collidedWith(Entity other) {

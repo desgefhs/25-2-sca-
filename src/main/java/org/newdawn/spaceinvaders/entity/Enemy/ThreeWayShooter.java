@@ -1,5 +1,6 @@
 package org.newdawn.spaceinvaders.entity.Enemy;
 
+import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
@@ -12,8 +13,9 @@ import org.newdawn.spaceinvaders.graphics.SpriteStore;
 import java.awt.Graphics;
 
 public class ThreeWayShooter extends Entity {
-    private double moveSpeed = 100; // Movement speed of the shooter itself
+    private double moveSpeed = 150; // Adjusted for horizontal movement
     private GameContext context;
+    private MovementPattern movementPattern;
 
     private long lastFire = 0;
     private long firingInterval = 2000; // Fires every 2 seconds
@@ -31,16 +33,34 @@ public class ThreeWayShooter extends Entity {
     private int fireFrameNumber;
     private final double fireSpriteScale = 0.8;
 
-    public ThreeWayShooter(GameContext context, int x, int y) {
+    public ThreeWayShooter(GameContext context, int x, int y, MovementPattern pattern) {
         super("sprites/enemy/ThreeWayShooter.gif", x, y);
         this.context = context;
-        this.health = new HealthComponent(this,5); // Example health
-        dy = moveSpeed;
+        this.health = new HealthComponent(this, 5); // Example health
+        this.movementPattern = pattern;
+
+        // Set initial velocity based on pattern
+        if (pattern == MovementPattern.HORIZ_TO_CENTER_AND_STOP) {
+            this.dy = 0;
+            if (x < Game.GAME_WIDTH / 2) {
+                this.dx = moveSpeed; // Move right
+            } else {
+                this.dx = -moveSpeed; // Move left
+            }
+        } else {
+            // Default behavior
+            this.movementPattern = MovementPattern.STRAIGHT_DOWN;
+            this.dy = 100;
+        }
 
         // Pre-load all fire frames
         fireFrames[0] = SpriteStore.get().getSprite("sprites/fire effect/18 Ion.png");
         fireFrames[1] = SpriteStore.get().getSprite("sprites/fire effect/19 Ion.png");
         fireFrames[2] = SpriteStore.get().getSprite("sprites/fire effect/20 Ion.png");
+    }
+
+    public ThreeWayShooter(GameContext context, int x, int y) {
+        this(context, x, y, MovementPattern.STRAIGHT_DOWN);
     }
 
     public void upgrade() {
@@ -79,6 +99,23 @@ public class ThreeWayShooter extends Entity {
 
     @Override
     public void move(long delta) {
+        if (movementPattern == MovementPattern.HORIZ_TO_CENTER_AND_STOP) {
+            // If moving and reached center, stop
+            if (dx != 0) {
+                float centerX = Game.GAME_WIDTH / 2.0f;
+                // Check if we are close to the center
+                if (Math.abs(x + (width/2) - centerX) < 10) {
+                    if (dx > 0) { // Was moving right
+                        x = centerX - width; // Stop on the left side of center
+                    } else { // Was moving left
+                        x = centerX; // Stop on the right side of center
+                    }
+                    dx = 0;
+                    this.movementPattern = MovementPattern.STATIC; // Become static
+                }
+            }
+        }
+
         super.move(delta);
 
         // Update fire animation
@@ -114,7 +151,7 @@ public class ThreeWayShooter extends Entity {
         double fireY = this.y - fireHeight + 20; // Position it at the top-rear
         g.drawImage(fireSprite.getImage(), (int) fireX, (int) fireY, fireWidth, fireHeight, null);
 
-        // Now draw the entity itself
+        // Now draw the entity itself using the parent class's rotation logic
         super.draw(g);
     }
 
