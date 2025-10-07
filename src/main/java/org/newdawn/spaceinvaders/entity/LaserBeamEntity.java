@@ -32,7 +32,7 @@ public class LaserBeamEntity extends Entity {
         this.y = owner.getY() - 400;
 
         for (Entity other : context.getEntities()) {
-            if (other instanceof AlienEntity || other instanceof BossEntity || other instanceof ThreeWayShooter || other instanceof BombEntity) {
+            if (other instanceof AlienEntity || other instanceof BossEntity || other instanceof ThreeWayShooter) {
                 if (this.collidesWith(other)) {
                     other.collidedWith(this);
                 }

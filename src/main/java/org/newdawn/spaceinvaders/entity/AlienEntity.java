@@ -22,7 +22,6 @@ public class AlienEntity extends Entity {
 	private long lastFire = 0;
 	private static final long firingInterval = 1000;
 
-    private final EngineFireEntity fireEffect;
     private boolean isUpgraded = false;
 
     private final MovementPattern movementPattern;
