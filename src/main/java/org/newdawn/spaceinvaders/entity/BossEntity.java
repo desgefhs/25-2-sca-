@@ -3,7 +3,9 @@ package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.entity.LaserBeamEntity;
+import org.newdawn.spaceinvaders.entity.Projectile.LaserBeamEntity;
+import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
+import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 import org.newdawn.spaceinvaders.graphics.HpRender;
 
 public class BossEntity extends Entity {

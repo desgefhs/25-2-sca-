@@ -1,6 +1,8 @@
-package org.newdawn.spaceinvaders.entity;
+package org.newdawn.spaceinvaders.entity.Effect;
 
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
+import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.graphics.Sprite;
 import org.newdawn.spaceinvaders.graphics.SpriteStore;
 

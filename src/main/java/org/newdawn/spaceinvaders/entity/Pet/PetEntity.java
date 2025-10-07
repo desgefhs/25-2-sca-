@@ -1,6 +1,8 @@
-package org.newdawn.spaceinvaders.entity;
+package org.newdawn.spaceinvaders.entity.Pet;
 
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.entity.Entity;
+import org.newdawn.spaceinvaders.entity.ShipEntity;
 
 /**
  * An abstract base class for pet entities.

@@ -1,8 +1,12 @@
-package org.newdawn.spaceinvaders.entity;
+package org.newdawn.spaceinvaders.entity.Projectile;
 
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.entity.BossEntity;
+import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
+import org.newdawn.spaceinvaders.entity.Enemy.ThreeWayShooter;
+import org.newdawn.spaceinvaders.entity.Entity;
+
 import java.awt.Graphics2D;
-import java.awt.Color;
 
 public class LaserBeamEntity extends Entity {
     private final int duration;

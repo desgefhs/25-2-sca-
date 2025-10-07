@@ -3,6 +3,7 @@ package org.newdawn.spaceinvaders.gamestates;
 import org.newdawn.spaceinvaders.core.*;
 import org.newdawn.spaceinvaders.entity.*;
 
+import org.newdawn.spaceinvaders.entity.Enemy.MeteorEntity;
 import org.newdawn.spaceinvaders.view.BuffUI;
 
 import java.awt.*;

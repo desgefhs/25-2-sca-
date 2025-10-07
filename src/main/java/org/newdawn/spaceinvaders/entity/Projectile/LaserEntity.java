@@ -1,13 +1,9 @@
-package org.newdawn.spaceinvaders.entity;
+package org.newdawn.spaceinvaders.entity.Projectile;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Graphics2D;
-
-import org.newdawn.spaceinvaders.core.Game;
+import org.newdawn.spaceinvaders.entity.Entity;
 
 public class LaserEntity extends Entity {
 
