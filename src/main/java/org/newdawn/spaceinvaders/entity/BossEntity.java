@@ -22,13 +22,16 @@ public class BossEntity extends Entity {
     private static final int MAX_HEALTH = 50;
     private static final int SHOT_DAMAGE = 2;
     private long lastFire = 0;
-    private long firingInterval = 2000; // Fires every 2 seconds
+    private long firingInterval = 2500; // Fires every 2.5 seconds
     private HpRender hpRender;
     private int waveNumber;
     private enum Boss5State { ATTACKING, SPAWNING_ITEMS, CHARGING_LASER }
     private Boss5State boss5State = Boss5State.ATTACKING;
     private long stateTimer = 0;
     private boolean boss10PatternToggle = false; // To alternate patterns for wave 10
+    private final java.util.List<LaserEntity> laserGimmicks = new java.util.ArrayList<>();
+    private long laserGimmickStartTime = 0;
+
 
     public BossEntity(GameContext context, int x, int y, int health, int cycle, int waveNumber) {
         super(waveNumber == 15 ? "sprites/bosses/Grifin.png" : (waveNumber == 10 ? "sprites/bosses/Hydra.png" : (waveNumber == 5 ? "sprites/bosses/kraken_anim.gif" : "sprites/boss_cycle" + cycle + ".gif")), x, y);
@@ -36,7 +39,7 @@ public class BossEntity extends Entity {
         this.health = new HealthComponent(this,health);
         this.hpRender = new HpRender(this.health.getHp());
         this.waveNumber = waveNumber;
-        this.firingInterval = 2000; // 2초 딜레이
+        this.firingInterval = 2500; // 2.5초 딜레이
         dx = -moveSpeed;
         if (waveNumber == 10) { // Enable vertical movement for wave 10 boss
             dy = moveSpeed;
@@ -56,14 +59,14 @@ public class BossEntity extends Entity {
             case 5:
                 availablePatterns.add(this::fireCirclePattern);
                 availablePatterns.add(this::fireThreeWayPattern);
+                availablePatterns.add(this::fireGlobalLaserPattern);
                 break;
             case 10:
                 availablePatterns.add(this::fireFollowingShotPattern);
                 availablePatterns.add(this::fireCurtainPattern);
                 break;
             case 15:
-                availablePatterns.add(this::fireFollowingShotPattern);
-                availablePatterns.add(this::fireCirclePattern);
+                availablePatterns.add(this::fireFeatherPattern);
                 break;
             case 20:
                 availablePatterns.add(this::fireCurtainPattern);
@@ -117,6 +120,13 @@ public class BossEntity extends Entity {
             if ((dy > 0) && (y > 250)) {
                 dy = -dy;
             }
+        }
+
+        if (laserGimmickStartTime != 0 && System.currentTimeMillis() - laserGimmickStartTime > 3000) {
+            LaserEntity laser = new LaserEntity(context, 0, Game.GAME_WIDTH);
+            context.addEntity(laser);
+            laserGimmicks.add(laser);
+            laserGimmickStartTime = 0;
         }
 
         tryToFire();
@@ -213,6 +223,33 @@ public class BossEntity extends Entity {
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + 80, getY() + 50));
     }
 
+    private void fireGlobalLaserPattern() {
+        context.resetItemCollection();
+        laserGimmickStartTime = System.currentTimeMillis();
+
+        // Spawn two item entities at random x positions
+        java.util.Random rand = new java.util.Random();
+        context.addEntity(new ItemEntity(context, rand.nextInt(Game.GAME_WIDTH), 50));
+        context.addEntity(new ItemEntity(context, rand.nextInt(Game.GAME_WIDTH), 50));
+    }
+
+    private void fireFeatherPattern() {
+        ProjectileType type = ProjectileType.FEATHER_SHOT;
+        int damage = 1;
+        double shotMoveSpeed = type.moveSpeed;
+        int numShots = 5; // 5 shots in the fan
+        double fanAngle = Math.toRadians(90); // 90-degree fan
+
+        double startAngle = -fanAngle / 2;
+        double angleStep = fanAngle / (numShots - 1);
+
+        for (int i = 0; i < numShots; i++) {
+            double angle = startAngle + i * angleStep;
+            double dx = Math.sin(angle) * shotMoveSpeed;
+            double dy = Math.cos(angle) * shotMoveSpeed;
+            context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width / 2), getY() + (height / 2), dx, dy));
+        }
+    }
 
 
     public void collidedWith(Entity other) {

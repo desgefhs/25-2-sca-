@@ -21,7 +21,11 @@ public class ProjectileEntity extends Entity {
         this.dx = dx;
         this.dy = dy;
         this.homingTimer = type.homingDuration;
-        setScale(1.5);
+        if (type == ProjectileType.FEATHER_SHOT) {
+            setScale(1.0);
+        } else {
+            setScale(1.5);
+        }
     }
 
     /**
