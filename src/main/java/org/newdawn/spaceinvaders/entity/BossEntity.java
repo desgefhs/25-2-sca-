@@ -64,7 +64,6 @@ public class BossEntity extends Entity {
             case 15:
                 availablePatterns.add(this::fireFollowingShotPattern);
                 availablePatterns.add(this::fireCirclePattern);
-                availablePatterns.add(this::spawnMinions);
                 break;
             case 20:
                 availablePatterns.add(this::fireCurtainPattern);
@@ -214,18 +213,7 @@ public class BossEntity extends Entity {
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + 80, getY() + 50));
     }
 
-    private void spawnMinions() {
-        String minionSprite = "sprites/bosses/Grifin_small.png";
-        for (int i = 0; i < 3; i++) {
-            AlienEntity minion = new AlienEntity(context, minionSprite, (i + 1) * (Game.GAME_WIDTH / 4), (int) (getY() + height + 50));
-            minion.setAsBossMinion(); // 보스 쫄몹으로 설정
-            context.addEntity(minion);
-        }
-    }
 
-    public void minionEscaped(Entity minion) {
-        context.stunPlayer(2000); // 쫄몹이 탈출하면 플레이어 2초 기절
-    }
 
     public void collidedWith(Entity other) {
         if (other instanceof ProjectileEntity) {

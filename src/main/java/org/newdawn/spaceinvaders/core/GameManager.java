@@ -430,15 +430,6 @@ public class GameManager implements GameContext {
         return System.currentTimeMillis() > playerAttackDisabledUntil;
     }
 
-    @Override
-    public void notifyBossMinionEscaped(Entity minion) {
-        for (Entity entity : entityManager.getEntities()) {
-            if (entity instanceof BossEntity) {
-                ((BossEntity) entity).minionEscaped(minion);
-                break;
-            }
-        }
-    }
 
     public void spawnBossNow() {
         // Clear all entities except the player

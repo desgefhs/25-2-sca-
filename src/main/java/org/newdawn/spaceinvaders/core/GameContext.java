@@ -39,7 +39,6 @@ public interface GameContext {
 
     void stunPlayer(long duration);
 
-    void notifyBossMinionEscaped(Entity minion);
 
     boolean canPlayerAttack();
 }
