@@ -1,7 +1,7 @@
 package org.newdawn.spaceinvaders.shop;
 
 import org.newdawn.spaceinvaders.data.PlayerData;
-import org.newdawn.spaceinvaders.entity.PetType;
+import org.newdawn.spaceinvaders.entity.Pet.PetType;
 
 import java.util.*;
 import java.util.function.Function;

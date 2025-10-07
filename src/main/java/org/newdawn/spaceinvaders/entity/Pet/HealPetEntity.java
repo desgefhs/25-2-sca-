@@ -1,8 +1,8 @@
-package org.newdawn.spaceinvaders.entity;
+package org.newdawn.spaceinvaders.entity.Pet;
 
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.core.GameManager;
-import org.newdawn.spaceinvaders.entity.PetType;
+import org.newdawn.spaceinvaders.entity.*;
 
 /**
  * A pet that heals the player.

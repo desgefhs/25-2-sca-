@@ -4,7 +4,7 @@ import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameManager;
 import org.newdawn.spaceinvaders.core.InputHandler;
 import org.newdawn.spaceinvaders.data.PlayerData;
-import org.newdawn.spaceinvaders.entity.PetType;
+import org.newdawn.spaceinvaders.entity.Pet.PetType;
 
 import java.awt.*;
 import java.util.ArrayList;

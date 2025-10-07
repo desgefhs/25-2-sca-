@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders.entity;
+package org.newdawn.spaceinvaders.entity.Projectile;
 
 //총알의 속성, 설정값들 모아둠
 public enum ProjectileType {

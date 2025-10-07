@@ -1,8 +1,8 @@
 package org.newdawn.spaceinvaders.entity.weapon;
 
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.entity.ProjectileEntity;
-import org.newdawn.spaceinvaders.entity.ProjectileType;
+import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
+import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
 
 public class Shotgun implements Weapon {

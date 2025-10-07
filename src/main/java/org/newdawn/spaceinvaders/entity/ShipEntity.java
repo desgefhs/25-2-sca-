@@ -1,11 +1,16 @@
 package org.newdawn.spaceinvaders.entity;
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
+import org.newdawn.spaceinvaders.entity.Enemy.MeteorEntity;
+import org.newdawn.spaceinvaders.entity.Pet.PetEntity;
+import org.newdawn.spaceinvaders.entity.Pet.PetType;
+import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
+import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.graphics.HpRender;
 import org.newdawn.spaceinvaders.player.BuffManager;
 import org.newdawn.spaceinvaders.player.BuffType;
-import org.newdawn.spaceinvaders.player.PlayerStats;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -173,8 +178,12 @@ public class ShipEntity extends Entity {
             }
 
             if (other instanceof MeteorEntity) {
+                if (!health.decreaseHealth(other.getHealth().getCurrentHealth())) {
+                    context.notifyDeath();
+                } else {
+                    activateInvincibility();
+                }
                 context.removeEntity(other);
-                context.notifyDeath();
             }
         }
     }

@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders.entity;
+package org.newdawn.spaceinvaders.entity.Pet;
 
 /**
  * An enum representing the different types of pets available in the game.

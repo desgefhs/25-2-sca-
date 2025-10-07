@@ -1,7 +1,10 @@
-package org.newdawn.spaceinvaders.entity;
+package org.newdawn.spaceinvaders.entity.Projectile;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.entity.Entity;
+import org.newdawn.spaceinvaders.entity.ShipEntity;
+
 // projectileType에 따라 총알의 모습을 결정
 public class ProjectileEntity extends Entity {
 
@@ -85,5 +88,23 @@ public class ProjectileEntity extends Entity {
 
     public ProjectileType getType() {
         return type;
+    }
+
+    @Override
+    public void draw(java.awt.Graphics g) {
+        java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
+        java.awt.geom.AffineTransform oldTransform = g2d.getTransform();
+
+        try {
+            g2d.translate(x + width / 2.0, y + height / 2.0);
+            // The original assumed sprites face UP. We assume they face RIGHT.
+            if (dx != 0 || dy != 0) {
+                double angle = Math.atan2(dy, dx);
+                g2d.rotate(angle);
+            }
+            g2d.drawImage(sprite.getImage(), -width / 2, -height / 2, width, height, null);
+        } finally {
+            g2d.setTransform(oldTransform);
+        }
     }
 }

@@ -1,7 +1,7 @@
 package org.newdawn.spaceinvaders.entity.weapon;
 
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.entity.LaserBeamEntity;
+import org.newdawn.spaceinvaders.entity.Projectile.LaserBeamEntity;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
 
 public class Laser implements Weapon {

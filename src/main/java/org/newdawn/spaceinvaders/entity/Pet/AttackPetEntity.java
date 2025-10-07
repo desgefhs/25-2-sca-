@@ -1,9 +1,10 @@
-package org.newdawn.spaceinvaders.entity;
+package org.newdawn.spaceinvaders.entity.Pet;
 
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.entity.PetType;
 import org.newdawn.spaceinvaders.core.GameManager;
-import org.newdawn.spaceinvaders.player.PlayerStats;
+import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
+import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
+import org.newdawn.spaceinvaders.entity.ShipEntity;
 
 /**
  * A pet that attacks enemies.

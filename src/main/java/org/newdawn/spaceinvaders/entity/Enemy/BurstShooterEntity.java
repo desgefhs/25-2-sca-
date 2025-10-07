@@ -1,10 +1,10 @@
-package org.newdawn.spaceinvaders.entity;
+package org.newdawn.spaceinvaders.entity.Enemy;
 
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.graphics.Sprite;
-import org.newdawn.spaceinvaders.graphics.SpriteStore;
-
-import java.awt.Graphics;
+import org.newdawn.spaceinvaders.entity.*;
+import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
+import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
+import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 
 public class BurstShooterEntity extends Entity {
     private double moveSpeed = 75;
