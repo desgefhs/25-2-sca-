@@ -8,7 +8,7 @@ import org.newdawn.spaceinvaders.entity.Entity;
 public class LaserEntity extends Entity {
 
     private final GameContext context;
-    private long fireDuration = 5000; // Fire for 5 seconds
+    private long fireDuration = 2000; // Fire for 2 seconds
     private boolean fired = false;
 
     public LaserEntity(GameContext context, int x, int width) {
@@ -37,8 +37,13 @@ public class LaserEntity extends Entity {
 
     @Override
     public void draw(java.awt.Graphics g) {
-        // Always draw the sprite stretched and at full opacity
-        g.drawImage(sprite.getImage(), getX(), getY(), width, height, null);
+        int tileWidth = 20; // Draw the laser in 20px wide tiles
+
+        int numTiles = (int) Math.ceil((double) Game.GAME_WIDTH / tileWidth);
+
+        for (int i = 0; i < numTiles; i++) {
+            g.drawImage(sprite.getImage(), getX() + i * tileWidth, getY(), tileWidth, height, null);
+        }
     }
 
     @Override

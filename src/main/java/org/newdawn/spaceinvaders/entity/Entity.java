@@ -132,7 +132,7 @@ public abstract class Entity {
 			g2d.translate(x + width / 2.0, y + height / 2.0);
 
 			// Only rotate if the entity is actually moving
-			if (dx != 0 || dy != 0) {
+			if ((dx != 0 || dy != 0) && !(this instanceof BossEntity)) {
 				// Add PI/2 because sprites are typically drawn facing "up" (negative Y)
 				double angle = Math.atan2(dy, dx) + Math.PI / 2;
 				g2d.rotate(angle);
