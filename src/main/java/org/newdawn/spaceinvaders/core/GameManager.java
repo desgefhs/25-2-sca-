@@ -5,7 +5,7 @@ import org.newdawn.spaceinvaders.auth.AuthenticatedUser;
 import org.newdawn.spaceinvaders.data.DatabaseManager;
 import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.entity.*;
-import org.newdawn.spaceinvaders.entity.Enemy.MeteorEnemyEntity;
+import org.newdawn.spaceinvaders.entity.Enemy.BurstShooterEntity;
 import org.newdawn.spaceinvaders.entity.Pet.*;
 import org.newdawn.spaceinvaders.entity.weapon.DefaultGun;
 import org.newdawn.spaceinvaders.entity.weapon.Shotgun;
@@ -245,10 +245,10 @@ public class GameManager implements GameContext {
         // Spawn three upgraded ThreeWayShooters for an immediate challenge
         int shooterY = -50;
 
-        MeteorEnemyEntity s2 = new MeteorEnemyEntity(this,Game.GAME_WIDTH / 2,shooterY + 50);
-        addEntity(s2);
         // Spawn a new BurstShooter for testing
-
+        BurstShooterEntity s1 = new BurstShooterEntity(this, Game.GAME_WIDTH / 2, shooterY + 50);
+        s1.upgrade();
+        addEntity(s1);
     }
 
     // 다음 웨이브로 전환
@@ -420,7 +420,7 @@ public class GameManager implements GameContext {
         int cycle = (wave - 1) / 5;
         double cycleMultiplier = Math.pow(1.5, cycle);
         int bossHealth = (int) (50 * cycleMultiplier);
-        Entity boss = new BossEntity(this, Game.GAME_WIDTH / 2, 50, bossHealth, cycle, wave);
+        Entity boss = new BossEntity(this, Game.GAME_WIDTH / 2, 50, bossHealth, cycle, wave, false);
         addEntity(boss);
         entityManager.setAlienCount(1);
     }

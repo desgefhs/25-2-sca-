@@ -2,10 +2,10 @@ package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
-
 import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.MeteorEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.ThreeWayShooter;
+
 import org.newdawn.spaceinvaders.entity.Pet.PetEntity;
 import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.player.PlayerStats;

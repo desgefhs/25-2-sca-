@@ -178,12 +178,8 @@ public class ShipEntity extends Entity {
             }
 
             if (other instanceof MeteorEntity) {
-                if (!health.decreaseHealth(other.getHealth().getCurrentHealth())) {
-                    context.notifyDeath();
-                } else {
-                    activateInvincibility();
-                }
                 context.removeEntity(other);
+                context.notifyDeath();
             }
         }
     }
