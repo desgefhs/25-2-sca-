@@ -60,7 +60,7 @@ public class GameManager implements GameContext {
     // Wave Management
     public int formationsPerWave;
     public int formationsSpawnedInWave;
-    public long nextFormationSpawnTime;
+    public long nextFormationSpawnTime = 0;
 
     public boolean logicRequiredThisLoop = false;
     public boolean showHitboxes = false;
@@ -194,13 +194,8 @@ public class GameManager implements GameContext {
             getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.HEAL);
         }
 
-        if (entityManager.getAlienCount() == 0) {
-            if (formationsSpawnedInWave >= formationsPerWave) {
-                setCurrentState(GameState.Type.WAVE_CLEARED);
-            } else {
-                // Screen is clear, but more formations are coming. Spawn next one immediately.
-                spawnNextFormationInWave();
-            }
+        if (entityManager.getAlienCount() == 0 && formationsSpawnedInWave >= formationsPerWave) {
+            setCurrentState(GameState.Type.WAVE_CLEARED);
         }
     }
 
@@ -210,13 +205,8 @@ public class GameManager implements GameContext {
         entityManager.removeEntity(entity);
         entityManager.decreaseAlienCount();
 
-        if (entityManager.getAlienCount() == 0) {
-            if (formationsSpawnedInWave >= formationsPerWave) {
-                setCurrentState(GameState.Type.WAVE_CLEARED);
-            } else {
-                // Screen is clear, but more formations are coming. Spawn next one immediately.
-                spawnNextFormationInWave();
-            }
+        if (entityManager.getAlienCount() == 0 && formationsSpawnedInWave >= formationsPerWave) {
+            setCurrentState(GameState.Type.WAVE_CLEARED);
         }
     }
 
@@ -241,14 +231,6 @@ public class GameManager implements GameContext {
         resetScore();
         wave = 0; // Start at wave 0, so startNextWave() increments to 1
         startNextWave();
-
-        // Spawn three upgraded ThreeWayShooters for an immediate challenge
-        int shooterY = -50;
-
-        // Spawn a new BurstShooter for testing
-        BurstShooterEntity s1 = new BurstShooterEntity(this, Game.GAME_WIDTH / 2, shooterY + 50);
-        s1.upgrade();
-        addEntity(s1);
     }
 
     // 다음 웨이브로 전환
@@ -315,7 +297,16 @@ public class GameManager implements GameContext {
             spawnBossNow();
             formationsSpawnedInWave = 1; // The boss is the only formation
         } else {
-            formationsPerWave = Math.min(1 + wave, 5);
+            int stage = ((wave - 1) / 5) + 1;
+            switch (stage) {
+                case 1: formationsPerWave = 3; break;
+                case 2: formationsPerWave = 4; break;
+                case 3: formationsPerWave = 5; break;
+                case 4: formationsPerWave = 6; break;
+                case 5: formationsPerWave = 7; break;
+                default: formationsPerWave = 3; break;
+            }
+            message = "Wave " + wave;
             formationsSpawnedInWave = 0;
             spawnNextFormationInWave();
         }
@@ -344,12 +335,12 @@ public class GameManager implements GameContext {
         }
 
         entityManager.spawnFormation(formation, wave, forceUpgrade);
-
         formationsSpawnedInWave++;
 
-        // Set timer for the next spawn with a random delay
-        long delay = (random.nextBoolean()) ? 100 : 2000 + random.nextInt(3000);
-        nextFormationSpawnTime = System.currentTimeMillis() + delay;
+        // If there are more formations to spawn, set a timer for the next one
+        if (formationsSpawnedInWave < formationsPerWave) {
+            nextFormationSpawnTime = System.currentTimeMillis() + 3000L; // 3-second delay
+        }
     }
 
     // 업그레이드 정보 바탕으로 능력치 설정

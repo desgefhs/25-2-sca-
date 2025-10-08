@@ -137,6 +137,7 @@ public class ThreeWayShooter extends Entity implements Enemy {
 
         // if we have gone off the bottom of the screen, remove ourselves
         if (y > 600) {
+            context.notifyAlienEscaped(this);
             context.removeEntity(this);
         }
     }

@@ -107,13 +107,20 @@ public class EntityManager {
      * 이번 프레임에서 제거하기로 표시된 모든 엔티티를 실제로 제거합니다.
      */
     public void cleanup() {
-        // Garbage collect entities that have gone off-screen
+        // Find off-screen entities that need to be reported as escaped
+        List<Entity> escapedEnemies = new ArrayList<>();
         for (Entity entity : entities) {
             if (entity.getX() < -50 || entity.getX() > 550 || entity.getY() < -300 || entity.getY() > 650) {
-                if (!(entity instanceof ShipEntity) && !(entity instanceof PetEntity)) {
-                    removeList.add(entity);
+                if (entity instanceof Enemy) {
+                    escapedEnemies.add(entity);
                 }
             }
+        }
+
+        // Notify the game manager about escaped enemies
+        for (Entity entity : escapedEnemies) {
+            // This call will also add the entity to the removeList via the entity manager
+            context.notifyAlienEscaped(entity);
         }
 
         // Create a copy to iterate over, to avoid ConcurrentModificationException

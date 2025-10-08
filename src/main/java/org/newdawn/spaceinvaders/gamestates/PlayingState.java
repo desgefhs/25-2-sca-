@@ -146,7 +146,9 @@ public class PlayingState implements GameState {
     private void handleSpawning(long delta) {
         // Check if it's time to spawn the next formation in the wave
         if (gameManager.formationsSpawnedInWave < gameManager.formationsPerWave &&
+            gameManager.nextFormationSpawnTime > 0 && // Make sure timer is set
             System.currentTimeMillis() > gameManager.nextFormationSpawnTime) {
+            
             gameManager.spawnNextFormationInWave();
         }
     }
