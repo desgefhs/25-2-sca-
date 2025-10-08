@@ -27,9 +27,9 @@ public class FormationManager {
 //        formations.add(createDiagonalFormation("Diagonal Left", true)); //대각선 왼쪽
 //        formations.add(createDiagonalFormation("Diagonal Right", false));  //대각선 오른쪽
 //        formations.add(createCrossFireFormation()); // 4방향 크로스
-//        formations.add(createConvergingShootersFormation());
+        formations.add(createConvergingShootersFormation());
 //        formations.add(createBombCarpetFormation());
-        formations.add(createMeteorShowerFormation());
+//        formations.add(createMeteorShowerFormation());
     }
 
     private Formation createMeteorShowerFormation() {
@@ -60,7 +60,7 @@ public class FormationManager {
         int shooterWidth = 50; // Approximate width of the shooter sprite
 
         formation.add(new SpawnInfo(EntityType.THREE_WAY_SHOOTER, 0, yPos, MovementPattern.HORIZ_TO_CENTER_AND_STOP, 0));
-        formation.add(new SpawnInfo(EntityType.THREE_WAY_SHOOTER, Game.GAME_WIDTH - shooterWidth, yPos, MovementPattern.HORIZ_TO_CENTER_AND_STOP, 0));
+        formation.add(new SpawnInfo(EntityType.THREE_WAY_SHOOTER, Game.GAME_WIDTH - shooterWidth, yPos, MovementPattern.HORIZ_TO_CENTER_AND_STOP, 1));
 
         return formation;
     }
