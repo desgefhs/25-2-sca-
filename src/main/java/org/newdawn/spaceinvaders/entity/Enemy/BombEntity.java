@@ -108,4 +108,9 @@ public class BombEntity extends Entity implements Enemy {
             return;
         }
     }
+
+    @Override
+    public void upgrade() {
+        // This entity cannot be upgraded.
+    }
 }

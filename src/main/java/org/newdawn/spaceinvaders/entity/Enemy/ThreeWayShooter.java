@@ -12,7 +12,7 @@ import org.newdawn.spaceinvaders.graphics.SpriteStore;
 
 import java.awt.Graphics;
 
-public class ThreeWayShooter extends Entity {
+public class ThreeWayShooter extends Entity implements Enemy {
     private double moveSpeed = 150; // Adjusted for horizontal movement
     private GameContext context;
     private MovementPattern movementPattern;

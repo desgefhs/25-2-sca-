@@ -325,11 +325,25 @@ public class GameManager implements GameContext {
 
     public void spawnNextFormationInWave() {
         if (formationsSpawnedInWave >= formationsPerWave || wave % 5 == 0) {
-            return; // Safeguard: Don't spawn more if wave is complete or it's a boss wave
+            return; // Safeguard
         }
 
-        Formation formation = formationManager.getRandomFormation();
-        entityManager.spawnFormation(formation, wave);
+        int stage = ((wave - 1) / 5) + 1;
+        Formation formation = formationManager.getRandomFormationForStage(stage);
+
+        boolean forceUpgrade = false;
+        String formationName = formation.getName();
+
+        if (stage == 4 && formationName.contains("Converging Shooters")) {
+            forceUpgrade = true;
+        }
+        if (stage == 5) {
+            if (formationName.contains("Burst Shooters") || formationName.contains("Converging Shooters")) {
+                forceUpgrade = true;
+            }
+        }
+
+        entityManager.spawnFormation(formation, wave, forceUpgrade);
 
         formationsSpawnedInWave++;
 

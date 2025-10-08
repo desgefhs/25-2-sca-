@@ -6,7 +6,7 @@ import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 
-public class MeteorEnemyEntity extends Entity {
+public class MeteorEnemyEntity extends Entity implements Enemy {
     private static final long FIRING_INTERVAL = 400L; // 0.4 seconds
     private long lastFire = 0;
     private GameContext context;
@@ -43,7 +43,6 @@ public class MeteorEnemyEntity extends Entity {
         tryToFire();
     }
 
-    @Override
     public void collidedWith(Entity other) {
         // If it collides with a player's shot, take damage
         if (other instanceof ProjectileEntity) {
@@ -73,9 +72,7 @@ public class MeteorEnemyEntity extends Entity {
     }
 
     @Override
-    public void draw(java.awt.Graphics g) {
-        // Override the default draw method to prevent automatic rotation.
-        // This assumes the sprite already faces the correct direction (downwards).
-        g.drawImage(sprite.getImage(), getX(), getY(), width, height, null);
+    public void upgrade() {
+        // This entity cannot be upgraded.
     }
 }

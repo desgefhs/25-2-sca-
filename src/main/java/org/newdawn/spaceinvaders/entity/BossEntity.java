@@ -461,4 +461,8 @@ public class BossEntity extends Entity implements Enemy {
             }
         }
     }
+    @Override
+    public void upgrade() {
+        // This entity cannot be upgraded.
+    }
 }

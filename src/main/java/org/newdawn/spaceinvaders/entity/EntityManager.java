@@ -45,7 +45,7 @@ public class EntityManager {
         alienCount = 0;
     }
 
-    public void spawnFormation(Formation formation, int wave) {
+    public void spawnFormation(Formation formation, int wave, boolean forceUpgrade) {
         int cycle = (wave - 1) / 5;
         double cycleMultiplier = Math.pow(1.2, cycle); // Slower scaling for normal aliens
         int baseAlienHealth = 2;
@@ -54,28 +54,14 @@ public class EntityManager {
             Entity newEntity = null;
             switch (info.entityType) {
                 case ALIEN:
-                    // Calculate health based on wave
                     int alienHealth = (int) (baseAlienHealth * cycleMultiplier) + (wave / 2);
-
-                    // Create alien with movement pattern
                     AlienEntity alien = new AlienEntity(context, info.x, info.y, alienHealth, info.movementPattern);
-
-                    // Set vertical direction based on movement pattern
                     switch (info.movementPattern) {
                         case STRAIGHT_UP:
                             alien.setVerticalMovement(-alien.getMoveSpeed());
                             break;
-                        case STRAIGHT_DOWN:
-                        case SINUSOIDAL:
-                        case STATIC:
                         default:
-                            // Default behavior is downward, which is already set in AlienEntity's constructor.
                             break;
-                    }
-
-                    // Handle random upgrade
-                    if (info.upgradeChance > 0 && Math.random() < info.upgradeChance) {
-                        alien.upgrade();
                     }
                     newEntity = alien;
                     break;
@@ -88,9 +74,19 @@ public class EntityManager {
                 case METEOR_ENEMY:
                     newEntity = new MeteorEnemyEntity(context, info.x, info.y);
                     break;
-                // Add cases for other entity types here
+                case BURST_SHOOTER:
+                    newEntity = new BurstShooterEntity(context, info.x, info.y);
+                    break;
             }
+
             if (newEntity != null) {
+                if (newEntity instanceof Enemy) {
+                    // Upgrade if forced by the game manager, by the spawn info, or by random chance
+                    if (forceUpgrade || info.forceUpgrade || (info.upgradeChance > 0 && Math.random() < info.upgradeChance)) {
+                        ((Enemy) newEntity).upgrade();
+                    }
+                }
+
                 addEntity(newEntity);
                 if (!(newEntity instanceof MeteorEntity)) {
                     alienCount++;
