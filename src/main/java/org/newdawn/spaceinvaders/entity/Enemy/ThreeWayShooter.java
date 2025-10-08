@@ -197,7 +197,6 @@ public class ThreeWayShooter extends Entity {
 
                     // Remove the shooter from the game
                     context.removeEntity(this);
-                    context.removeEntity(laser);
                 }
             }
         }

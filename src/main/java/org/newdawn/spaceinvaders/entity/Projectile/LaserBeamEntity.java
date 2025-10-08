@@ -1,5 +1,9 @@
 package org.newdawn.spaceinvaders.entity.Projectile;
 
+import org.newdawn.spaceinvaders.entity.ShipEntity;
+import org.newdawn.spaceinvaders.entity.HealthComponent;
+import org.newdawn.spaceinvaders.entity.Enemy.Enemy;
+
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.entity.BossEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
@@ -34,14 +38,6 @@ public class LaserBeamEntity extends Entity {
 
         this.x = owner.getX() + owner.getWidth() / 2 - 10;
         this.y = owner.getY() - 400;
-
-        for (Entity other : context.getEntities()) {
-            if (other instanceof AlienEntity || other instanceof BossEntity || other instanceof ThreeWayShooter) {
-                if (this.collidesWith(other)) {
-                    other.collidedWith(this);
-                }
-            }
-        }
     }
 
     @Override
@@ -50,9 +46,9 @@ public class LaserBeamEntity extends Entity {
         g2d.drawImage(sprite.getImage(), (int)x, (int)y, 20, 400, null);
     }
 
-    @Override
     public void collidedWith(Entity other) {
-        // The laser beam itself is not affected by collisions
+        // The responsibility for taking damage is handled by the entity being hit (e.g., AlienEntity).
+        // The laser itself takes no action upon collision notification.
     }
 
     public int getDamage() {

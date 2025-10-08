@@ -17,7 +17,7 @@ import java.awt.Graphics;
  * 
  * @author Kevin Glass
  */
-public class AlienEntity extends Entity {
+public class AlienEntity extends Entity implements Enemy {
 	private double moveSpeed = 100;
 	private GameContext context;
 	private static final int MAX_HEALTH = 2;
@@ -169,7 +169,6 @@ public class AlienEntity extends Entity {
                     context.addEntity(explosion);
 
                     context.removeEntity(this);
-                    context.removeEntity(laser);
                     context.notifyAlienKilled();
                 }
             }
