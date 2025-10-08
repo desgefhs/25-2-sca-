@@ -2,10 +2,7 @@ package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
-import org.newdawn.spaceinvaders.entity.Enemy.MeteorEntity;
-import org.newdawn.spaceinvaders.entity.Enemy.ThreeWayShooter;
-
+import org.newdawn.spaceinvaders.entity.Enemy.*;
 import org.newdawn.spaceinvaders.entity.Pet.PetEntity;
 import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.player.PlayerStats;
@@ -84,6 +81,12 @@ public class EntityManager {
                     break;
                 case THREE_WAY_SHOOTER:
                     newEntity = new ThreeWayShooter(context, info.x, info.y, info.movementPattern);
+                    break;
+                case BOMB:
+                    newEntity = new BombEntity(context, info.x, info.y);
+                    break;
+                case METEOR_ENEMY:
+                    newEntity = new MeteorEnemyEntity(context, info.x, info.y);
                     break;
                 // Add cases for other entity types here
             }

@@ -174,7 +174,7 @@ public class GameManager implements GameContext {
     @Override
     public void removeEntity(Entity entity) { entityManager.removeEntity(entity); }
     @Override
-    public void notifyDeath() { setCurrentState(GameState.Type.GAME_OVER); }
+    public void notifyDeath() { this.nextState = GameState.Type.GAME_OVER; }
     @Override
     public void notifyWin() { setCurrentState(GameState.Type.GAME_WON); }
 

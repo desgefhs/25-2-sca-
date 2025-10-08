@@ -125,10 +125,12 @@ public class ShipEntity extends Entity {
     }
 
     public void collidedWith(Entity other) {
-        if (buffManager.hasBuff(BuffType.INVINCIBILITY)) {
+        // if invincible, do nothing
+        if (isInvincible()) {
             return;
         }
 
+        // Projectile collision is handled below, but we need to check for friendly fire first.
         if (other instanceof ProjectileEntity) {
             ProjectileEntity shot = (ProjectileEntity) other;
             if (shot.getType().targetType != ProjectileType.TargetType.PLAYER) {
@@ -152,10 +154,7 @@ public class ShipEntity extends Entity {
                 return; // Damage absorbed
             }
 
-            // if invincible, no damage
-            if (invincible) {
-                return;
-            }
+            // Damage logic is now centralized in HealthComponent, which checks for invincibility.
 
             // otherwise, take damage
             if (other instanceof AlienEntity) {
@@ -163,8 +162,7 @@ public class ShipEntity extends Entity {
                 if (!health.decreaseHealth(COLLISION_DAMAGE)) {
                     context.notifyDeath();
                 } else {
-                    invincible = true;
-                    invincibilityTimer = INVINCIBILITY_DURATION;
+                    // Invincibility is now granted within decreaseHealth
                 }
             }
 
@@ -217,5 +215,9 @@ public class ShipEntity extends Entity {
 
     public void setMoveSpeed(float moveSpeed) {
         this.moveSpeed = moveSpeed;
+    }
+
+    public boolean isInvincible() {
+        return invincible || buffManager.hasBuff(BuffType.INVINCIBILITY);
     }
 }

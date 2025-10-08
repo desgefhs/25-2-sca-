@@ -33,36 +33,14 @@ public class MeteorEnemyEntity extends Entity {
         lastFire = System.currentTimeMillis();
 
         ProjectileType type = ProjectileType.FAST_NORMAL_SHOT;
-        ProjectileEntity shot = new ProjectileEntity(context, type, 1, getX() + (width / 2) - 15, getY() + height, 0, type.moveSpeed);
+        ProjectileEntity shot = new ProjectileEntity(context, type, 1, getX() + (width / 2) - 15, getY() + height, -type.moveSpeed, 0);
         context.addEntity(shot);
     }
 
     @Override
     public void move(long delta) {
         super.move(delta);
-
-        // Update firing state
-        stateTimer -= delta;
-        if (stateTimer <= 0) {
-            if (currentState == FiringState.FIRING) {
-                currentState = FiringState.COOLDOWN;
-                stateTimer = COOLDOWN_DURATION;
-            } else {
-                currentState = FiringState.FIRING;
-                stateTimer = FIRING_DURATION;
-            }
-        }
-
-        // Try to fire only when in the FIRING state
-        if (currentState == FiringState.FIRING) {
-            tryToFire();
-        }
-
-        // If it goes off the bottom of the screen, remove it
-        if (y > 600) {
-            context.removeEntity(this);
-            context.notifyAlienEscaped(this);
-        }
+        tryToFire();
     }
 
     @Override
