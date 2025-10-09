@@ -17,8 +17,8 @@ public class BuffUI {
 
     public BuffUI() {
         buffIcons.put(BuffType.INVINCIBILITY, SpriteStore.get().getSprite("sprites/buff/invincible.gif"));
-        buffIcons.put(BuffType.SPEED_BOOST, SpriteStore.get().getSprite("sprites/shot/shot.gif"));
-        buffIcons.put(BuffType.HEAL, SpriteStore.get().getSprite("sprites/pet/Healpet.gif"));
+        buffIcons.put(BuffType.SPEED_BOOST, SpriteStore.get().getSprite("sprites/buff/speed.png"));
+        buffIcons.put(BuffType.HEAL, SpriteStore.get().getSprite("sprites/buff/heal.png"));
     }
 
     public void draw(Graphics2D g, BuffManager buffManager) {
