@@ -26,7 +26,10 @@ public class Sprite {
 	    public void draw(Graphics g,int x,int y) {
 	        g.drawImage(image,x,y,null);
 	    }
-	
+
+	    public void draw(Graphics g, int x, int y, int width, int height) {
+	        g.drawImage(image, x, y, width, height, null);
+	    }
 
 	    public Image getImage() {
 	        return image;

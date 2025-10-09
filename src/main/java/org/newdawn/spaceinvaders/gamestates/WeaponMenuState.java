@@ -4,15 +4,20 @@ import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameManager;
 import org.newdawn.spaceinvaders.core.InputHandler;
 import org.newdawn.spaceinvaders.data.PlayerData;
+import org.newdawn.spaceinvaders.graphics.Sprite;
+import org.newdawn.spaceinvaders.graphics.SpriteStore;
 import org.newdawn.spaceinvaders.view.WeaponMenu;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WeaponMenuState implements GameState {
 
     private final GameManager gameManager;
     private WeaponMenu weaponMenu;
+    private Map<String, Sprite> weaponSprites = new HashMap<>();
 
     public WeaponMenuState(GameManager gameManager) {
         this.gameManager = gameManager;
@@ -26,6 +31,10 @@ public class WeaponMenuState implements GameState {
         weaponNames.add("Shotgun");
         weaponNames.add("Laser");
         this.weaponMenu = new WeaponMenu(weaponNames);
+
+        weaponSprites.put("DefaultGun", SpriteStore.get().getSprite("sprites/weapon/gun.png"));
+        weaponSprites.put("Shotgun", SpriteStore.get().getSprite("sprites/weapon/shotgun.png"));
+        weaponSprites.put("Laser", SpriteStore.get().getSprite("sprites/weapon/lasergun.png"));
     }
 
     @Override
@@ -111,6 +120,7 @@ public class WeaponMenuState implements GameState {
         g.setFont(new Font("Dialog", Font.BOLD, 24));
         g.drawString("Weapon Locker", 50, 50);
 
+        // Draw weapon list
         g.setFont(new Font("Dialog", Font.PLAIN, 18));
         int yPos = 100;
         for (int i = 0; i < weaponMenu.getItems().size(); i++) {
@@ -138,19 +148,64 @@ public class WeaponMenuState implements GameState {
             }
 
             g.drawString(displayText, 100, yPos);
-
-            if (weaponName.equals("Shotgun") && level > 0 && level < 5) {
-                g.setFont(new Font("Dialog", Font.PLAIN, 14));
-                g.setColor(Color.YELLOW);
-                g.drawString("Upgrade Cost: " + getShotgunUpgradeCost(level + 1), 300, yPos);
-            } else if (weaponName.equals("Laser") && level > 0 && level < 5) {
-                g.setFont(new Font("Dialog", Font.PLAIN, 14));
-                g.setColor(Color.YELLOW);
-                g.drawString("Upgrade Cost: " + getLaserUpgradeCost(level + 1), 300, yPos);
-            }
-
             yPos += 40;
         }
+
+        // Draw selected weapon info
+        String selectedWeapon = weaponMenu.getSelectedItem();
+        if (selectedWeapon != null) {
+            // Draw weapon image
+            Sprite sprite = weaponSprites.get(selectedWeapon);
+            if (sprite != null) {
+                int boxX = 550;
+                int boxY = 100;
+                int boxWidth = 150;
+                int boxHeight = 150;
+
+                g.setColor(Color.DARK_GRAY);
+                g.drawRect(boxX - 1, boxY - 1, boxWidth + 2, boxHeight + 2);
+
+                sprite.draw(g, boxX, boxY, boxWidth, boxHeight);
+            }
+
+            // Draw upgrade button
+            int level = gameManager.currentPlayer.getWeaponLevels().getOrDefault(selectedWeapon, 0);
+            boolean isUpgradeableWeapon = selectedWeapon.equals("Shotgun") || selectedWeapon.equals("Laser");
+
+            if (isUpgradeableWeapon && level > 0) { // Show button if unlocked
+                int buttonX = 550;
+                int buttonY = 270;
+                int buttonWidth = 150;
+                int buttonHeight = 50;
+
+                if (level < 5) { // Upgradeable
+                    int cost = selectedWeapon.equals("Shotgun") ? getShotgunUpgradeCost(level + 1) : getLaserUpgradeCost(level + 1);
+                    
+                    g.setColor(Color.YELLOW); // Active color
+                    g.drawRect(buttonX, buttonY, buttonWidth, buttonHeight);
+
+                    g.setFont(new Font("Dialog", Font.BOLD, 16));
+                    String upgradeText = "Upgrade (U)";
+                    int textWidth = g.getFontMetrics().stringWidth(upgradeText);
+                    g.drawString(upgradeText, buttonX + (buttonWidth - textWidth) / 2, buttonY + 20);
+
+                    g.setFont(new Font("Dialog", Font.PLAIN, 14));
+                    String costText = "Cost: " + cost;
+                    textWidth = g.getFontMetrics().stringWidth(costText);
+                    g.drawString(costText, buttonX + (buttonWidth - textWidth) / 2, buttonY + 40);
+
+                } else { // Max level
+                    g.setColor(Color.GRAY); // Disabled color
+                    g.drawRect(buttonX, buttonY, buttonWidth, buttonHeight);
+
+                    g.setFont(new Font("Dialog", Font.BOLD, 16));
+                    String maxLevelText = "Max Level";
+                    int textWidth = g.getFontMetrics().stringWidth(maxLevelText);
+                    g.drawString(maxLevelText, buttonX + (buttonWidth - textWidth) / 2, buttonY + 30);
+                }
+            }
+        }
+
 
         if (gameManager.message != null && !gameManager.message.isEmpty()) {
             g.setColor(Color.YELLOW);
@@ -159,7 +214,6 @@ public class WeaponMenuState implements GameState {
 
         g.setColor(Color.GRAY);
         g.drawString("Go to the Shop to unlock new weapons.", 50, 450);
-        g.drawString("Press 'U' to upgrade selected weapon.", 50, 470);
     }
 
     public int getShotgunUpgradeCost(int level) {
