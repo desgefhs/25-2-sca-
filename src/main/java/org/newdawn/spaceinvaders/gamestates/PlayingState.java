@@ -2,8 +2,8 @@ package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.*;
 import org.newdawn.spaceinvaders.entity.*;
-
 import org.newdawn.spaceinvaders.entity.Enemy.MeteorEntity;
+
 import org.newdawn.spaceinvaders.view.BuffUI;
 
 import java.awt.*;
@@ -146,7 +146,9 @@ public class PlayingState implements GameState {
     private void handleSpawning(long delta) {
         // Check if it's time to spawn the next formation in the wave
         if (gameManager.formationsSpawnedInWave < gameManager.formationsPerWave &&
+            gameManager.nextFormationSpawnTime > 0 && // Make sure timer is set
             System.currentTimeMillis() > gameManager.nextFormationSpawnTime) {
+            
             gameManager.spawnNextFormationInWave();
         }
     }

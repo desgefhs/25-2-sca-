@@ -65,8 +65,11 @@ public class MeteorEntity extends Entity {
 
         // Optional: Handle collision with the player's ship
         if (other instanceof ShipEntity) {
-            // Damage is now handled by ShipEntity's collidedWith method.
-            // Destroy the meteor on impact.
+            // Damage the player equal to the meteor's remaining health
+            ShipEntity ship = (ShipEntity) other;
+            ship.getHealth().decreaseHealth(this.health.getCurrentHealth());
+
+            // Destroy the meteor on impact
             context.removeEntity(this);
         } else if (other instanceof LaserBeamEntity) {
             // Meteors are instantly destroyed by lasers for now.

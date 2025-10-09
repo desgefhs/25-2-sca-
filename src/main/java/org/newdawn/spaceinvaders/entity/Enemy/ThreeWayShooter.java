@@ -12,7 +12,7 @@ import org.newdawn.spaceinvaders.graphics.SpriteStore;
 
 import java.awt.Graphics;
 
-public class ThreeWayShooter extends Entity {
+public class ThreeWayShooter extends Entity implements Enemy {
     private double moveSpeed = 150; // Adjusted for horizontal movement
     private GameContext context;
     private MovementPattern movementPattern;
@@ -137,6 +137,7 @@ public class ThreeWayShooter extends Entity {
 
         // if we have gone off the bottom of the screen, remove ourselves
         if (y > 600) {
+            context.notifyAlienEscaped(this);
             context.removeEntity(this);
         }
     }

@@ -16,14 +16,23 @@ public class HealthComponent {
 
     // 데미지 처리
     public boolean decreaseHealth(double amount) {
-        hp.setCurrentHp(hp.getCurrentHp() - amount);
-        boolean alive = hp.getCurrentHp() > 0;
+        // If the owner is an invincible ship, ignore damage
+        if (owner instanceof ShipEntity && ((ShipEntity) owner).isInvincible()) {
+            return true; // Still alive, no damage taken
+        }
 
-        if (alive && owner instanceof ShipEntity) {
+        hp.setCurrentHp(hp.getCurrentHp() - amount);
+
+        if (hp.getCurrentHp() <= 0) {
+            return false; // Dead
+        }
+
+        // If alive and it's the player, grant temporary invincibility
+        if (owner instanceof ShipEntity) {
             ((ShipEntity) owner).activateInvincibility();
         }
 
-        return alive;
+        return true; // Alive
     }
 
     //체력 초기화

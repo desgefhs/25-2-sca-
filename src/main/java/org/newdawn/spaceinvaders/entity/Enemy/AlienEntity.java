@@ -21,6 +21,7 @@ public class AlienEntity extends Entity implements Enemy {
 	private double moveSpeed = 100;
 	private GameContext context;
 	private static final int MAX_HEALTH = 2;
+	private static final int SHOT_DAMAGE = 1;
 
 	private long lastFire = 0;
 	private static final long firingInterval = 1000;
@@ -52,6 +53,18 @@ public class AlienEntity extends Entity implements Enemy {
         fireFrames[2] = SpriteStore.get().getSprite("sprites/fire effect/20 Ion.png");
 	}
 
+	public AlienEntity(GameContext context, int x, int y, int health, int cycle) {
+		this(context, x, y, health, MovementPattern.STRAIGHT_DOWN);
+	}
+
+	public AlienEntity(GameContext context, int x, int y, int health) {
+		this(context, x, y, health, MovementPattern.STRAIGHT_DOWN);
+	}
+
+	public AlienEntity(GameContext context, int x, int y) {
+		this(context, x, y, MAX_HEALTH, MovementPattern.STRAIGHT_DOWN);
+	}
+
     public void upgrade() {
         this.isUpgraded = true;
     }
@@ -77,7 +90,7 @@ public class AlienEntity extends Entity implements Enemy {
 	}
 
 	public void move(long delta) {
-		if (isUpgraded) {
+		if (Math.random() < 0.002) {
 			tryToFire();
 		}
 

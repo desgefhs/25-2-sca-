@@ -1,7 +1,11 @@
 package org.newdawn.spaceinvaders.entity;
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.entity.Enemy.BombEntity;
+import org.newdawn.spaceinvaders.entity.Enemy.Enemy;
 import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
+import org.newdawn.spaceinvaders.entity.Enemy.BombEntity;
+import org.newdawn.spaceinvaders.entity.Enemy.Enemy;
 import org.newdawn.spaceinvaders.entity.Enemy.MeteorEntity;
 import org.newdawn.spaceinvaders.entity.Pet.PetEntity;
 import org.newdawn.spaceinvaders.entity.Pet.PetType;
@@ -125,65 +129,32 @@ public class ShipEntity extends Entity {
     }
 
     public void collidedWith(Entity other) {
-        if (buffManager.hasBuff(BuffType.INVINCIBILITY)) {
+        // if invincible, do nothing to the ship or the other entity
+        if (isInvincible()) {
             return;
         }
 
-        if (other instanceof ProjectileEntity) {
-            ProjectileEntity shot = (ProjectileEntity) other;
-            if (shot.getType().targetType != ProjectileType.TargetType.PLAYER) {
-                return; // It's a friendly shot, ignore the collision.
-            }
-        }
-
-        if (other instanceof AlienEntity || other instanceof ProjectileEntity || other instanceof MeteorEntity) {
-            if (hasShield) {
-                // Reset cooldown on the provider FIRST, by running the callback.
-                if (onShieldBreak != null) {
-                    onShieldBreak.run();
-                }
-                // Now deactivate the shield.
-                setShield(false, null);
-
-                // if the colliding entity is not a meteor, remove it
-                if (!(other instanceof MeteorEntity)) {
-                    context.removeEntity(other);
-                }
-                return; // Damage absorbed
-            }
-
-            // if invincible, no damage
-            if (invincible) {
+        if (other instanceof Enemy) {
+            // Bomb entity has its own explosion logic and no collision damage
+            if (other instanceof BombEntity) {
                 return;
             }
 
-            // otherwise, take damage
-            if (other instanceof AlienEntity) {
-                context.removeEntity(other);
-                if (!health.decreaseHealth(COLLISION_DAMAGE)) {
-                    context.notifyDeath();
-                } else {
-                    invincible = true;
-                    invincibilityTimer = INVINCIBILITY_DURATION;
-                }
-            }
+            // For all other enemies, they are destroyed on collision
+            context.removeEntity(other);
+            context.notifyAlienKilled(); // This is the critical fix to decrement alienCount
 
-            if (other instanceof ProjectileEntity) {
-                // We already checked the targetType, so we know it's hostile.
-                if (!health.decreaseHealth(((ProjectileEntity) other).getDamage())) {
-                    context.notifyDeath();
-                } else {
-                    activateInvincibility();
-                }
+            // And the ship takes collision damage
+            if (!health.decreaseHealth(COLLISION_DAMAGE)) {
+                context.notifyDeath();
             }
+            return; // Collision handled
+        }
 
-            if (other instanceof MeteorEntity) {
-                if (!health.decreaseHealth(other.getHealth().getCurrentHealth())) {
-                    context.notifyDeath();
-                } else {
-                    activateInvincibility();
-                }
-                context.removeEntity(other);
+        if (other instanceof ProjectileEntity) {
+            // Projectile damage is handled by HealthComponent, which also grants invincibility
+            if (!health.decreaseHealth(((ProjectileEntity) other).getDamage())) {
+                context.notifyDeath();
             }
         }
     }
@@ -221,5 +192,9 @@ public class ShipEntity extends Entity {
 
     public void setMoveSpeed(float moveSpeed) {
         this.moveSpeed = moveSpeed;
+    }
+
+    public boolean isInvincible() {
+        return invincible || buffManager.hasBuff(BuffType.INVINCIBILITY);
     }
 }

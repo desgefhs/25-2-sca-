@@ -1,15 +1,8 @@
 package org.newdawn.spaceinvaders.entity.Projectile;
 
-import org.newdawn.spaceinvaders.entity.ShipEntity;
-import org.newdawn.spaceinvaders.entity.HealthComponent;
-import org.newdawn.spaceinvaders.entity.Enemy.Enemy;
-
-import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.entity.BossEntity;
-import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
-import org.newdawn.spaceinvaders.entity.Enemy.ThreeWayShooter;
 import org.newdawn.spaceinvaders.entity.Entity;
 
+import org.newdawn.spaceinvaders.core.GameContext;
 import java.awt.Graphics2D;
 
 public class LaserBeamEntity extends Entity {

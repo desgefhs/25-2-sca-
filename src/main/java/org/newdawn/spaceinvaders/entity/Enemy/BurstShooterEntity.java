@@ -6,7 +6,7 @@ import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 
-public class BurstShooterEntity extends Entity {
+public class BurstShooterEntity extends Entity implements Enemy {
     private double moveSpeed = 75;
     private GameContext context;
 

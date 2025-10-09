@@ -2,10 +2,7 @@ package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
-
-import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
-import org.newdawn.spaceinvaders.entity.Enemy.MeteorEntity;
-import org.newdawn.spaceinvaders.entity.Enemy.ThreeWayShooter;
+import org.newdawn.spaceinvaders.entity.Enemy.*;
 import org.newdawn.spaceinvaders.entity.Pet.PetEntity;
 import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.player.PlayerStats;
@@ -48,7 +45,7 @@ public class EntityManager {
         alienCount = 0;
     }
 
-    public void spawnFormation(Formation formation, int wave) {
+    public void spawnFormation(Formation formation, int wave, boolean forceUpgrade) {
         int cycle = (wave - 1) / 5;
         double cycleMultiplier = Math.pow(1.2, cycle); // Slower scaling for normal aliens
         int baseAlienHealth = 2;
@@ -57,37 +54,39 @@ public class EntityManager {
             Entity newEntity = null;
             switch (info.entityType) {
                 case ALIEN:
-                    // Calculate health based on wave
                     int alienHealth = (int) (baseAlienHealth * cycleMultiplier) + (wave / 2);
-
-                    // Create alien with movement pattern
                     AlienEntity alien = new AlienEntity(context, info.x, info.y, alienHealth, info.movementPattern);
-
-                    // Set vertical direction based on movement pattern
                     switch (info.movementPattern) {
                         case STRAIGHT_UP:
                             alien.setVerticalMovement(-alien.getMoveSpeed());
                             break;
-                        case STRAIGHT_DOWN:
-                        case SINUSOIDAL:
-                        case STATIC:
                         default:
-                            // Default behavior is downward, which is already set in AlienEntity's constructor.
                             break;
-                    }
-
-                    // Handle random upgrade
-                    if (info.upgradeChance > 0 && Math.random() < info.upgradeChance) {
-                        alien.upgrade();
                     }
                     newEntity = alien;
                     break;
                 case THREE_WAY_SHOOTER:
                     newEntity = new ThreeWayShooter(context, info.x, info.y, info.movementPattern);
                     break;
-                // Add cases for other entity types here
+                case BOMB:
+                    newEntity = new BombEntity(context, info.x, info.y);
+                    break;
+                case METEOR_ENEMY:
+                    newEntity = new MeteorEnemyEntity(context, info.x, info.y);
+                    break;
+                case BURST_SHOOTER:
+                    newEntity = new BurstShooterEntity(context, info.x, info.y);
+                    break;
             }
+
             if (newEntity != null) {
+                if (newEntity instanceof Enemy) {
+                    // Upgrade if forced by the game manager, by the spawn info, or by random chance
+                    if (forceUpgrade || info.forceUpgrade || (info.upgradeChance > 0 && Math.random() < info.upgradeChance)) {
+                        ((Enemy) newEntity).upgrade();
+                    }
+                }
+
                 addEntity(newEntity);
                 if (!(newEntity instanceof MeteorEntity)) {
                     alienCount++;
@@ -108,13 +107,20 @@ public class EntityManager {
      * 이번 프레임에서 제거하기로 표시된 모든 엔티티를 실제로 제거합니다.
      */
     public void cleanup() {
-        // Garbage collect entities that have gone off-screen
+        // Find off-screen entities that need to be reported as escaped
+        List<Entity> escapedEnemies = new ArrayList<>();
         for (Entity entity : entities) {
             if (entity.getX() < -50 || entity.getX() > 550 || entity.getY() < -300 || entity.getY() > 650) {
-                if (!(entity instanceof ShipEntity) && !(entity instanceof PetEntity)) {
-                    removeList.add(entity);
+                if (entity instanceof Enemy) {
+                    escapedEnemies.add(entity);
                 }
             }
+        }
+
+        // Notify the game manager about escaped enemies
+        for (Entity entity : escapedEnemies) {
+            // This call will also add the entity to the removeList via the entity manager
+            context.notifyAlienEscaped(entity);
         }
 
         // Create a copy to iterate over, to avoid ConcurrentModificationException

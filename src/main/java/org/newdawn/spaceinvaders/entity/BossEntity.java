@@ -3,13 +3,15 @@ package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.entity.Projectile.LaserEntity;
+import org.newdawn.spaceinvaders.entity.Enemy.Enemy;
+import org.newdawn.spaceinvaders.entity.Enemy.TentacleAttackEntity;
+import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
+import org.newdawn.spaceinvaders.entity.Enemy.SweepingLaserEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.LaserBeamEntity;
+import org.newdawn.spaceinvaders.entity.Projectile.LaserEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 import org.newdawn.spaceinvaders.graphics.HpRender;
-
-import org.newdawn.spaceinvaders.entity.Enemy.Enemy;
 
 public class BossEntity extends Entity implements Enemy {
     @FunctionalInterface
@@ -34,16 +36,29 @@ public class BossEntity extends Entity implements Enemy {
     private Boss5State boss5State = Boss5State.ATTACKING;
     private long stateTimer = 0;
     private boolean boss10PatternToggle = false; // To alternate patterns for wave 10
+    private boolean isFiringFeatherStream = false;
+    private int featherStreamCount = 0;
+    private long lastFeatherShotTime = 0;
+    private final int featherStreamSize = 5;
+    private final long featherShotDelay = 100;
+    private boolean hasSplit = false;
+    private boolean isMiniBoss = false;
+    private int phase = 1;
+    private boolean isTeleporting = false;
+    private long teleportStartTime = 0;
+    private final long teleportDisappearTime = 500; // ms boss is invisible
+    private final long teleportTotalTime = 1000; // ms until boss reappears and fires
     private final java.util.List<LaserEntity> laserGimmicks = new java.util.ArrayList<>();
     private long laserGimmickStartTime = 0;
 
 
-    public BossEntity(GameContext context, int x, int y, int health, int cycle, int waveNumber) {
-        super(waveNumber == 15 ? "sprites/bosses/Grifin.png" : (waveNumber == 10 ? "sprites/bosses/Hydra.png" : (waveNumber == 5 ? "sprites/bosses/kraken_anim.gif" : "sprites/boss_cycle" + cycle + ".gif")), x, y);
+    public BossEntity(GameContext context, int x, int y, int health, int cycle, int waveNumber, boolean isMiniBoss) {
+        super(getBossSprite(waveNumber, cycle), x, y);
         this.context = context;
         this.health = new HealthComponent(this,health);
         this.hpRender = new HpRender(this.health.getHp());
         this.waveNumber = waveNumber;
+        this.isMiniBoss = isMiniBoss;
         this.firingInterval = 2500; // 2.5초 딜레이
         dx = -moveSpeed;
         if (waveNumber == 10) { // Enable vertical movement for wave 10 boss
@@ -51,7 +66,13 @@ public class BossEntity extends Entity implements Enemy {
         } else {
             dy = 0;
         }
-        setScale(2.5);
+
+        if (isMiniBoss) {
+            setScale(1.5);
+        } else {
+            setScale(2.5);
+        }
+
         if (waveNumber == 5) {
             stateTimer = System.currentTimeMillis();
             context.resetItemCollection();
@@ -72,16 +93,13 @@ public class BossEntity extends Entity implements Enemy {
                 break;
             case 15:
                 availablePatterns.add(this::fireFeatherPattern);
+                availablePatterns.add(this::fireFeatherStreamPattern);
                 break;
             case 20:
-                availablePatterns.add(this::fireCurtainPattern);
-                availablePatterns.add(this::fireThreeWayPattern);
+                availablePatterns.add(this::fireTentacleAttackPattern);
                 break;
             case 25:
-                availablePatterns.add(this::fireThreeWayPattern);
-                availablePatterns.add(this::fireCirclePattern);
-                availablePatterns.add(this::fireFollowingShotPattern);
-                availablePatterns.add(this::fireCurtainPattern);
+                // Patterns are now handled dynamically in tryToFire based on phase
                 break;
             default:
                 availablePatterns.add(this::fireFollowingShotPattern);
@@ -90,24 +108,67 @@ public class BossEntity extends Entity implements Enemy {
     }
 
     public BossEntity(GameContext context, int x, int y, int health, int cycle) {
-        this(context, x, y, health, cycle, 0);
+        this(context, x, y, health, cycle, 0, false);
     }
 
     public BossEntity(GameContext context, int x, int y, int health) {
-        this(context, x, y, health, 0, 0);
+        this(context, x, y, health, 0, 0, false);
     }
 
     public BossEntity(GameContext context, int x, int y) {
-        this(context, x, y, MAX_HEALTH, 0, 0);
+        this(context, x, y, MAX_HEALTH, 0, 0, false);
+    }
+
+    private static String getBossSprite(int waveNumber, int cycle) {
+        switch (waveNumber) {
+            case 5: return "sprites/bosses/kraken_anim.gif";
+            case 10: return "sprites/bosses/Hydra.png";
+            case 15: return "sprites/bosses/Grifin.png";
+            case 20: return "sprites/bosses/fireheart.png";
+            case 25: return "sprites/bosses/endboss.png";
+            default: return "sprites/boss_cycle" + cycle + ".gif";
+        }
     }
 
     @Override
     public void draw(java.awt.Graphics g) {
+        if (isTeleporting && System.currentTimeMillis() - teleportStartTime < teleportDisappearTime) {
+            // Don't draw while invisible
+            return;
+        }
         super.draw(g);
         hpRender.hpRender((java.awt.Graphics2D) g, this);
     }
 
     public void move(long delta) {
+        // Handle special states first, and return to prevent normal movement
+        if (isTeleporting) {
+            long timeSinceTeleport = System.currentTimeMillis() - teleportStartTime;
+            if (timeSinceTeleport >= teleportTotalTime) {
+                isTeleporting = false;
+                int newX = new java.util.Random().nextInt(Game.GAME_WIDTH - getWidth());
+                setX(newX);
+                fireCirclePattern();
+            }
+            return; // Boss is invisible and immobile
+        }
+
+        if (isFiringFeatherStream) {
+            if (System.currentTimeMillis() - lastFeatherShotTime > featherShotDelay) {
+                if (featherStreamCount < featherStreamSize) {
+                    ProjectileType type = ProjectileType.FEATHER_SHOT;
+                    int damage = 1;
+                    double shotMoveSpeed = type.moveSpeed;
+                    context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width / 2), getY() + (height / 2), 0, shotMoveSpeed));
+                    lastFeatherShotTime = System.currentTimeMillis();
+                    featherStreamCount++;
+                } else {
+                    isFiringFeatherStream = false;
+                }
+            }
+        }
+
+        // Standard movement and attacks
         // Horizontal bouncing
         if ((dx < 0) && (x < 0)) {
             dx = -dx;
@@ -121,7 +182,6 @@ public class BossEntity extends Entity implements Enemy {
             if ((dy < 0) && (y < 0)) {
                 dy = -dy;
             }
-            // Prevent boss from moving too far down
             if ((dy > 0) && (y > 250)) {
                 dy = -dy;
             }
@@ -144,26 +204,43 @@ public class BossEntity extends Entity implements Enemy {
         }
         lastFire = System.currentTimeMillis();
 
-        if (availablePatterns.isEmpty()) {
+        java.util.List<BossPattern> patternsToUse;
+
+        if (waveNumber == 25) {
+            patternsToUse = new java.util.ArrayList<>();
+            switch (phase) {
+                case 1:
+                    patternsToUse.add(this::fireThreeWayPattern);
+                    patternsToUse.add(this::fireCirclePattern);
+                    patternsToUse.add(this::fireFollowingShotPattern);
+                    patternsToUse.add(this::fireCurtainPattern);
+                    break;
+                case 2:
+                    patternsToUse.add(this::fireTentacleAttackPattern);
+                    patternsToUse.add(this::fireLaserSweepPattern);
+                    break;
+                case 3:
+                    patternsToUse.add(this::spawnMinionsPattern);
+                    patternsToUse.add(this::teleportAndBurstPattern);
+                    break;
+            }
+        } else {
+            patternsToUse = availablePatterns;
+        }
+
+        if (patternsToUse == null || patternsToUse.isEmpty()) {
             return;
         }
 
-        // 마지막에 사용한 패턴을 제외한 새로운 목록 생성
-        java.util.List<BossPattern> selectablePatterns = new java.util.ArrayList<>(availablePatterns);
-        if (lastUsedPattern != null) {
+        // Select a random pattern from the list for the current phase
+        java.util.List<BossPattern> selectablePatterns = new java.util.ArrayList<>(patternsToUse);
+        if (lastUsedPattern != null && selectablePatterns.size() > 1) {
             selectablePatterns.remove(lastUsedPattern);
         }
 
-        // 만약 필터링된 목록이 비어있으면 (예: 패턴이 1개뿐인 경우), 전체 목록을 다시 사용
-        if (selectablePatterns.isEmpty()) {
-            selectablePatterns.addAll(availablePatterns);
-        }
-
-        // 선택 가능한 패턴 목록에서 무작위로 하나를 선택
         java.util.Random rand = new java.util.Random();
         BossPattern selectedPattern = selectablePatterns.get(rand.nextInt(selectablePatterns.size()));
 
-        // 패턴 실행 및 마지막 사용 패턴으로 기록
         selectedPattern.execute();
         this.lastUsedPattern = selectedPattern;
     }
@@ -256,6 +333,75 @@ public class BossEntity extends Entity implements Enemy {
         }
     }
 
+    private void fireFeatherStreamPattern() {
+        isFiringFeatherStream = true;
+        featherStreamCount = 0;
+        lastFeatherShotTime = 0;
+    }
+
+    private void fireTentacleAttackPattern() {
+        int numberOfAttacks = isMiniBoss ? 12 : 6;
+        for (int i = 0; i < numberOfAttacks; i++) {
+            // Spawn at a random location on the screen.
+            // The area should be restricted to the game area.
+            int randomX = (int) (Math.random() * (Game.GAME_WIDTH - 100)) + 50; // Avoid edges
+            int randomY = (int) (Math.random() * (Game.GAME_HEIGHT - 200)) + 100; // Avoid top/bottom edges
+            context.addEntity(new TentacleAttackEntity(context, randomX, randomY));
+        }
+    }
+
+    private void splitIntoMiniBosses() {
+        // Create two mini-bosses
+        int miniBossHealth = (int) (health.getHp().getMAX_HP() / 2);
+        int cycle = (waveNumber - 1) / 5;
+
+        // Left mini-boss
+        BossEntity miniBoss1 = new BossEntity(context, getX() - 50, getY(), miniBossHealth, cycle, waveNumber, true);
+        context.addEntity(miniBoss1);
+
+        // Right mini-boss
+        BossEntity miniBoss2 = new BossEntity(context, getX() + 50, getY(), miniBossHealth, cycle, waveNumber, true);
+        context.addEntity(miniBoss2);
+    }
+
+    private void spawnMinionsPattern() {
+        int minionCount = 3;
+        int spacing = 100;
+        int startX = getX() + (getWidth() / 2) - ((minionCount - 1) * spacing / 2);
+
+        for (int i = 0; i < minionCount; i++) {
+            // Spawn minions in a line below the boss
+            int minionX = startX + (i * spacing);
+            int minionY = getY() + getHeight() + 50;
+            context.addEntity(new AlienEntity(context, minionX, minionY));
+        }
+    }
+
+    private void fireLaserSweepPattern() {
+        double sweepSpeed = 200;
+        // Randomly choose a sweep direction
+        int direction = new java.util.Random().nextInt(4);
+        switch (direction) {
+            case 0: // From Left
+                context.addEntity(new SweepingLaserEntity(context, -50, 0, sweepSpeed, 0));
+                break;
+            case 1: // From Right
+                context.addEntity(new SweepingLaserEntity(context, Game.GAME_WIDTH + 50, 0, -sweepSpeed, 0));
+                break;
+            case 2: // From Top
+                context.addEntity(new SweepingLaserEntity(context, 0, -50, 0, sweepSpeed));
+                break;
+            case 3: // From Bottom
+                context.addEntity(new SweepingLaserEntity(context, 0, Game.GAME_HEIGHT + 50, 0, -sweepSpeed));
+                break;
+        }
+    }
+
+    private void teleportAndBurstPattern() {
+        isTeleporting = true;
+        teleportStartTime = System.currentTimeMillis();
+    }
+
 
     public void collidedWith(Entity other) {
         if (other instanceof ProjectileEntity) {
@@ -265,6 +411,25 @@ public class BossEntity extends Entity implements Enemy {
                     if (!health.decreaseHealth(shot.getDamage())) {
                         context.removeEntity(this);
                         context.notifyAlienKilled(); // Notify for score and wave progression
+                    } else {
+                        // Phase transition for Wave 25 boss
+                        if (waveNumber == 25) {
+                            double maxHealth = health.getHp().getMAX_HP();
+                            int currentHealth = health.getCurrentHealth();
+                            if (phase == 1 && currentHealth <= maxHealth * 0.66) {
+                                phase = 2;
+                                // Optional: Add phase transition effect here
+                            } else if (phase == 2 && currentHealth <= maxHealth * 0.33) {
+                                phase = 3;
+                                // Optional: Add phase transition effect here
+                            }
+                        }
+                        // Splitting logic for Wave 20 boss
+                        else if (waveNumber == 20 && !hasSplit && !isMiniBoss && health.getCurrentHealth() <= health.getHp().getMAX_HP() / 2) {
+                            hasSplit = true;
+                            splitIntoMiniBosses();
+                            context.removeEntity(this); // Remove the main boss
+                        }
                     }
                 }
             }
@@ -275,8 +440,29 @@ public class BossEntity extends Entity implements Enemy {
                     context.removeEntity(this);
                     context.removeEntity(laser);
                     context.notifyAlienKilled(); // Notify for score and wave progression
+                } else {
+                    // Phase transition for Wave 25 boss
+                    if (waveNumber == 25) {
+                        double maxHealth = health.getHp().getMAX_HP();
+                        int currentHealth = health.getCurrentHealth();
+                        if (phase == 1 && currentHealth <= maxHealth * 0.66) {
+                            phase = 2;
+                        } else if (phase == 2 && currentHealth <= maxHealth * 0.33) {
+                            phase = 3;
+                        }
+                    }
+                    // Splitting logic for Wave 20 boss
+                    else if (waveNumber == 20 && !hasSplit && !isMiniBoss && health.getCurrentHealth() <= health.getHp().getMAX_HP() / 2) {
+                        hasSplit = true;
+                        splitIntoMiniBosses();
+                        context.removeEntity(this); // Remove the main boss
+                    }
                 }
             }
         }
+    }
+    @Override
+    public void upgrade() {
+        // This entity cannot be upgraded.
     }
 }
