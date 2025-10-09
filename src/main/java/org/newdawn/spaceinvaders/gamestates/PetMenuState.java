@@ -5,10 +5,14 @@ import org.newdawn.spaceinvaders.core.GameManager;
 import org.newdawn.spaceinvaders.core.InputHandler;
 import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.entity.Pet.PetType;
+import org.newdawn.spaceinvaders.graphics.Sprite;
+import org.newdawn.spaceinvaders.graphics.SpriteStore;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PetMenuState implements GameState {
 
@@ -16,6 +20,7 @@ public class PetMenuState implements GameState {
     private PlayerData playerData;
     private int selectedPetIndex = 0;
     private List<String> ownedPetNames = new ArrayList<>();
+    private Map<String, Sprite> petSprites = new HashMap<>();
 
     public PetMenuState(GameManager gameManager) {
         this.gameManager = gameManager;
@@ -25,6 +30,11 @@ public class PetMenuState implements GameState {
     public void init() {
         this.playerData = gameManager.getCurrentPlayer();
         updateOwnedPetList();
+
+        petSprites.put("ATTACK", SpriteStore.get().getSprite("sprites/pet/Attackpet.gif"));
+        petSprites.put("DEFENSE", SpriteStore.get().getSprite("sprites/pet/Defensepet.gif"));
+        petSprites.put("HEAL", SpriteStore.get().getSprite("sprites/pet/Healpet.gif"));
+        petSprites.put("BUFF", SpriteStore.get().getSprite("sprites/pet/Buffpet.gif"));
     }
 
     private void updateOwnedPetList() {
@@ -95,7 +105,8 @@ public class PetMenuState implements GameState {
 
     @Override
     public void render(Graphics2D g) {
-        g.drawImage(gameManager.staticBackgroundSprite.getImage(), 0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT, null);
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 
         g.setFont(new Font("Dialog", Font.BOLD, 32));
         g.setColor(Color.WHITE);
@@ -132,36 +143,101 @@ public class PetMenuState implements GameState {
                     g.setFont(new Font("Dialog", Font.BOLD, 20));
                     g.drawString(displayName, 150, startY + i * itemHeight);
 
-                    g.setFont(new Font("Dialog", Font.PLAIN, 16));
-                    g.setColor(Color.LIGHT_GRAY);
-                    int duplicates = petCount - 1;
-                    String upgradeInfo = "강화 재료: " + duplicates + "개 보유";
-                    int currentLevel = playerData.getPetLevel(petType.name());
-
-                    // Draw upgrade info for each pet type
-                    switch (petType) {
-                        case ATTACK:
-                            g.drawString("레벨: " + currentLevel + " (총알 " + (currentLevel + 1) + "개)", 170, startY + i * itemHeight + 25);
-                            break;
-                        case DEFENSE:
-                            double cooldown = 5.0 - (currentLevel * 0.2);
-                            g.drawString(String.format("레벨: %d (재사용 대기시간: %.1f초)", currentLevel, cooldown), 170, startY + i * itemHeight + 25);
-                            break;
-                        case HEAL:
-                            double healPercent = 30 + (currentLevel * 2);
-                            g.drawString(String.format("레벨: %d (힐량: %.0f%%)", currentLevel, healPercent), 170, startY + i * itemHeight + 25);
-                            break;
-                        case BUFF:
-                            double buffPercent = 20 + (currentLevel * 1);
-                            g.drawString(String.format("레벨: %d (공격력/공속: +%.0f%%)", currentLevel, buffPercent), 170, startY + i * itemHeight + 25);
-                            break;
-                        // Add other pets here
-                    }
-                    g.drawString(upgradeInfo, 450, startY + i * itemHeight + 25);
-
                 } catch (IllegalArgumentException e) {
                     g.setColor(Color.RED);
                     g.drawString((i + 1) + ". " + petName + " (Unknown)", 150, startY + i * itemHeight);
+                }
+            }
+
+            // Draw selected pet info
+            if (!ownedPetNames.isEmpty()) {
+                String selectedPetName = ownedPetNames.get(selectedPetIndex);
+                if (selectedPetName != null) {
+                    // Draw pet image
+                    Sprite sprite = petSprites.get(selectedPetName);
+                    if (sprite != null) {
+                        int boxX = 550;
+                        int boxY = 100;
+                        int boxWidth = 150;
+                        int boxHeight = 150;
+
+                        g.setColor(Color.DARK_GRAY);
+                        g.drawRect(boxX - 1, boxY - 1, boxWidth + 2, boxHeight + 2);
+
+                        sprite.draw(g, boxX, boxY, boxWidth, boxHeight);
+
+                        // Draw description under the image
+                        try {
+                            PetType petType = PetType.valueOf(selectedPetName);
+                            int currentLevel = playerData.getPetLevel(petType.name());
+                            int petCount = playerData.getPetInventory().get(selectedPetName);
+                            int duplicates = petCount - 1;
+
+                            g.setFont(new Font("Dialog", Font.BOLD, 18));
+                            g.setColor(Color.WHITE);
+                            g.drawString(petType.getDisplayName(), boxX, boxY + boxHeight + 25);
+
+                            g.setFont(new Font("Dialog", Font.PLAIN, 16));
+                            g.setColor(Color.LIGHT_GRAY);
+
+                            String description = "";
+                            switch (petType) {
+                                case ATTACK:
+                                    int projectileCount = 1;
+                                    if (currentLevel >= 3) projectileCount++;
+                                    if (currentLevel >= 6) projectileCount++;
+                                    if (currentLevel >= 10) projectileCount++;
+                                    description = "레벨: " + currentLevel + " (총알 " + projectileCount + "개)";
+                                    break;
+                                case DEFENSE:
+                                    double cooldown = 5.0 - (currentLevel * 0.2);
+                                    description = String.format("레벨: %d (재사용 대기시간: %.1f초)", currentLevel, cooldown);
+                                    break;
+                                case HEAL:
+                                    double healPercent = 30 + (currentLevel * 2);
+                                    description = String.format("레벨: %d (힐량: %.0f%%)", currentLevel, healPercent);
+                                    break;
+                                case BUFF:
+                                    double buffPercent = 20 + (currentLevel * 1);
+                                    description = String.format("레벨: %d (공격력/공속: +%.0f%%)", currentLevel, buffPercent);
+                                    break;
+                            }
+                            g.drawString(description, boxX, boxY + boxHeight + 50);
+                            g.drawString("강화 재료: " + duplicates + "개 보유", boxX, boxY + boxHeight + 75);
+
+                            // Draw upgrade button
+                            int buttonX = boxX;
+                            int buttonY = boxY + boxHeight + 100;
+                            int buttonWidth = 150;
+                            int buttonHeight = 50;
+
+                            if (currentLevel < 10) {
+                                g.setColor(Color.YELLOW); // Active color
+                                g.drawRect(buttonX, buttonY, buttonWidth, buttonHeight);
+
+                                g.setFont(new Font("Dialog", Font.BOLD, 16));
+                                String upgradeText = "강화 (U)";
+                                int textWidth = g.getFontMetrics().stringWidth(upgradeText);
+                                g.drawString(upgradeText, buttonX + (buttonWidth - textWidth) / 2, buttonY + 20);
+
+                                g.setFont(new Font("Dialog", Font.PLAIN, 14));
+                                String costText = "비용: 펫 1개";
+                                textWidth = g.getFontMetrics().stringWidth(costText);
+                                g.drawString(costText, buttonX + (buttonWidth - textWidth) / 2, buttonY + 40);
+                            } else { // Max level
+                                g.setColor(Color.GRAY); // Disabled color
+                                g.drawRect(buttonX, buttonY, buttonWidth, buttonHeight);
+
+                                g.setFont(new Font("Dialog", Font.BOLD, 16));
+                                String maxLevelText = "최고 레벨";
+                                int textWidth = g.getFontMetrics().stringWidth(maxLevelText);
+                                g.drawString(maxLevelText, buttonX + (buttonWidth - textWidth) / 2, buttonY + 30);
+                            }
+
+                        } catch (IllegalArgumentException e) {
+                            // Handle error if pet type is not found
+                        }
+                    }
                 }
             }
         }

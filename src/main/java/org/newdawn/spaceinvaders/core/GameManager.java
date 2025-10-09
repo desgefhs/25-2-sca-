@@ -384,7 +384,6 @@ public class GameManager implements GameContext {
      */
     public void savePlayerData() {
         if (user == null || currentPlayer == null) return;
-        currentPlayer.getWeaponLevels().putAll(playerStats.getWeaponLevels());
         databaseManager.updatePlayerData(user.getLocalId(), currentPlayer);
     }
 

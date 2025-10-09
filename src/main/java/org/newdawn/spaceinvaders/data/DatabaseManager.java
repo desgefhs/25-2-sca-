@@ -60,6 +60,7 @@ public class DatabaseManager {
             DocumentSnapshot document = future.get();
             if (document.exists()) {
                 PlayerData playerData = document.toObject(PlayerData.class);
+
                 if (playerData != null && document.contains("weaponLevels")) {
                     // Safely handle number types (e.g., Long from Firestore) by converting to Integer
                     Map<String, Object> rawWeaponLevels = (Map<String, Object>) document.get("weaponLevels");
