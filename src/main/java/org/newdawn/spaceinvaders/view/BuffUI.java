@@ -16,7 +16,7 @@ public class BuffUI {
     private Map<BuffType, Sprite> buffIcons = new HashMap<>();
 
     public BuffUI() {
-        buffIcons.put(BuffType.INVINCIBILITY, SpriteStore.get().getSprite("sprites/spr_shield.png"));
+        buffIcons.put(BuffType.INVINCIBILITY, SpriteStore.get().getSprite("sprites/buff/invincible.gif"));
         buffIcons.put(BuffType.SPEED_BOOST, SpriteStore.get().getSprite("sprites/shot/shot.gif"));
         buffIcons.put(BuffType.HEAL, SpriteStore.get().getSprite("sprites/pet/Healpet.gif"));
     }
@@ -27,7 +27,7 @@ public class BuffUI {
         }
 
         List<BuffType> activeBuffs = buffManager.getActiveBuffs();
-        int xOffset = Game.GAME_WIDTH - 50;
+        int xOffset = Game.GAME_WIDTH + 20;
         int yOffset = Game.GAME_HEIGHT - 50;
         int iconSize = 32;
 
@@ -35,7 +35,7 @@ public class BuffUI {
             BuffType buff = activeBuffs.get(i);
             Sprite icon = buffIcons.get(buff);
             if (icon != null) {
-                g.drawImage(icon.getImage(), xOffset - (i * (iconSize + 5)), yOffset, iconSize, iconSize, null);
+                g.drawImage(icon.getImage(), xOffset + (i * (iconSize + 5)), yOffset, iconSize, iconSize, null);
             }
         }
     }
