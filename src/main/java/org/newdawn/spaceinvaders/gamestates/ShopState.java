@@ -24,22 +24,20 @@ public class ShopState implements GameState {
 
     @Override
     public void handleInput(InputHandler input) {
-        int totalItems = upgrades.size() + 1; // +1 for the draw
-
         if (input.isUpPressedAndConsume()) {
             selectedIndex--;
             if (selectedIndex < 0) {
-                selectedIndex = totalItems - 1;
+                selectedIndex = upgrades.size() - 1;
             }
         }
         if (input.isDownPressedAndConsume()) {
             selectedIndex++;
-            if (selectedIndex >= totalItems) {
+            if (selectedIndex >= upgrades.size()) {
                 selectedIndex = 0;
             }
         }
         if (input.isEscPressedAndConsume()) {
-            gameManager.setCurrentState(Type.MAIN_MENU);
+            gameManager.setCurrentState(Type.SHOP_MAIN_MENU);
         }
 
         if (input.isFirePressedAndConsume()) {
@@ -61,41 +59,6 @@ public class ShopState implements GameState {
                 } else {
                     gameManager.message = "크레딧이 부족합니다!";
                 }
-            } else { // Handle Item Draw Purchase
-                String result = gameManager.shopManager.drawItem(gameManager.currentPlayer);
-
-                switch (result) {
-                    case "INSUFFICIENT_FUNDS":
-                        gameManager.message = "크레딧이 부족합니다!";
-                        break;
-                    case "CREDIT_250":
-                        gameManager.message = "250 크레딧에 당첨되었습니다!";
-                        break;
-                    case "PET_ATTACK":
-                        gameManager.message = "'공격형 펫'을 획득했습니다!";
-                        break;
-                    case "PET_DEFENSE":
-                        gameManager.message = "'방어형 펫'을 획득했습니다!";
-                        break;
-                    case "PET_HEAL":
-                        gameManager.message = "'치유형 펫'을 획득했습니다!";
-                        break;
-                    case "PET_BUFF":
-                        gameManager.message = "'버프형 펫'을 획득했습니다!";
-                        break;
-                    case "WEAPON_SHOTGUN":
-                        gameManager.currentPlayer.getWeaponLevels().put("Shotgun", 1);
-                        gameManager.message = "새로운 무기 '샷건'을 잠금 해제했습니다!";
-                        break;
-                    case "WEAPON_LASER":
-                        gameManager.currentPlayer.getWeaponLevels().put("Laser", 1);
-                        gameManager.message = "새로운 무기 '레이저'를 잠금 해제했습니다!";
-                        break;
-                    case "DUPLICATE_WEAPON":
-                        gameManager.message = "이미 보유한 무기입니다! 300 크레딧을 돌려받습니다.";
-                        break;
-                }
-                gameManager.savePlayerData(); // Save the result of the draw
             }
         }
     }
@@ -110,7 +73,7 @@ public class ShopState implements GameState {
 
         g.setColor(Color.white);
         g.setFont(new Font("Dialog", Font.BOLD, 32));
-        g.drawString("상점", (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth("상점")) / 2, 80);
+        g.drawString("캐릭터 강화", (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth("캐릭터 강화")) / 2, 80);
 
         g.setFont(new Font("Dialog", Font.BOLD, 20));
         String creditText = "보유 크레딧: " + gameManager.currentPlayer.getCredit();
@@ -134,34 +97,26 @@ public class ShopState implements GameState {
             int currentLevel = gameManager.currentPlayer.getUpgradeLevel(upgrade.getId());
             int maxLevel = upgrade.getMaxLevel();
 
+            Rectangle itemBounds = new Rectangle(100, startY + (i * itemHeight) - 40, Game.SCREEN_WIDTH - 200, itemHeight);
+
             if (i == selectedIndex) {
                 g.setColor(Color.GREEN);
+                g.fillRect(itemBounds.x, itemBounds.y, itemBounds.width, itemBounds.height);
+                g.setColor(Color.BLACK);
             } else {
                 g.setColor(Color.WHITE);
+                g.drawRect(itemBounds.x, itemBounds.y, itemBounds.width, itemBounds.height);
             }
 
             g.setFont(new Font("Dialog", Font.BOLD, 20));
-            g.drawString(upgrade.getName(), 100, startY + (i * itemHeight));
+            g.drawString(upgrade.getName(), 120, startY + (i * itemHeight));
 
             g.setFont(new Font("Dialog", Font.PLAIN, 16));
-            g.drawString("레벨: " + currentLevel + " / " + maxLevel, 350, startY + (i * itemHeight));
+            g.drawString("레벨: " + currentLevel + " / " + maxLevel, 370, startY + (i * itemHeight));
 
             String costString = (currentLevel >= maxLevel) ? "최고 레벨" : "비용: " + upgrade.getCost(currentLevel + 1);
-            g.drawString(costString, 550, startY + (i * itemHeight));
+            g.drawString(costString, 570, startY + (i * itemHeight));
         }
-
-        // Draw Item Draw Item
-        int itemDrawY = startY + (upgrades.size() * itemHeight);
-        if (selectedIndex == upgrades.size()) {
-            g.setColor(Color.CYAN);
-        } else {
-            g.setColor(Color.WHITE);
-        }
-        g.setFont(new Font("Dialog", Font.BOLD, 20));
-        g.drawString("뽑기", 100, itemDrawY);
-
-        g.setFont(new Font("Dialog", Font.PLAIN, 16));
-        g.drawString("비용: " + gameManager.shopManager.getItemDrawCost(), 550, itemDrawY);
     }
 
     @Override

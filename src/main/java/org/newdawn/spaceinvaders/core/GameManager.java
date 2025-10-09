@@ -107,7 +107,6 @@ public class GameManager implements GameContext {
     //
     public void initializePlayer() {
         this.currentPlayer = databaseManager.loadPlayerData(user.getLocalId(), user.getUsername());
-        this.currentPlayer.setCredit(100000); // Grant 100,000 credits for testing
         this.shopMenu = new ShopMenu(shopManager.getAllUpgrades());
         calculatePlayerStats();
     }
@@ -128,6 +127,8 @@ public class GameManager implements GameContext {
             case GAME_WON -> new GameOverState(this, true);
             case RANKING -> new RankingState(this);
             case SHOP -> new ShopState(this);
+            case SHOP_MAIN_MENU -> new ShopMainMenuState(this);
+            case ITEM_DRAW -> new ItemDrawState(this);
             case PET_MENU -> new PetMenuState(this);
             case WEAPON_MENU -> new WeaponMenuState(this);
             case EXIT_CONFIRMATION -> new ExitConfirmationState(this);

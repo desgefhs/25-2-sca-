@@ -17,6 +17,8 @@ public interface GameState {
         GAME_WON,
         RANKING,
         SHOP,
+        SHOP_MAIN_MENU,
+        ITEM_DRAW,
         PET_MENU,
         WEAPON_MENU,
         EXIT_CONFIRMATION,
