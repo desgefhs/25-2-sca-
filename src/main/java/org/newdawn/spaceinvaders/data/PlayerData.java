@@ -1,24 +1,34 @@
 package org.newdawn.spaceinvaders.data;
 
-/**
- * Firebase에 저장될 플레이어의 데이터를 담는 클래스.
- * 최고 점수와 재화(크레딧) 정보를 포함합니다.
- */
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
 
+/**
+ * Firebase에 저장될 플레이어의 데이터를 클래스
+ * 이 클래스의 필드는 Firestore 문서의 필드와 직접 매핑
+ */
 public class PlayerData {
 
     private String username;
     private int highScore = 0;
     private int credit = 0;
+    /** 업그레이드 레벨 (ID, 레벨) */
     private Map<String, Integer> upgradeLevels = new HashMap<>();
+    /** 펫 인벤토리 (펫 타입, 개수) */
+    private Map<String, Integer> petInventory = new HashMap<>();
+    /** 펫 레벨 (펫 타입, 레벨) */
+    private Map<String, Integer> petLevels = new HashMap<>();
+    /** 무기 레벨 (무기 이름, 레벨) */
+    private Map<String, Integer> weaponLevels = new HashMap<>();
+    private String equippedPet;
+    private String equippedWeapon;
 
-    // Firestore가 데이터를 객체로 변환할 때 기본 생성자가 필요합니다.
+
+
     public PlayerData() {}
+
+
+    // --- Getters and Setters ---
 
     public String getUsername() {
         return username;
@@ -60,8 +70,6 @@ public class PlayerData {
         upgradeLevels.put(upgradeId, level);
     }
 
-    private Map<String, Integer> petLevels = new HashMap<>();
-
     public Map<String, Integer> getPetLevels() {
         return petLevels;
     }
@@ -78,9 +86,6 @@ public class PlayerData {
         petLevels.put(petType, getPetLevel(petType) + 1);
     }
 
-    // Pet-related data: Map<PetTypeString, Count>
-    private Map<String, Integer> petInventory = new HashMap<>();
-
     public Map<String, Integer> getPetInventory() {
         return petInventory;
     }
@@ -88,8 +93,6 @@ public class PlayerData {
     public void setPetInventory(Map<String, Integer> petInventory) {
         this.petInventory = petInventory;
     }
-
-    private String equippedPet;
 
     public String getEquippedPet() {
         return equippedPet;
@@ -99,8 +102,6 @@ public class PlayerData {
         this.equippedPet = equippedPet;
     }
 
-    private String equippedWeapon;
-
     public String getEquippedWeapon() {
         return equippedWeapon;
     }
@@ -108,8 +109,6 @@ public class PlayerData {
     public void setEquippedWeapon(String equippedWeapon) {
         this.equippedWeapon = equippedWeapon;
     }
-
-    private Map<String, Integer> weaponLevels = new HashMap<>();
 
     public Map<String, Integer> getWeaponLevels() {
         return weaponLevels;

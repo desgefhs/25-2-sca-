@@ -5,50 +5,55 @@ import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
 
 /**
- * An abstract base class for pet entities.
- * It handles the common logic of following the player.
+ * 펫 엔티티를 위한 추상 기본 클래스
+ * 플레이어를 따라다니는 공통 로직을 처리
  */
 public abstract class PetEntity extends Entity {
 
     protected final GameContext game; // Game context for the entity to interact with the game
+    /** 따라다닐 플레이어 우주선 엔티티 */
     protected final ShipEntity player;
+    /** 플레이어로부터의 x축 오프셋 */
     private final int offsetX;
 
+    /** 마지막으로 능력을 사용한 시간 */
     private long lastAbilityTime = 0;
+    /** 능력 재사용 대기시간 (밀리초) */
     protected final long abilityCooldown;
 
     /**
-     * Create a new pet entity.
+     * 새로운 펫 엔티티를 생성
      *
-     * @param game           The game context in which the pet exists
-     * @param player         The player ship entity to follow
-     * @param ref            The sprite reference for this entity
-     * @param x              The initial x location of this entity
-     * @param y              The initial y location of this entity
-     * @param cooldown       The cooldown for the pet's ability in milliseconds
+     * @param game           펫이 존재할 게임 컨텍스트
+     * @param player         따라다닐 플레이어 우주선
+     * @param ref            이 엔티티의 스프라이트 참조 경로
+     * @param x              초기 x 좌표
+     * @param y              초기 y 좌표
+     * @param cooldown       능력 재사용 대기시간 (밀리초)
      */
     public PetEntity(GameContext game, ShipEntity player, String ref, int x, int y, long cooldown) {
         super(ref, x, y);
         this.game = game;
         this.player = player;
-        this.offsetX = player.getWidth(); // Position the pet to the right
+        this.offsetX = player.getWidth(); // 플레이어 오른쪽에 위치하도록 오프셋 설정
         this.abilityCooldown = cooldown;
     }
 
     /**
-     * Request that this entity move based on time elapsed.
+     * 경과된 시간에 따라 엔티티를 이동
+     * 플레이어를 따라다니며, 재사용 대기시간이 되면 능력을 활성화
      *
-     * @param delta The time that has passed in milliseconds
+     * @param delta 경과 시간 (밀리초)
      */
     @Override
     public void move(long delta) {
-        // Follow the player with an offset
+        // 오프셋을 두고 플레이어를 따라다님
         this.x = player.getX() + offsetX;
         this.y = player.getY();
 
         super.move(delta);
 
-        // Activate the pet's ability if the cooldown has passed
+        // 재사용 대기시간이 지났으면 능력 활성화
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastAbilityTime > getAbilityCooldown()) {
             lastAbilityTime = currentTime;
@@ -57,31 +62,26 @@ public abstract class PetEntity extends Entity {
     }
 
     /**
-     * Gets the cooldown for the pet's ability. Can be overridden by subclasses for dynamic values.
-     * @return The ability cooldown in milliseconds.
+     * 펫 능력의 재사용 대기시간을 가져
+     * 하위 클래스에서 동적인 값을 위해 재정의할 수 있음
+     * @return 능력 재사용 대기시간 (밀리초)
      */
     protected long getAbilityCooldown() {
         return this.abilityCooldown;
     }
 
-    /**
-     * Notification that this entity collided with another.
-     * Pets are intangible by default.
-     *
-     * @param other The entity with which this entity collided.
-     */
     @Override
     public void collidedWith(Entity other) {
-        // Pets are intangible and do not collide with other entities for now.
+        // 펫은 현재 다른 엔티티와 충돌하지 않음
     }
 
     /**
-     * Each pet subclass must implement its own special ability.
+     * 각 펫 하위 클래스는 자신만의 특별한 능력을 구현
      */
     public abstract void activateAbility();
 
     /**
-     * Resets the cooldown timer for the pet's ability.
+     * 펫 능력의 재사용 대기시간 타이머를 리셋
      */
     public void resetAbilityCooldown() {
         this.lastAbilityTime = System.currentTimeMillis();

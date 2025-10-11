@@ -5,8 +5,8 @@ import org.newdawn.spaceinvaders.auth.AuthenticatedUser;
 import org.newdawn.spaceinvaders.data.DatabaseManager;
 import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.entity.*;
-import org.newdawn.spaceinvaders.entity.Enemy.BurstShooterEntity;
 import org.newdawn.spaceinvaders.entity.Pet.*;
+import org.newdawn.spaceinvaders.entity.boss.BossEntity;
 import org.newdawn.spaceinvaders.entity.weapon.DefaultGun;
 import org.newdawn.spaceinvaders.entity.weapon.Shotgun;
 import org.newdawn.spaceinvaders.entity.weapon.Laser;
@@ -27,16 +27,22 @@ import org.newdawn.spaceinvaders.wave.FormationManager;
 import java.awt.Graphics2D;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
+/**
+ * 게임의 전반적인 로직과 상태를 관리하는 핵심 클래스
+ * 게임의 모든 주요 구성 요소를 관리
+ */
 public class GameManager implements GameContext {
+
+    // 핵심 게임 구성 요소
 
     private final InputHandler inputHandler;
     private final EntityManager entityManager;
     private final GameStateManager gsm;
+    /** 사용 가능한 무기 목록 */
     private final Map<String, Weapon> weapons;
-    private final Random random = new Random();
 
+    // UI and Data Managers
     public final DatabaseManager databaseManager;
     public final GameWindow gameWindow;
     public final MainMenu mainMenu;
@@ -44,40 +50,62 @@ public class GameManager implements GameContext {
     public final GameOverMenu gameOverMenu;
     public final ConfirmDialog confirmDialog;
     public final ShopManager shopManager;
+    // 적 배치 관리
     public final FormationManager formationManager;
+    // 배경 스크롤 관리
     public final Background background;
+    /// 고정된 배경
     public final Sprite staticBackgroundSprite;
     public ShopMenu shopMenu;
     private final SoundManager soundManager;
 
-    // 사용자, 게임 데이터
+    // User and Game Data
+    // 현재 사용자
     public final AuthenticatedUser user;
     public PlayerData currentPlayer;
+    // 현재 플레이어의 능력치
     public PlayerStats playerStats;
+    // 다음게임 상태
     public GameState.Type nextState = null;
+    // 화면에 표시될 메세지
     public String message = "";
+    // 메시지가 사라지는 시간
     private long messageEndTime = 0;
+    // 게임 시작 시간
     private long gameStartTime = 0;
     public int score = 0;
     public int wave = 0;
 
     // Wave Management
+    // 웨이브당 배치 수
     public int formationsPerWave;
+    // 웨이브에서 생성된 배치 수
     public int formationsSpawnedInWave;
+    // 회복 지역 스폰 여부
     public boolean healingAreaSpawnedForWave = false;
+    // 다음 배치 생성 시간
     public long nextFormationSpawnTime = 0;
 
+    // Game State Flags
+    // 이번 루프에서 로직 업데이트가 필요한지 여부
     public boolean logicRequiredThisLoop = false;
     public boolean showHitboxes = false;
+    // 수집한 아이템 수
     public int collectedItems = 0;
+    // 플레이어 공격 비활성화 종료
     private long playerAttackDisabledUntil = 0;
 
-    // 설정
+    // Game Constants
+    // 플레이어 이동 속도
     public final double moveSpeed = 300;
+    // 적 처치 시 획득 점수
     public static final int ALIEN_SCORE = 10;
 
 
+    // 게임 실행 여부
     private boolean gameRunning = true;
+
+    // GameManager 객체를 생성하고 모든 구성 요소를 초기화
 
     public GameManager(AuthenticatedUser user, Firestore db) {
         this.user = user;
@@ -106,24 +134,30 @@ public class GameManager implements GameContext {
         this.setCurrentState(GameState.Type.MAIN_MENU);
     }
 
+    //  사용 가능한 모든 무기 목록
     public Map<String, Weapon> getWeapons() {
         return weapons;
     }
 
-    //
+    // 데이터베이스에서 플레이어 데이터를 가져오고 능력치를 계산
+
     public void initializePlayer() {
         this.currentPlayer = databaseManager.loadPlayerData(user.getLocalId(), user.getUsername());
         this.shopMenu = new ShopMenu(shopManager.getAllUpgrades());
         calculatePlayerStats();
     }
 
-    //게임 시작, 메인루프 호출
+    // 게임 창을 표시하고 메인 루프를 시작
     public void startGame() {
         gameWindow.setVisible(true);
         mainLoop();
     }
 
-    //현재 상태 설정
+    /**
+     * 현재 게임 상태를 지정된 상태로 변경
+     *
+     * @param stateType 변경할 게임 상태의 타입
+     */
     public void setCurrentState(GameState.Type stateType) {
         GameState newState = switch (stateType) {
             case MAIN_MENU -> new MainMenuState(this);
@@ -146,7 +180,10 @@ public class GameManager implements GameContext {
         gsm.setState(newState);
     }
 
-    // 메인 루프
+    /**
+     * 게임의 메인 루프입니다.
+     * 입력 처리, 게임 상태 업데이트, 렌더링을 반복적으로 수행
+     */
     private void mainLoop() {
         long lastLoopTime = SystemTimer.getTime();
         while (gameRunning) {
@@ -157,7 +194,7 @@ public class GameManager implements GameContext {
 
             gsm.update(delta);
 
-            // Check for timed message expiry
+            // 시간 제한 매세지 확인
             if (messageEndTime > 0 && System.currentTimeMillis() > messageEndTime) {
                 message = "";
                 messageEndTime = 0;
@@ -180,7 +217,6 @@ public class GameManager implements GameContext {
         }
     }
 
-    // playingstate 정보
     @Override
     public void addEntity(Entity entity) { entityManager.addEntity(entity); }
     @Override
@@ -197,25 +233,31 @@ public class GameManager implements GameContext {
         setCurrentState(GameState.Type.GAME_WON);
     }
 
-    //처치한 적 처리( 점수 처리 )
+    /**
+     * 에일리언이 처치되었을 때 호출
+     * 점수를 증가시키고, 에일리언 카운트를 감소시키며, 확률적으로 버프를 생성
+     */
     @Override
     public void notifyAlienKilled() {
         increaseScore(ALIEN_SCORE);
         entityManager.decreaseAlienCount();
 
-        // Buff drop logic
+        // 버프 생성 로직
         double roll = Math.random();
-        if (roll < 0.05) { // 5% chance for invincibility
+        if (roll < 0.05) { // 0.5퍼 확률 무적
             getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.INVINCIBILITY);
-        } else if (roll < 0.10) { // 5% chance for speed boost
+        } else if (roll < 0.10) { // 10퍼 확률 이동속도 증가
             getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.SPEED_BOOST);
-        } else if (roll < 0.15) { // 5% chance for heal
+        } else if (roll < 0.15) { // 15퍼 확률 힐
             getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.HEAL);
         }
 
     }
 
-    //화면 밖으로 나간 적 처리
+    /**
+     * 에일리언이 화면 밖으로 탈출했을 때 호출
+     * 해당 엔티티를 제거하고 에일리언 카운트를 감소
+     */
     @Override
     public void notifyAlienEscaped(Entity entity) {
         entityManager.removeEntity(entity);
@@ -239,16 +281,23 @@ public class GameManager implements GameContext {
     public void setWave(int newWave) { this.wave = newWave - 1; }
 
 
+    /**
+     * 게임 플레이를 시작
+     * 배경 음악을 변경하고, 게임 시작 시간을 기록하며, 능력치와 점수를 초기화하고 첫 웨이브를 시작
+     */
     public void startGameplay() {
         soundManager.stopSound("menubackground");
         gameStartTime = System.currentTimeMillis();
         calculatePlayerStats();
         resetScore();
-        wave = 0; // Start at wave 0, so startNextWave() increments to 1
+        wave = 0;
         startNextWave();
     }
 
-    // 다음 웨이브로 전환
+    /**
+     * 다음 웨이브를 시작
+     * 웨이브 번호를 증가시키고, 웨이브에 맞는 적과 펫을 생성
+     */
     public void startNextWave() {
         wave++;
         healingAreaSpawnedForWave = false;
@@ -259,6 +308,7 @@ public class GameManager implements GameContext {
         message = "Wave " + wave;
         messageEndTime = System.currentTimeMillis() + 1000;
 
+        // 웨이브에 따른 배경 음악 변경
         if (wave % 5 == 0) {
             soundManager.stopSound("gamebackground");
             soundManager.loopSound("boss1");
@@ -269,7 +319,7 @@ public class GameManager implements GameContext {
             soundManager.loopSound("gamebackground");
         }
 
-        // Create and set the player's equipped weapon
+        // 플레이어가 선택한 무기를 장착
         String equippedWeaponName = currentPlayer.getEquippedWeapon();
         Weapon selectedWeapon;
         if (equippedWeaponName != null) {
@@ -290,7 +340,7 @@ public class GameManager implements GameContext {
 
         entityManager.initShip(playerStats, selectedWeapon);
 
-        // Spawn the equipped pet, if any
+        // 펫 장착
         if (currentPlayer != null && currentPlayer.getEquippedPet() != null) {
             try {
                 ShipEntity playerShip = getShip();
@@ -322,7 +372,7 @@ public class GameManager implements GameContext {
             formationsPerWave = 1;
             formationsSpawnedInWave = 0;
             spawnBossNow();
-            formationsSpawnedInWave = 1; // The boss is the only formation
+            formationsSpawnedInWave = 1;
         } else {
             int stage = ((wave - 1) / 5) + 1;
             switch (stage) {
@@ -341,9 +391,12 @@ public class GameManager implements GameContext {
         setCurrentState(GameState.Type.PLAYING);
     }
 
+    /**
+     * 현재 웨이브에서 다음 적 포메이션을 생성
+     */
     public void spawnNextFormationInWave() {
         if (formationsSpawnedInWave >= formationsPerWave || wave % 5 == 0) {
-            return; // Safeguard
+            return;
         }
 
         int stage = ((wave - 1) / 5) + 1;
@@ -364,22 +417,24 @@ public class GameManager implements GameContext {
         entityManager.spawnFormation(formation, wave, forceUpgrade);
         formationsSpawnedInWave++;
 
-        // If there are more formations to spawn, set a timer for the next one
+        // 생성할 배치가 더 있는 경우 타이머 3초 설정
         if (formationsSpawnedInWave < formationsPerWave) {
-            nextFormationSpawnTime = System.currentTimeMillis() + 3000L; // 3-second delay
+            nextFormationSpawnTime = System.currentTimeMillis() + 3000L;
         }
     }
 
-    // 업그레이드 정보 바탕으로 능력치 설정
+    /**
+     * 플레이어의 업그레이드 정보를 바탕으로 현재 능력치를 계산
+     */
     public void calculatePlayerStats() {
         playerStats = new PlayerStats();
 
-        // First, set the defaults for weapon levels
+        // 초기화
         playerStats.getWeaponLevels().put("DefaultGun", 1);
         playerStats.getWeaponLevels().put("Shotgun", 0);
         playerStats.getWeaponLevels().put("Laser", 0);
 
-        // Then, overwrite with saved data if it exists
+        // 저장된 무기 업그레이드 정보가 있으면 가져고기
         if (currentPlayer.getWeaponLevels() != null && !currentPlayer.getWeaponLevels().isEmpty()) {
             playerStats.getWeaponLevels().putAll(currentPlayer.getWeaponLevels());
         }
@@ -397,16 +452,18 @@ public class GameManager implements GameContext {
         }
     }
 
-    // 게임 결과 저장( 크레딧, 스코어 )
+    /**
+     * 게임 결과를 저장 (크레딧, 최고 점수).
+     */
     public void saveGameResults() {
         if (user == null || currentPlayer == null) return;
         currentPlayer.setCredit(currentPlayer.getCredit() + score);
         currentPlayer.setHighScore(Math.max(currentPlayer.getHighScore(), score));
-        savePlayerData(); // Use the new centralized save method
+        savePlayerData();
     }
 
     /**
-     * Saves the current state of the player data to the database.
+     * 플레이어 현재 상태를 데이터베이스에 저장
      */
     public void savePlayerData() {
         if (user == null || currentPlayer == null) return;
@@ -423,7 +480,6 @@ public class GameManager implements GameContext {
     public long getGameStartTime() {
         return gameStartTime;
     }
-
 
     public void notifyItemCollected() {
         collectedItems++;
@@ -447,11 +503,14 @@ public class GameManager implements GameContext {
     }
 
 
+    /**
+     * 현재 웨이브에 맞는 보스를 생성
+     */
     public void spawnBossNow() {
-        // Clear all entities except the player
+        // 플레이어 제외 모든 엔티티 제거
         getEntityManager().getEntities().removeIf(entity -> !(entity instanceof ShipEntity));
 
-        // Spawn the boss
+        // 보스 생성
         int cycle = (wave - 1) / 5;
         double cycleMultiplier = Math.pow(1.5, cycle);
         int bossHealth = (int) (50 * cycleMultiplier);

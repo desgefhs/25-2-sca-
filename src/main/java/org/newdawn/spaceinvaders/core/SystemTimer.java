@@ -1,26 +1,29 @@
 package org.newdawn.spaceinvaders.core;
 
+/*
+ * 게임 루프의 시간 측정 기능에 사용
+ */
 public final class SystemTimer {
-	/** 고해상도 타이머의 기준 시점(클래스 로딩 순간) */
+
 	private static final long START_NANOS = System.nanoTime();
-	/** "타이머 틱/초" 개념을 유지하려면 나노초를 틱으로 간주 (1초 = 1_000_000_000 틱) */
+	/** "타이머 틱/초" 개념 (1초 = 1,000,000,000 틱) */
 	@SuppressWarnings("unused")
 	private static final long TIMER_TICKS_PER_SECOND = 1_000_000_000L;
 
-	private SystemTimer() { /* 유틸 클래스 */ }
-
-	/**
-	 * 고해상도 시간(ms)을 반환 (클래스 초기화 이후 경과 시간)
-	 * @return 밀리초 단위의 경과 시간
-	 */
+	private SystemTimer() {}
+	/// 클래스 초기화 이후 경과된 시간을 고해상도 밀리초 단위로 반환
+	/// System.nanoTime()을 사용하여 증가하는 시간을 보장
+	///
+	/// @return 밀리초 단위의 경과 시간
 	public static long getTime() {
-		// nanoTime은 단조 증가(monotonic)하므로 경과 시간 측정에 적합
 		return (System.nanoTime() - START_NANOS) / 1_000_000L;
 	}
 
 	/**
-	 * 지정 ms 동안 대기
-	 * @param duration 대기 시간(ms)
+	 * 지정된 시간(밀리초) 동안 현재 스레드를 정밀하게 대기
+	 * Thread.sleep()을 사용하지만, System.nanoTime()을 이용해 더 정확한 대기 시간을 보장하려 시도
+	 *
+	 * @param duration 대기할 시간 (밀리초)
 	 */
 	public static void sleep(long duration) {
 		if (duration <= 0) return;

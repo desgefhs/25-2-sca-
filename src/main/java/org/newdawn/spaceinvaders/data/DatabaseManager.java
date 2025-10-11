@@ -10,34 +10,34 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Firebase Firestore 데이터베이스와의 모든 상호작용(데이터 저장, 불러오기)을 처리하는 클래스.
+ *  데이터베이스와의 모든 상호작용(데이터 저장, 불러오기, 랭킹 조회)을 처리하는 클래스
  */
 public class DatabaseManager {
 
     private final Firestore db;
-
     public DatabaseManager(Firestore db) {
         this.db = db;
     }
 
     /**
-     * Saves the entire PlayerData object to Firestore, overwriting existing data.
-     * @param uid The unique ID of the user to update.
-     * @param playerData The PlayerData object containing the data to save.
+     * 전체 PlayerData 객체를 Firestore에 저장하여 기존 데이터를 덮어씁니다.
+     *
+     * @param uid        업데이트할 사용자의 고유 ID
+     * @param playerData 저장할 데이터가 포함된 PlayerData 객체
      */
     public void updatePlayerData(String uid, PlayerData playerData) {
         if (uid == null || uid.trim().isEmpty()) return;
         DocumentReference docRef = db.collection("users").document(uid);
 
-        // Convert PlayerData to a Map to use the update() method,
-        // which prevents overwriting the whole document.
+        // PlayerData를 Map으로 변환하여 update() 메소드를 사용
+        // 이는 문서 전체를 덮어쓰는 것을 방지
         Map<String, Object> updates = new HashMap<>();
         updates.put("highScore", playerData.getHighScore());
         updates.put("credit", playerData.getCredit());
         updates.put("upgradeLevels", playerData.getUpgradeLevels());
         updates.put("petInventory", playerData.getPetInventory());
-        updates.put("petLevels", playerData.getPetLevels()); // Save pet levels
-        updates.put("weaponLevels", playerData.getWeaponLevels()); // Save weapon levels
+        updates.put("petLevels", playerData.getPetLevels()); // 펫 레벨 저장
+        updates.put("weaponLevels", playerData.getWeaponLevels()); // 무기 레벨 저장
 
         ApiFuture<WriteResult> result = docRef.update(updates);
         try {
@@ -48,9 +48,11 @@ public class DatabaseManager {
     }
 
     /**
-     * Firestore에서 특정 사용자의 플레이어 데이터를 불러옵니다.
-     * @param uid 불러올 사용자의 고유 ID
-     * @return 불러온 PlayerData 객체. 만약 데이터가 없으면 기본값(highScore=0, credit=0)을 가진 새 객체를 반환합니다.
+     * Firestore에서 사용자의 플레이어 데이터를 불러옴
+     *
+     * @param uid      불러올 사용자의 고유 ID
+     * @param username 사용자 이름 (로그 출력용)
+     * @return 불러온 PlayerData 객체. 데이터가 없으면 기본값을 가진 새 객체를 반환
      */
     public PlayerData loadPlayerData(String uid, String username) {
         if (uid == null || uid.trim().isEmpty()) return new PlayerData();
@@ -61,8 +63,8 @@ public class DatabaseManager {
             if (document.exists()) {
                 PlayerData playerData = document.toObject(PlayerData.class);
 
+                // Firestore의 숫자 타입을 Integer로 안전하게 변환
                 if (playerData != null && document.contains("weaponLevels")) {
-                    // Safely handle number types (e.g., Long from Firestore) by converting to Integer
                     Map<String, Object> rawWeaponLevels = (Map<String, Object>) document.get("weaponLevels");
                     Map<String, Integer> weaponLevels = new HashMap<>();
                     if (rawWeaponLevels != null) {
@@ -87,13 +89,15 @@ public class DatabaseManager {
     }
 
     /**
-     * 데이터베이스에서 상위 10개의 최고 점수 기록을 가져옵니다.
-     * @return 랭킹 문자열 목록
+     * 데이터베이스에서 상위 10개의 최고 점수 기록을 가져옴
+     *
+     * @return "이름: 점수" 형식의 문자열 리스트
      */
     public List<String> getHighScores() {
         List<String> highScores = new ArrayList<>();
         if (db == null) return highScores;
 
+        // 'highScore' 필드를 기준으로 내림차순 정렬하여 상위 10개를 가져옴
         ApiFuture<QuerySnapshot> query = db.collection("users").orderBy("highScore", Query.Direction.DESCENDING).limit(10).get();
         try {
             QuerySnapshot querySnapshot = query.get();

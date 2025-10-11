@@ -6,8 +6,12 @@ import org.newdawn.spaceinvaders.core.InputHandler;
 
 import java.awt.*;
 
+/**
+ * 최고 점수 랭킹을 표시하는 게임 상태
+ */
 public class RankingState implements GameState {
     private final GameManager gameManager;
+    /** 데이터베이스에서 불러온 최고 점수 목록 */
     private java.util.List<String> highScores;
 
     public RankingState(GameManager gameManager) {
@@ -17,6 +21,12 @@ public class RankingState implements GameState {
     @Override
     public void init() {}
 
+    /**
+     * 사용자 입력을 처리
+     * Enter 키를 누르면 메인 메뉴로
+     *
+     * @param input 입력 핸들러
+     */
     @Override
     public void handleInput(InputHandler input) {
         if (input.isEnterPressedAndConsume()) {
@@ -28,6 +38,11 @@ public class RankingState implements GameState {
     @Override
     public void update(long delta) {}
 
+    /**
+     * 랭킹 화면을 렌더링
+     *
+     * @param g 그래픽 컨텍스트
+     */
     @Override
     public void render(Graphics2D g) {
         g.setColor(Color.black);
@@ -50,6 +65,9 @@ public class RankingState implements GameState {
         g.drawString("Press Enter to return to Main Menu", (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth("Press Enter to return to Main Menu")) / 2, 500);
     }
 
+    /**
+     * 상태 진입 시 데이터베이스에서 최고 점수 목록을 불러옴
+     */
     @Override
     public void onEnter() {
         highScores = gameManager.getDatabaseManager().getHighScores();

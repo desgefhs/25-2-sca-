@@ -6,10 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 키보드 입력을 감지하고, 현재 키 상태를 저장하는 책임을 가지는 클래스.
+ * 키보드 입력을 감지하고 현재 키 상태를 저장
+ * 연속적인 키 입력과 한 번만 처리되어야 하는 키 입력을 구분하여 관리
  */
 public class InputHandler extends KeyAdapter {
 
+    // --- 키 눌림 상태 플래그 ---
     private boolean leftPressed = false;
     private boolean rightPressed = false;
     private boolean upPressed = false;
@@ -18,14 +20,14 @@ public class InputHandler extends KeyAdapter {
     private boolean escPressed = false;
     private boolean kPressed = false;
     private boolean hPressed = false;
-    private boolean uPressed = false; // For Upgrade
-    private boolean bPressed = false; // For Boss
+    private boolean uPressed = false;
+    private boolean bPressed = false;
     private boolean onePressed = false;
     private boolean twoPressed = false;
     private boolean threePressed = false;
     private boolean enterPressed = false;
 
-    // 키 한 번 누름을 처리하기 위한 플래그들
+    // --- 키 입력 처리 완료 플래그 (단일 입력용) ---
     private boolean leftKeyProcessed = false;
     private boolean rightKeyProcessed = false;
     private boolean upKeyProcessed = false;
@@ -34,13 +36,14 @@ public class InputHandler extends KeyAdapter {
     private boolean escKeyProcessed = false;
     private boolean kKeyProcessed = false;
     private boolean hKeyProcessed = false;
-    private boolean uKeyProcessed = false; // For Upgrade
-    private boolean bKeyProcessed = false; // For Boss
+    private boolean uKeyProcessed = false;
+    private boolean bKeyProcessed = false;
     private boolean oneKeyProcessed = false;
     private boolean twoKeyProcessed = false;
     private boolean threeKeyProcessed = false;
     private boolean enterKeyProcessed = false;
 
+    /** 타이핑된 문자들을 저장하는 리스트 */
     private final List<Character> typedChars = new ArrayList<>();
 
     // --- 연속 입력이 필요한 경우를 위한 Getter --- //
@@ -50,7 +53,7 @@ public class InputHandler extends KeyAdapter {
     public boolean isDownPressed() { return downPressed; }
     public boolean isFirePressed() { return firePressed; }
 
-    // --- 단일 입력 처리를 위한 "Consume" 메소드들 --- //
+    // --- 단일 입력 처리를 위한 "Consume" 메소드 --- //
 
     public boolean isEnterPressedAndConsume() {
         if (enterPressed && !enterKeyProcessed) {
@@ -164,20 +167,18 @@ public class InputHandler extends KeyAdapter {
         return false;
     }
 
-    public char consumeTypedChar() {
-        synchronized (typedChars) {
-            if (typedChars.isEmpty()) {
-                return 0;
-            }
-            return typedChars.remove(0);
-        }
-    }
 
+    /**
+     * 키가 눌렸을 때 호출 해당 키의 상태를 '눌림'으로 업데이트
+     */
     @Override
     public void keyPressed(KeyEvent e) {
         updateKeyState(e.getKeyCode(), true);
     }
 
+    /**
+     * 키에서 손을 뗐을 때 호출 해당 키의 상태를 '떼어짐'으로 업데이트
+     */
     @Override
     public void keyReleased(KeyEvent e) {
         updateKeyState(e.getKeyCode(), false);
@@ -227,6 +228,11 @@ public class InputHandler extends KeyAdapter {
         }
     }
 
+    /**
+     * 키 코드에 따라 해당 키의 눌림 상태를 업데이트
+     * @param keyCode 업데이트할 키의 코드
+     * @param pressed 눌림 상태 (true: 눌림, false: 떼어짐)
+     */
     private void updateKeyState(int keyCode, boolean pressed) {
         if (keyCode == KeyEvent.VK_LEFT) {
             leftPressed = pressed;
@@ -272,6 +278,11 @@ public class InputHandler extends KeyAdapter {
         }
     }
 
+    /**
+     * 키가 타이핑되었을 때(눌렀다 떼었을 때) 호출
+     * 입력된 문자를 큐에 추가
+     * @param e 키 이벤트
+     */
     @Override
     public void keyTyped(KeyEvent e) {
         synchronized (typedChars) {

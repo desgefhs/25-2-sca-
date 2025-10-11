@@ -1,10 +1,12 @@
 package org.newdawn.spaceinvaders.entity;
 
 /**
- * A simple data class to hold health values (current and maximum).
+ * 현재 체력과 최대 체력 값을 저장하는 간단한 데이터 클래스
  */
 public class HP {
+    /** 최대 체력 */
     private double MAX_HP;
+    /** 현재 체력 */
     private double currentHp;
 
     public double getMAX_HP() {
@@ -28,7 +30,4 @@ public class HP {
         this.currentHp = currentHp;
     }
 
-    public HP() {
-
-    }
 }

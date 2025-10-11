@@ -3,6 +3,10 @@ package org.newdawn.spaceinvaders.view;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 무기 선택 메뉴의 항목 데이터와 선택 로직을 관리하는 클래스
+ * 이 클래스는 렌더링을 직접 처리하지 않고, WeaponMenuState에서 이 클래스의 데이터를 사용해 UI를 그림
+ */
 public class WeaponMenu {
     private List<String> weaponItems = new ArrayList<>();
     private int selectedItemIndex = 0;

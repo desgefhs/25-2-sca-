@@ -3,16 +3,22 @@ package org.newdawn.spaceinvaders.shop;
 import java.util.List;
 
 /**
- * Represents a single type of upgrade available in the shop.
- * This class is a data container for an upgrade's properties.
+ * 상점에서 구매할 수 있는 단일 업그레이드 유형을 나타내는 데이터 클래스
+ * 업그레이드의 속성(ID, 이름, 설명, 레벨별 비용 및 효과 등)을 저장
  */
 public class Upgrade {
+    /** 업그레이드의 고유 식별자 */
     private final String id;
+    /** 업그레이드의 이름 */
     private final String name;
+    /** 업그레이드에 대한 설명 */
     private final String description;
+    /** 업그레이드의 최대 레벨 */
     private final int maxLevel;
-    private final List<Integer> costs; // Cost for each level
-    private final List<Double> effects;  // Effect value for each level
+    /** 각 레벨별 업그레이드 비용 목록 */
+    private final List<Integer> costs;
+    /** 각 레벨별 업그레이드 효과 값 목록 */
+    private final List<Double> effects;
 
     public Upgrade(String id, String name, String description, int maxLevel, List<Integer> costs, List<Double> effects) {
         this.id = id;
@@ -40,9 +46,10 @@ public class Upgrade {
     }
 
     /**
-     * 업그레이드 하는데 드는 비용 가져오기
-     * @param level 대상 레벨
-     * @return 크레딧이 부족하거나, 레벨 초과
+     * 특정 레벨로 업그레이드하는 데 필요한 비용을 가져옴
+     *
+     * @param level 비용을 조회할 대상 레벨 (예: 1레벨 -> 2레벨 업그레이드 비용을 알고 싶으면 level=2)
+     * @return 해당 레벨의 비용. 유효하지 않은 레벨이면 Integer.MAX_VALUE 반환.
      */
     public int getCost(int level) {
         if (level > 0 && level <= costs.size()) {
@@ -51,11 +58,6 @@ public class Upgrade {
         return Integer.MAX_VALUE;
     }
 
-    /**
-     * 효과 가져오기
-     * @param level 현재 레벨
-     * @return 기본값
-     */
     public double getEffect(int level) {
         if (level > 0 && level <= effects.size()) {
             return effects.get(level - 1);

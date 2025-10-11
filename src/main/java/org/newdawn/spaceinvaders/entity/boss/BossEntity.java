@@ -1,57 +1,94 @@
-package org.newdawn.spaceinvaders.entity;
+package org.newdawn.spaceinvaders.entity.boss;
 
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.entity.Enemy.Enemy;
-import org.newdawn.spaceinvaders.entity.Enemy.TentacleAttackEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
-import org.newdawn.spaceinvaders.entity.Enemy.SweepingLaserEntity;
+import org.newdawn.spaceinvaders.entity.Entity;
+import org.newdawn.spaceinvaders.entity.HealthComponent;
+import org.newdawn.spaceinvaders.entity.ItemEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.LaserBeamEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.LaserEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 import org.newdawn.spaceinvaders.graphics.HpRender;
 
+/**
+ * 게임의 보스 적을 나타내는 엔티티 클래스
+ * 웨이브 번호에 따라 다른 공격 패턴, 체력, 외형을 가짐
+ */
 public class BossEntity extends Entity implements Enemy {
+    /**
+     * 보스 패턴을 정의하는 함수형 인터페이스
+     */
     @FunctionalInterface
     private interface BossPattern {
         void execute();
     }
 
+    /** 현재 보스가 사용할 수 있는 공격 패턴 목록 */
     private final java.util.List<BossPattern> availablePatterns = new java.util.ArrayList<>();
+    /** 마지막으로 사용한 공격 패턴 */
     private BossPattern lastUsedPattern = null;
+    /** 마지막 특수 공격 시간 */
     private long lastSpecialAttack = 0;
 
+    /** 이동 속도 */
     private double moveSpeed = 50;
-    private double dy = 50; // Add vertical movement speed
+    /** 수직 이동 속도 */
+    private double dy = 50;
+    /** 게임 컨텍스트 */
     private GameContext context;
+    /** 기본 최대 체력 */
     private static final int MAX_HEALTH = 50;
-    private static final int SHOT_DAMAGE = 2;
+    /** 마지막 발사 시간 */
     private long lastFire = 0;
-    private long firingInterval = 2500; // Fires every 2.5 seconds
+    /** 발사 간격 */
+    private long firingInterval = 2500;
+    /** HP 렌더러 */
     private HpRender hpRender;
+    /** 현재 웨이브 번호 */
     private int waveNumber;
+
+    // 보스 상태 관련 필드
+    /** 5 웨이브 보스의 상태 (공격, 아이템 생성, 레이저 충전) */
     private enum Boss5State { ATTACKING, SPAWNING_ITEMS, CHARGING_LASER }
     private Boss5State boss5State = Boss5State.ATTACKING;
     private long stateTimer = 0;
-    private boolean boss10PatternToggle = false; // To alternate patterns for wave 10
+    /** 깃털 스트림 발사 중인지 여부 */
     private boolean isFiringFeatherStream = false;
     private int featherStreamCount = 0;
     private long lastFeatherShotTime = 0;
     private final int featherStreamSize = 5;
     private final long featherShotDelay = 100;
+    /** 20 웨이브 보스가 분열했는지 여부 */
     private boolean hasSplit = false;
+    /** 미니 보스인지 여부 */
     private boolean isMiniBoss = false;
+    /** 25 웨이브 보스의 페이즈 */
     private int phase = 1;
+    /** 텔레포트 중인지 여부 */
     private boolean isTeleporting = false;
     private long teleportStartTime = 0;
-    private final long teleportDisappearTime = 500; // ms boss is invisible
-    private final long teleportTotalTime = 1000; // ms until boss reappears and fires
+    private final long teleportDisappearTime = 500; // 텔레포트 시 사라져 있는 시간
+    private final long teleportTotalTime = 1000;    // 텔레포트 후 다시 나타나 공격하기까지의 총 시간
+    /** 레이저 기믹용 레이저 엔티티 목록 */
     private final java.util.List<LaserEntity> laserGimmicks = new java.util.ArrayList<>();
     private long laserGimmickStartTime = 0;
 
 
+    /**
+     * BossEntity 객체를 생성
+     *
+     * @param context    게임 컨텍스트
+     * @param x          x 좌표
+     * @param y          y 좌표
+     * @param health     체력
+     * @param cycle      보스 사이클 (외형 결정용)
+     * @param waveNumber 웨이브 번호
+     * @param isMiniBoss 미니 보스 여부
+     */
     public BossEntity(GameContext context, int x, int y, int health, int cycle, int waveNumber, boolean isMiniBoss) {
         super(getBossSprite(waveNumber, cycle), x, y);
         this.context = context;
@@ -59,19 +96,11 @@ public class BossEntity extends Entity implements Enemy {
         this.hpRender = new HpRender(this.health.getHp());
         this.waveNumber = waveNumber;
         this.isMiniBoss = isMiniBoss;
-        this.firingInterval = 2500; // 2.5초 딜레이
+        this.firingInterval = 2500; // 2.5초 발사 간격
         dx = -moveSpeed;
-        if (waveNumber == 10) { // Enable vertical movement for wave 10 boss
-            dy = moveSpeed;
-        } else {
-            dy = 0;
-        }
+        dy = (waveNumber == 10) ? moveSpeed : 0; // 10 웨이브 보스만 수직 이동
 
-        if (isMiniBoss) {
-            setScale(1.5);
-        } else {
-            setScale(2.5);
-        }
+        setScale(isMiniBoss ? 1.5 : 2.5);
 
         if (waveNumber == 5) {
             stateTimer = System.currentTimeMillis();
@@ -80,25 +109,28 @@ public class BossEntity extends Entity implements Enemy {
         setupPatterns();
     }
 
+    /**
+     * 웨이브 번호에 따라 사용 가능한 공격 패턴을 설정
+     */
     private void setupPatterns() {
         switch (waveNumber) {
-            case 5:
+            case 5: // 크라켄
                 availablePatterns.add(this::fireCirclePattern);
                 availablePatterns.add(this::fireThreeWayPattern);
                 availablePatterns.add(this::fireGlobalLaserPattern);
                 break;
-            case 10:
+            case 10: // 히드라
                 availablePatterns.add(this::fireFollowingShotPattern);
                 availablePatterns.add(this::fireCurtainPattern);
                 break;
-            case 15:
+            case 15: // 그리핀
                 availablePatterns.add(this::fireFeatherPattern);
                 availablePatterns.add(this::fireFeatherStreamPattern);
                 break;
-            case 20:
+            case 20: // 파이어하트
                 availablePatterns.add(this::fireTentacleAttackPattern);
                 break;
-            case 25:
+            case 25: // 최종 보스
                 availablePatterns.add(this::fireCirclePattern);
                 availablePatterns.add(this::fireThreeWayPattern);
                 availablePatterns.add(this::fireGlobalLaserPattern);
@@ -108,24 +140,19 @@ public class BossEntity extends Entity implements Enemy {
                 availablePatterns.add(this::fireFeatherStreamPattern);
                 availablePatterns.add(this::fireTentacleAttackPattern);
                 break;
-            default:
+            default: // 기타
                 availablePatterns.add(this::fireFollowingShotPattern);
                 break;
         }
     }
 
-    public BossEntity(GameContext context, int x, int y, int health, int cycle) {
-        this(context, x, y, health, cycle, 0, false);
-    }
 
-    public BossEntity(GameContext context, int x, int y, int health) {
-        this(context, x, y, health, 0, 0, false);
-    }
-
-    public BossEntity(GameContext context, int x, int y) {
-        this(context, x, y, MAX_HEALTH, 0, 0, false);
-    }
-
+    /**
+     * 웨이브 번호에 따라 보스의 스프라이트 경로를 반환
+     * @param waveNumber 웨이브 번호
+     * @param cycle      기본 보스 사이클
+     * @return 스프라이트 경로 문자열
+     */
     private static String getBossSprite(int waveNumber, int cycle) {
         switch (waveNumber) {
             case 5: return "sprites/bosses/kraken_anim.gif";
@@ -139,34 +166,33 @@ public class BossEntity extends Entity implements Enemy {
 
     @Override
     public void draw(java.awt.Graphics g) {
+        // 텔레포트 중 투명 상태일 때는 그리지 않음
         if (isTeleporting && System.currentTimeMillis() - teleportStartTime < teleportDisappearTime) {
-            // Don't draw while invisible
             return;
         }
         super.draw(g);
         hpRender.hpRender((java.awt.Graphics2D) g, this);
     }
 
+    @Override
     public void move(long delta) {
-        // Handle special states first, and return to prevent normal movement
+        // 특수 상태(텔레포트, 깃털 스트림)를 먼저 처리
         if (isTeleporting) {
             long timeSinceTeleport = System.currentTimeMillis() - teleportStartTime;
             if (timeSinceTeleport >= teleportTotalTime) {
                 isTeleporting = false;
                 int newX = new java.util.Random().nextInt(Game.GAME_WIDTH - getWidth());
                 setX(newX);
-                fireCirclePattern();
+                fireCirclePattern(); // 텔레포트 후 원형 패턴 발사
             }
-            return; // Boss is invisible and immobile
+            return; // 텔레포트 중에는 이동 및 공격 안 함
         }
 
         if (isFiringFeatherStream) {
             if (System.currentTimeMillis() - lastFeatherShotTime > featherShotDelay) {
                 if (featherStreamCount < featherStreamSize) {
                     ProjectileType type = ProjectileType.FEATHER_SHOT;
-                    int damage = 1;
-                    double shotMoveSpeed = type.moveSpeed;
-                    context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width / 2), getY() + (height / 2), 0, shotMoveSpeed));
+                    context.addEntity(new ProjectileEntity(context, type, 1, getX() + (width / 2), getY() + (height / 2), 0, type.moveSpeed));
                     lastFeatherShotTime = System.currentTimeMillis();
                     featherStreamCount++;
                 } else {
@@ -175,8 +201,7 @@ public class BossEntity extends Entity implements Enemy {
             }
         }
 
-        // Standard movement and attacks
-        // Horizontal bouncing
+        // 기본 좌우 이동 (화면 끝에서 튕김)
         if ((dx < 0) && (x < 0)) {
             dx = -dx;
         }
@@ -184,7 +209,7 @@ public class BossEntity extends Entity implements Enemy {
             dx = -dx;
         }
 
-        // Vertical bouncing for wave 10 boss
+        // 10 웨이브 보스의 상하 이동
         if (waveNumber == 10) {
             if ((dy < 0) && (y < 0)) {
                 dy = -dy;
@@ -194,6 +219,7 @@ public class BossEntity extends Entity implements Enemy {
             }
         }
 
+        // 레이저 기믹 타이머
         if (laserGimmickStartTime != 0 && System.currentTimeMillis() - laserGimmickStartTime > 3000) {
             LaserEntity laser = new LaserEntity(context, 0, Game.GAME_WIDTH);
             context.addEntity(laser);
@@ -205,249 +231,219 @@ public class BossEntity extends Entity implements Enemy {
         super.move(delta);
     }
 
+    /**
+     * 발사 간격에 따라 현재 사용 가능한 공격 패턴 중 하나를 무작위로 실행
+     */
     private void tryToFire() {
         if (System.currentTimeMillis() - lastFire < firingInterval) {
             return;
         }
         lastFire = System.currentTimeMillis();
 
-        java.util.List<BossPattern> patternsToUse = availablePatterns;
-
-        if (patternsToUse == null || patternsToUse.isEmpty()) {
+        if (availablePatterns.isEmpty()) {
             return;
         }
 
-        // Select a random pattern from the list for the current phase
-        java.util.List<BossPattern> selectablePatterns = new java.util.ArrayList<>(patternsToUse);
+        // 이전에 사용한 패턴을 제외하고 선택 가능한 패턴 목록 생성
+        java.util.List<BossPattern> selectablePatterns = new java.util.ArrayList<>(availablePatterns);
         if (lastUsedPattern != null && selectablePatterns.size() > 1) {
             selectablePatterns.remove(lastUsedPattern);
         }
 
+        // 패턴 무작위 선택 및 실행
         java.util.Random rand = new java.util.Random();
         BossPattern selectedPattern = selectablePatterns.get(rand.nextInt(selectablePatterns.size()));
-
         selectedPattern.execute();
         this.lastUsedPattern = selectedPattern;
     }
 
-    private void fireCurtainPattern() {
-        ProjectileType type = ProjectileType.HYDRA_CURTAIN;
-        int damage = 1;
-        double shotMoveSpeed = type.moveSpeed;
-        int gapWidth = 100; // Width of the safe zone
-        int gapPosition = new java.util.Random().nextInt(Game.GAME_WIDTH - gapWidth);
-        int projectileWidth = 10; // Approximate width of the projectile sprite
+    // --- 공격 패턴 메소드들 ---
 
-        for (int x = 0; x < Game.GAME_WIDTH; x += projectileWidth) {
-            if (x > gapPosition && x < gapPosition + gapWidth) {
-                continue; // Skip creating a projectile in the gap
-            }
-            context.addEntity(new ProjectileEntity(context, type, damage, x, 0, 0, shotMoveSpeed));
-        }
-    }
 
+    /** 3-Way 발사 패턴 (5 웨이브 - 크라켄) */
     private void fireThreeWayPattern() {
         ProjectileType type = ProjectileType.NORMAL_SHOT;
-        int damage = 1;
         double shotMoveSpeed = type.moveSpeed;
         double angle = Math.toRadians(30);
 
-        // Center shot (0 degrees)
-        context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, 0, shotMoveSpeed));
-
-        // Left shot (-30 degrees)
-        double dxLeft = -Math.sin(angle) * shotMoveSpeed;
-        double dyLeft = Math.cos(angle) * shotMoveSpeed;
-        context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, dxLeft, dyLeft));
-
-        // Right shot (+30 degrees)
-        double dxRight = Math.sin(angle) * shotMoveSpeed;
-        double dyRight = Math.cos(angle) * shotMoveSpeed;
-        context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, dxRight, dyRight));
+        // 중앙
+        context.addEntity(new ProjectileEntity(context, type, 1, getX() + (width/2), getY() + height, 0, shotMoveSpeed));
+        // 왼쪽
+        context.addEntity(new ProjectileEntity(context, type, 1, getX() + (width/2), getY() + height, -Math.sin(angle) * shotMoveSpeed, Math.cos(angle) * shotMoveSpeed));
+        // 오른쪽
+        context.addEntity(new ProjectileEntity(context, type, 1, getX() + (width/2), getY() + height, Math.sin(angle) * shotMoveSpeed, Math.cos(angle) * shotMoveSpeed));
     }
 
+    /** 원형 발사 패턴 (5 웨이브 - 크라켄) */
     private void fireCirclePattern() {
         ProjectileType type = ProjectileType.NORMAL_SHOT;
-        int damage = 1;
-        int numShots = 12; // Number of shots in the circle
+        int numShots = 12;
         double shotMoveSpeed = type.moveSpeed;
 
         for (int i = 0; i < numShots; i++) {
             double angle = Math.toRadians(360.0 / numShots * i);
             double dx = Math.sin(angle) * shotMoveSpeed;
             double dy = Math.cos(angle) * shotMoveSpeed;
-            context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width / 2), getY() + (height / 2), dx, dy));
+            context.addEntity(new ProjectileEntity(context, type, 1, getX() + (width / 2), getY() + (height / 2), dx, dy));
         }
     }
 
-    private void fireFollowingShotPattern() {
-        ProjectileType type = ProjectileType.FOLLOWING_SHOT;
-        int damage = 2;
-
-        // Fire a spread of 3 shots
-        context.addEntity(new ProjectileEntity(context, type, damage, getX() + 20, getY() + 50));
-        context.addEntity(new ProjectileEntity(context, type, damage, getX() + 50, getY() + 50));
-        context.addEntity(new ProjectileEntity(context, type, damage, getX() + 80, getY() + 50));
-    }
-
+    /** 전역 레이저 패턴 (5 웨이브 - 크라켄) */
     private void fireGlobalLaserPattern() {
         context.resetItemCollection();
         laserGimmickStartTime = System.currentTimeMillis();
 
-        // Spawn two item entities at random x positions
+        // 아이템 2개 무작위 위치에 생성
         java.util.Random rand = new java.util.Random();
         context.addEntity(new ItemEntity(context, rand.nextInt(Game.GAME_WIDTH), 50));
         context.addEntity(new ItemEntity(context, rand.nextInt(Game.GAME_WIDTH), 50));
     }
 
+    /** 탄막 커튼 패턴 (10 웨이브 - 히드라) */
+    private void fireCurtainPattern() {
+        ProjectileType type = ProjectileType.HYDRA_CURTAIN;
+        int gapWidth = 100; // 안전지대 너비
+        int gapPosition = new java.util.Random().nextInt(Game.GAME_WIDTH - gapWidth);
+        int projectileWidth = 10; // 발사체 스프라이트 너비
+
+        for (int x = 0; x < Game.GAME_WIDTH; x += projectileWidth) {
+            if (x <= gapPosition || x >= gapPosition + gapWidth) {
+                context.addEntity(new ProjectileEntity(context, type, 1, x, 0, 0, type.moveSpeed));
+            }
+        }
+    }
+
+    /** 유도탄 발사 패턴 (10 웨이브 - 히드라) */
+    private void fireFollowingShotPattern() {
+        ProjectileType type = ProjectileType.FOLLOWING_SHOT;
+        context.addEntity(new ProjectileEntity(context, type, 2, getX() + 20, getY() + 50));
+        context.addEntity(new ProjectileEntity(context, type, 2, getX() + 50, getY() + 50));
+        context.addEntity(new ProjectileEntity(context, type, 2, getX() + 80, getY() + 50));
+    }
+
+
+    /** 깃털 부채꼴 발사 패턴 (15 웨이브 - 그리핀) */
     private void fireFeatherPattern() {
         ProjectileType type = ProjectileType.FEATHER_SHOT;
-        int damage = 1;
-        double shotMoveSpeed = type.moveSpeed;
-        int numShots = 5; // 5 shots in the fan
-        double fanAngle = Math.toRadians(90); // 90-degree fan
-
+        int numShots = 5;
+        double fanAngle = Math.toRadians(90);
         double startAngle = -fanAngle / 2;
         double angleStep = fanAngle / (numShots - 1);
 
         for (int i = 0; i < numShots; i++) {
             double angle = startAngle + i * angleStep;
-            double dx = Math.sin(angle) * shotMoveSpeed;
-            double dy = Math.cos(angle) * shotMoveSpeed;
-            context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width / 2), getY() + (height / 2), dx, dy));
+            double dx = Math.sin(angle) * type.moveSpeed;
+            double dy = Math.cos(angle) * type.moveSpeed;
+            context.addEntity(new ProjectileEntity(context, type, 1, getX() + (width / 2), getY() + (height / 2), dx, dy));
         }
     }
 
+    /** 깃털 스트림 발사 패턴 (15 웨이브 - 그리핀) */
     private void fireFeatherStreamPattern() {
         isFiringFeatherStream = true;
         featherStreamCount = 0;
         lastFeatherShotTime = 0;
     }
 
+    /** 촉수 공격 패턴 (20 웨이브 - 파이어하트) */
     private void fireTentacleAttackPattern() {
         int numberOfAttacks = isMiniBoss ? 12 : 6;
         for (int i = 0; i < numberOfAttacks; i++) {
-            // Spawn at a random location on the screen.
-            // The area should be restricted to the game area.
-            int randomX = (int) (Math.random() * (Game.GAME_WIDTH - 100)) + 50; // Avoid edges
-            int randomY = (int) (Math.random() * (Game.GAME_HEIGHT - 200)) + 100; // Avoid top/bottom edges
+            int randomX = (int) (Math.random() * (Game.GAME_WIDTH - 100)) + 50;
+            int randomY = (int) (Math.random() * (Game.GAME_HEIGHT - 200)) + 100;
             context.addEntity(new TentacleAttackEntity(context, randomX, randomY));
         }
     }
 
+    /** 미니 보스로 분열 (20 웨이브 - 파이어하트) */
     private void splitIntoMiniBosses() {
-        // Create two mini-bosses
         int miniBossHealth = (int) (health.getHp().getMAX_HP() / 2);
         int cycle = (waveNumber - 1) / 5;
 
-        // Left mini-boss
         BossEntity miniBoss1 = new BossEntity(context, getX() - 50, getY(), miniBossHealth, cycle, waveNumber, true);
         context.addEntity(miniBoss1);
 
-        // Right mini-boss
         BossEntity miniBoss2 = new BossEntity(context, getX() + 50, getY(), miniBossHealth, cycle, waveNumber, true);
         context.addEntity(miniBoss2);
     }
 
+    /** 부하 소환 패턴 */
     private void spawnMinionsPattern() {
         int minionCount = 3;
         int spacing = 100;
         int startX = getX() + (getWidth() / 2) - ((minionCount - 1) * spacing / 2);
 
         for (int i = 0; i < minionCount; i++) {
-            // Spawn minions in a line below the boss
             int minionX = startX + (i * spacing);
             int minionY = getY() + getHeight() + 50;
             context.addEntity(new AlienEntity(context, minionX, minionY));
         }
     }
 
+    /** 레이저 스윕 패턴 */
     private void fireLaserSweepPattern() {
         double sweepSpeed = 200;
-        // Randomly choose a sweep direction
         int direction = new java.util.Random().nextInt(4);
         switch (direction) {
-            case 0: // From Left
-                context.addEntity(new SweepingLaserEntity(context, -50, 0, sweepSpeed, 0));
-                break;
-            case 1: // From Right
-                context.addEntity(new SweepingLaserEntity(context, Game.GAME_WIDTH + 50, 0, -sweepSpeed, 0));
-                break;
-            case 2: // From Top
-                context.addEntity(new SweepingLaserEntity(context, 0, -50, 0, sweepSpeed));
-                break;
-            case 3: // From Bottom
-                context.addEntity(new SweepingLaserEntity(context, 0, Game.GAME_HEIGHT + 50, 0, -sweepSpeed));
-                break;
+            case 0: context.addEntity(new SweepingLaserEntity(context, -50, 0, sweepSpeed, 0)); break; // Left
+            case 1: context.addEntity(new SweepingLaserEntity(context, Game.GAME_WIDTH + 50, 0, -sweepSpeed, 0)); break; // Right
+            case 2: context.addEntity(new SweepingLaserEntity(context, 0, -50, 0, sweepSpeed)); break; // Top
+            case 3: context.addEntity(new SweepingLaserEntity(context, 0, Game.GAME_HEIGHT + 50, 0, -sweepSpeed)); break; // Bottom
         }
     }
 
+    /** 텔레포트 후 버스트 공격 패턴 */
     private void teleportAndBurstPattern() {
         isTeleporting = true;
         teleportStartTime = System.currentTimeMillis();
     }
 
 
+    @Override
     public void collidedWith(Entity other) {
-        if (other instanceof ProjectileEntity) {
-            ProjectileEntity shot = (ProjectileEntity) other;
-            if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
-                if (health.isAlive()) {
-                    if (!health.decreaseHealth(shot.getDamage())) {
-                        context.removeEntity(this);
-                        context.notifyAlienKilled(); // Notify for score and wave progression
-                    } else {
-                        // Phase transition for Wave 25 boss
-                        if (waveNumber == 25) {
-                            double maxHealth = health.getHp().getMAX_HP();
-                            int currentHealth = health.getCurrentHealth();
-                            if (phase == 1 && currentHealth <= maxHealth * 0.66) {
-                                phase = 2;
-                                // Optional: Add phase transition effect here
-                            } else if (phase == 2 && currentHealth <= maxHealth * 0.33) {
-                                phase = 3;
-                                // Optional: Add phase transition effect here
-                            }
-                        }
-                        // Splitting logic for Wave 20 boss
-                        else if (waveNumber == 20 && !hasSplit && !isMiniBoss && health.getCurrentHealth() <= health.getHp().getMAX_HP() / 2) {
-                            hasSplit = true;
-                            splitIntoMiniBosses();
-                            context.removeEntity(this); // Remove the main boss
-                        }
-                    }
+        // 발사체와 충돌 처리
+        if (other instanceof ProjectileEntity && ((ProjectileEntity) other).getType().targetType == ProjectileType.TargetType.ENEMY) {
+            handleDamage(((ProjectileEntity) other).getDamage());
+            context.removeEntity(other); // 발사체 제거
+        }
+        // 플레이어 레이저 빔과 충돌 처리
+        else if (other instanceof LaserBeamEntity) {
+            handleDamage(((LaserBeamEntity) other).getDamage());
+            // 레이저 빔은 관통하므로 제거하지 않음
+        }
+    }
+
+    /**
+     * 데미지를 처리하고, 체력에 따라 페이즈 전환 또는 분열을 처리
+     * @param damage 받은 데미지
+     */
+    private void handleDamage(int damage) {
+        if (!health.isAlive()) return;
+
+        if (!health.decreaseHealth(damage)) {
+            // 보스 사망
+            context.removeEntity(this);
+            context.notifyAlienKilled();
+        } else {
+            // 페이즈 전환 및 분열 로직
+            if (waveNumber == 25) { // 최종 보스 페이즈
+                double maxHealth = health.getHp().getMAX_HP();
+                int currentHealth = health.getCurrentHealth();
+                if (phase == 1 && currentHealth <= maxHealth * 0.66) {
+                    phase = 2;
+                } else if (phase == 2 && currentHealth <= maxHealth * 0.33) {
+                    phase = 3;
                 }
-            }
-        } else if (other instanceof LaserBeamEntity) {
-            LaserBeamEntity laser = (LaserBeamEntity) other;
-            if (health.isAlive()) {
-                if (!health.decreaseHealth(laser.getDamage())) {
-                    context.removeEntity(this);
-                    context.removeEntity(laser);
-                    context.notifyAlienKilled(); // Notify for score and wave progression
-                } else {
-                    // Phase transition for Wave 25 boss
-                    if (waveNumber == 25) {
-                        double maxHealth = health.getHp().getMAX_HP();
-                        int currentHealth = health.getCurrentHealth();
-                        if (phase == 1 && currentHealth <= maxHealth * 0.66) {
-                            phase = 2;
-                        } else if (phase == 2 && currentHealth <= maxHealth * 0.33) {
-                            phase = 3;
-                        }
-                    }
-                    // Splitting logic for Wave 20 boss
-                    else if (waveNumber == 20 && !hasSplit && !isMiniBoss && health.getCurrentHealth() <= health.getHp().getMAX_HP() / 2) {
-                        hasSplit = true;
-                        splitIntoMiniBosses();
-                        context.removeEntity(this); // Remove the main boss
-                    }
-                }
+            } else if (waveNumber == 20 && !hasSplit && !isMiniBoss && health.getCurrentHealth() <= health.getHp().getMAX_HP() / 2) {
+                // 20 웨이브 보스 분열
+                hasSplit = true;
+                splitIntoMiniBosses();
+                context.removeEntity(this); // 원본 보스 제거
             }
         }
     }
     @Override
     public void upgrade() {
-        // This entity cannot be upgraded.
+        // 보스는 업그레이드되지 않음
     }
 }

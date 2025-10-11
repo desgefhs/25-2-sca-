@@ -3,16 +3,26 @@ package org.newdawn.spaceinvaders.player;
 import java.util.HashMap;
 import java.util.Map;
 
-// 상점 업그레이드를 통한 플레이어 상태
+/**
+ * 플레이어의 현재 인게임 능력치를 저장하는 클래스
+ * 이 능력치들은 PlayerData에 저장된 영구적인 업그레이드 정보를 바탕으로 계산되어 설정
+ */
 public class PlayerStats {
 
+    /** 최대 체력 */
     private int maxHealth;
+    /** 총알 데미지 */
     private int bulletDamage;
+    /** 발사 간격 (ms) */
     private long firingInterval;
-    private int projectileCount; // 다중발사
+    /** 한 번에 발사되는 발사체 수 */
+    private int projectileCount;
+    /** 무기 레벨 맵 (무기 이름, 레벨) */
     private Map<String, Integer> weaponLevels;
 
-    //기본값( 생성자)
+    /**
+     * PlayerStats 객체를 기본값으로 생성
+     */
     public PlayerStats() {
         this.maxHealth = 3;
         this.bulletDamage = 1;
@@ -34,7 +44,6 @@ public class PlayerStats {
         return weaponLevels;
     }
 
-    // Getters
     public int getMaxHealth() {
         return maxHealth;
     }
@@ -51,7 +60,6 @@ public class PlayerStats {
         return projectileCount;
     }
 
-    // Setters
     public void setMaxHealth(int maxHealth) {
         this.maxHealth = maxHealth;
     }

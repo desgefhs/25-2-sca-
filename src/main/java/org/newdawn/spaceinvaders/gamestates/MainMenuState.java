@@ -7,6 +7,10 @@ import org.newdawn.spaceinvaders.view.MainMenu;
 
 import java.awt.*;
 
+/**
+ * 게임의 메인 메뉴 상태를 처리하는 클래스
+ * 메뉴 항목 간의 탐색 및 선택에 따른 상태 전환을 담당
+ */
 public class MainMenuState implements GameState {
 
     private final GameManager gameManager;
@@ -20,6 +24,12 @@ public class MainMenuState implements GameState {
     @Override
     public void init() {}
 
+    /**
+     * 사용자 입력을 처리하여 메뉴 항목을 탐색하고,
+     * Enter 키 입력 시 선택된 항목에 해당하는 게임 상태로 전환
+     *
+     * @param input 입력 핸들러
+     */
     @Override
     public void handleInput(InputHandler input) {
         if (input.isLeftPressedAndConsume()) mainMenu.moveLeft();
@@ -31,18 +41,25 @@ public class MainMenuState implements GameState {
         if (input.isEnterPressedAndConsume()) {
             gameManager.getSoundManager().playSound("buttonselect");
             String selected = mainMenu.getSelectedItem();
-            if ("1. 게임시작".equals(selected)) {
-                gameManager.startGameplay();
-            } else if ("2. 랭킹".equals(selected)) {
-                gameManager.setCurrentState(Type.RANKING);
-            } else if ("3. 무기".equals(selected)) {
-                gameManager.setCurrentState(Type.WEAPON_MENU);
-            } else if ("4. 펫".equals(selected)) {
-                gameManager.setCurrentState(Type.PET_MENU);
-            } else if ("5. 상점".equals(selected)) {
-                gameManager.setCurrentState(Type.SHOP_MAIN_MENU);
-            } else if ("6. 설정".equals(selected)){
-                System.exit(0);
+            switch (selected) {
+                case "1. 게임시작":
+                    gameManager.startGameplay();
+                    break;
+                case "2. 랭킹":
+                    gameManager.setCurrentState(Type.RANKING);
+                    break;
+                case "3. 무기":
+                    gameManager.setCurrentState(Type.WEAPON_MENU);
+                    break;
+                case "4. 펫":
+                    gameManager.setCurrentState(Type.PET_MENU);
+                    break;
+                case "5. 상점":
+                    gameManager.setCurrentState(Type.SHOP_MAIN_MENU);
+                    break;
+                case "6.종료":
+                    System.exit(0);
+                    break;
             }
         }
     }
@@ -50,6 +67,11 @@ public class MainMenuState implements GameState {
     @Override
     public void update(long delta) {}
 
+    /**
+     * 배경 이미지와 메인 메뉴 항목들을 렌더링
+     *
+     * @param g 그래픽 컨텍스트
+     */
     @Override
     public void render(Graphics2D g) {
         g.drawImage(gameManager.staticBackgroundSprite.getImage(), 0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT, null);
@@ -58,6 +80,7 @@ public class MainMenuState implements GameState {
         int totalWidth = 0;
         int spacing = 40;
 
+        // 모든 메뉴 항목의 총 너비 계산
         for (int i = 0; i < mainMenu.getItemCount(); i++) {
             totalWidth += g.getFontMetrics().stringWidth(mainMenu.getItem(i));
         }
@@ -65,9 +88,10 @@ public class MainMenuState implements GameState {
 
         int currentX = (Game.SCREEN_WIDTH - totalWidth) / 2;
 
+        // 각 메뉴 항목 그리기
         for (int i = 0; i < mainMenu.getItemCount(); i++) {
             if (i == mainMenu.getSelectedIndex()) {
-                g.setColor(Color.GREEN);
+                g.setColor(Color.GREEN); // 선택된 항목은 녹색으로
             } else {
                 g.setColor(Color.WHITE);
             }
@@ -76,6 +100,9 @@ public class MainMenuState implements GameState {
         }
     }
 
+    /**
+     * 상태 진입 시 배경 음악을 재생
+     */
     @Override
     public void onEnter() {
         gameManager.getSoundManager().loopSound("menubackground");

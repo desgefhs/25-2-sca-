@@ -8,15 +8,18 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 
+// 로그인 및 회원가입 GUI 화면
 public class AuthScreen extends JPanel {
 
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton signupButton;
+    //오류 메세지
     private JLabel messageLabel;
     private Image backgroundImage;
 
+    // AuthScreen 객체를 생성, GUI 초기화합니다
     public AuthScreen() {
         setPreferredSize(new Dimension(Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT));
         try {
@@ -41,7 +44,7 @@ public class AuthScreen extends JPanel {
         usernameField.setOpaque(false);
         usernameField.setForeground(Color.WHITE);
         usernameField.setCaretColor(Color.WHITE);
-        usernameField.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 90, 5, 10)); // Add some padding
+        usernameField.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 90, 5, 10));
 
         try {
             URL idBoxUrl = this.getClass().getClassLoader().getResource("sprites/Login/IdBox.PNG");
@@ -52,11 +55,11 @@ public class AuthScreen extends JPanel {
                 usernamePanel.add(usernameField, BorderLayout.CENTER);
                 add(usernamePanel, gbc);
             } else {
-                add(usernameField, gbc); // Fallback to just the text field
+                add(usernameField, gbc);
             }
         } catch (IOException e) {
             e.printStackTrace();
-            add(usernameField, gbc); // Fallback on error
+            add(usernameField, gbc);
         }
 
         // 비밀번호 필드
@@ -65,7 +68,7 @@ public class AuthScreen extends JPanel {
         passwordField.setOpaque(false);
         passwordField.setForeground(Color.WHITE);
         passwordField.setCaretColor(Color.WHITE);
-        passwordField.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 90, 5, 10)); // Add some padding
+        passwordField.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 90, 5, 10));
 
         try {
             URL idBoxUrl = this.getClass().getClassLoader().getResource("sprites/Login/PwBox.PNG");
@@ -76,11 +79,11 @@ public class AuthScreen extends JPanel {
                 passwordPanel.add(passwordField, BorderLayout.CENTER);
                 add(passwordPanel, gbc);
             } else {
-                add(passwordField, gbc); // Fallback to just the text field
+                add(passwordField, gbc);
             }
         } catch (IOException e) {
             e.printStackTrace();
-            add(passwordField, gbc); // Fallback on error
+            add(passwordField, gbc);
         }
 
         // 로그인/회원가입 버튼
@@ -136,6 +139,7 @@ public class AuthScreen extends JPanel {
         add(messageLabel, gbc);
     }
 
+    // 배경 이미지 그리기
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -168,7 +172,7 @@ public class AuthScreen extends JPanel {
         return usernameField;
     }
 
-    // Inner class for a panel with a background image
+    //배경 이미지 내부 클래스
     private class ImagePanel extends JPanel {
         private Image backgroundImage;
 
@@ -177,6 +181,7 @@ public class AuthScreen extends JPanel {
             setLayout(new BorderLayout());
         }
 
+        // 배경 이미지를 그리기
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);

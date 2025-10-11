@@ -13,16 +13,24 @@ import org.newdawn.spaceinvaders.auth.LoginDialog;
 import java.io.IOException;
 import java.io.InputStream;
 
-// Firebase 초기화, 로그인 창 호출
+/**
+ * 게임의 주 클래스입니다.
+ * Firebase 초기화, 사용자 로그인, 게임 시작
+ */
 public class Game {
 
+    // 화면 너비
     public static final int SCREEN_WIDTH = 800;
+    // 화면 높이
     public static final int SCREEN_HEIGHT = 600;
+    //게임 영역 너비
     public static final int GAME_WIDTH = 500;
+    //게임 영역 높이
     public static final int GAME_HEIGHT = 600;
 
+    // 주실행 메서드
     public static void main(String[] argv) {
-        // Firebase 초기 화
+        // Firebase 초기화
         Firestore db = initializeFirebase();
         if (db == null) {
             System.err.println("Firebase 초기화 실패. 프로그램을 종료합니다.");
@@ -51,12 +59,12 @@ public class Game {
     }
 
     /**
-     * Firebase Admin SDK를 초기화하고 Firestore 인스턴스를 반환합니다.
+     * Firebase Admin SDK 초기화
      * @return 초기화된 Firestore 인스턴스, 실패 시 null
      */
     private static Firestore initializeFirebase() {
         try {
-            // 리소스 폴더에 있는 서비스 계정 키 파일을 읽어옵니다.
+            // 리소스 폴더에 있는 서비스 계정 키 파일 가져오기
             InputStream serviceAccount = Game.class.getClassLoader().getResourceAsStream("serviceAccountKey.json");
             if (serviceAccount == null) {
                 throw new IOException("serviceAccountKey.json 파일을 resources 폴더에서 찾을 수 없습니다.");
