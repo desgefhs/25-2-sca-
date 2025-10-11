@@ -198,4 +198,12 @@ public class ShipEntity extends Entity {
     public boolean isInvincible() {
         return invincible || buffManager.hasBuff(BuffType.INVINCIBILITY);
     }
+
+    public void heal(int amount) {
+        health.increaseHealth(amount);
+    }
+
+    public int getMaxHealth() {
+        return health.getMaxHp();
+    }
 }

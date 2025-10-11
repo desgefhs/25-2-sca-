@@ -56,4 +56,12 @@ public class HealthComponent {
     public int getCurrentHealth() {
         return (int) hp.getCurrentHp();
     }
+
+    public void increaseHealth(int amount) {
+        hp.setCurrentHp(Math.min(hp.getMAX_HP(), hp.getCurrentHp() + amount));
+    }
+
+    public int getMaxHp() {
+        return (int) hp.getMAX_HP();
+    }
 }

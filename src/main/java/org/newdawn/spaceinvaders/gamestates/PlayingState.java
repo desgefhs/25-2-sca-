@@ -42,6 +42,7 @@ public class PlayingState implements GameState {
 
         handleSpawning(delta);
         handleMeteorSpawning();
+        handleHealingAreaSpawning();
 
         gameManager.getEntityManager().moveAll(delta);
         new CollisionDetector().checkCollisions(gameManager.getEntityManager().getEntities());
@@ -198,6 +199,14 @@ public class PlayingState implements GameState {
             meteor.setHorizontalMovement(Math.cos(angle) * speed);
 
             gameManager.addEntity(meteor);
+        }
+    }
+
+    private void handleHealingAreaSpawning() {
+        if (gameManager.wave > 0 && gameManager.wave % 8 == 0 && !gameManager.healingAreaSpawnedForWave) {
+            int xPos = (int) (Math.random() * (Game.GAME_WIDTH - 50));
+            gameManager.addEntity(new HealingAreaEntity(gameManager, xPos, -50));
+            gameManager.healingAreaSpawnedForWave = true;
         }
     }
 }

@@ -64,6 +64,7 @@ public class GameManager implements GameContext {
     // Wave Management
     public int formationsPerWave;
     public int formationsSpawnedInWave;
+    public boolean healingAreaSpawnedForWave = false;
     public long nextFormationSpawnTime = 0;
 
     public boolean logicRequiredThisLoop = false;
@@ -250,6 +251,7 @@ public class GameManager implements GameContext {
     // 다음 웨이브로 전환
     public void startNextWave() {
         wave++;
+        healingAreaSpawnedForWave = false;
         if (wave > 25) {
             notifyWin();
             return;
