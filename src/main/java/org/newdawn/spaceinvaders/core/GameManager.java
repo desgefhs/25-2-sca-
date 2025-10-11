@@ -56,6 +56,8 @@ public class GameManager implements GameContext {
     public PlayerStats playerStats;
     public GameState.Type nextState = null;
     public String message = "";
+    private long messageEndTime = 0;
+    private long gameStartTime = 0;
     public int score = 0;
     public int wave = 0;
 
@@ -154,6 +156,12 @@ public class GameManager implements GameContext {
 
             gsm.update(delta);
 
+            // Check for timed message expiry
+            if (messageEndTime > 0 && System.currentTimeMillis() > messageEndTime) {
+                message = "";
+                messageEndTime = 0;
+            }
+
             if (nextState != null) {
                 setCurrentState(nextState);
                 nextState = null;
@@ -177,7 +185,7 @@ public class GameManager implements GameContext {
     @Override
     public void removeEntity(Entity entity) { entityManager.removeEntity(entity); }
     @Override
-    public void notifyDeath() { 
+    public void notifyDeath() {
         this.nextState = GameState.Type.GAME_OVER;
         soundManager.stopAllSounds("ship-death-sound");
         soundManager.playSound("ship-death-sound");
@@ -232,6 +240,7 @@ public class GameManager implements GameContext {
 
     public void startGameplay() {
         soundManager.stopSound("menubackground");
+        gameStartTime = System.currentTimeMillis();
         calculatePlayerStats();
         resetScore();
         wave = 0; // Start at wave 0, so startNextWave() increments to 1
@@ -246,6 +255,7 @@ public class GameManager implements GameContext {
             return;
         }
         message = "Wave " + wave;
+        messageEndTime = System.currentTimeMillis() + 1000;
 
         if (wave % 5 == 0) {
             soundManager.stopSound("gamebackground");
@@ -407,6 +417,10 @@ public class GameManager implements GameContext {
     public DatabaseManager getDatabaseManager() { return databaseManager; }
     public PlayerData getCurrentPlayer() { return currentPlayer; }
     public GameStateManager getGsm() { return gsm; }
+
+    public long getGameStartTime() {
+        return gameStartTime;
+    }
 
 
     public void notifyItemCollected() {
