@@ -52,4 +52,9 @@ public class Shotgun implements Weapon {
             this.firingInterval = 1000 - ((level - 1) * 50);
         }
     }
+
+    @Override
+    public String getSoundName() {
+        return "shotgun";
+    }
 }

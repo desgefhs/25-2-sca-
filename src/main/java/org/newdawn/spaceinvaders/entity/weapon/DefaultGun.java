@@ -52,4 +52,9 @@ public class DefaultGun implements Weapon {
     public void setLevel(int level) {
         // This weapon's stats are derived from PlayerStats, so no internal level is needed.
     }
+
+    @Override
+    public String getSoundName() {
+        return "gunshot";
+    }
 }

@@ -20,7 +20,8 @@ public class PausedState implements GameState {
     public void handleInput(InputHandler input) {
         if (input.isUpPressedAndConsume()) gameManager.pauseMenu.moveUp();
         if (input.isDownPressedAndConsume()) gameManager.pauseMenu.moveDown();
-        if (input.isFirePressedAndConsume()) {
+        if (input.isEnterPressedAndConsume()) {
+            gameManager.getSoundManager().playSound("buttonselect");
             String selected = gameManager.pauseMenu.getSelectedItem();
             if ("재개하기".equals(selected)) gameManager.setCurrentState(Type.PLAYING);
             else if ("메인메뉴로 나가기".equals(selected)) {

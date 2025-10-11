@@ -99,7 +99,14 @@ public class BossEntity extends Entity implements Enemy {
                 availablePatterns.add(this::fireTentacleAttackPattern);
                 break;
             case 25:
-                // Patterns are now handled dynamically in tryToFire based on phase
+                availablePatterns.add(this::fireCirclePattern);
+                availablePatterns.add(this::fireThreeWayPattern);
+                availablePatterns.add(this::fireGlobalLaserPattern);
+                availablePatterns.add(this::fireFollowingShotPattern);
+                availablePatterns.add(this::fireCurtainPattern);
+                availablePatterns.add(this::fireFeatherPattern);
+                availablePatterns.add(this::fireFeatherStreamPattern);
+                availablePatterns.add(this::fireTentacleAttackPattern);
                 break;
             default:
                 availablePatterns.add(this::fireFollowingShotPattern);
@@ -204,29 +211,7 @@ public class BossEntity extends Entity implements Enemy {
         }
         lastFire = System.currentTimeMillis();
 
-        java.util.List<BossPattern> patternsToUse;
-
-        if (waveNumber == 25) {
-            patternsToUse = new java.util.ArrayList<>();
-            switch (phase) {
-                case 1:
-                    patternsToUse.add(this::fireThreeWayPattern);
-                    patternsToUse.add(this::fireCirclePattern);
-                    patternsToUse.add(this::fireFollowingShotPattern);
-                    patternsToUse.add(this::fireCurtainPattern);
-                    break;
-                case 2:
-                    patternsToUse.add(this::fireTentacleAttackPattern);
-                    patternsToUse.add(this::fireLaserSweepPattern);
-                    break;
-                case 3:
-                    patternsToUse.add(this::spawnMinionsPattern);
-                    patternsToUse.add(this::teleportAndBurstPattern);
-                    break;
-            }
-        } else {
-            patternsToUse = availablePatterns;
-        }
+        java.util.List<BossPattern> patternsToUse = availablePatterns;
 
         if (patternsToUse == null || patternsToUse.isEmpty()) {
             return;

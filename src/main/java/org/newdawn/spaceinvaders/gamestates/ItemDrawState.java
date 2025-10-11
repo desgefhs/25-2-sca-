@@ -38,7 +38,8 @@ public class ItemDrawState implements GameState {
                 selectedIndex = 0;
             }
         }
-        if (input.isFirePressedAndConsume()) {
+        if (input.isEnterPressedAndConsume()) {
+            gameManager.getSoundManager().playSound("buttonselect");
             if (selectedIndex == 0) { // 아이템 뽑기
                 String result = gameManager.shopManager.drawItem(gameManager.currentPlayer);
                 switch (result) {

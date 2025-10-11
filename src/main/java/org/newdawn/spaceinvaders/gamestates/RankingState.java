@@ -8,6 +8,7 @@ import java.awt.*;
 
 public class RankingState implements GameState {
     private final GameManager gameManager;
+    private java.util.List<String> highScores;
 
     public RankingState(GameManager gameManager) {
         this.gameManager = gameManager;
@@ -18,7 +19,8 @@ public class RankingState implements GameState {
 
     @Override
     public void handleInput(InputHandler input) {
-        if (input.isFirePressedAndConsume()) {
+        if (input.isEnterPressedAndConsume()) {
+            gameManager.getSoundManager().playSound("buttonselect");
             gameManager.setCurrentState(Type.MAIN_MENU);
         }
     }
@@ -37,18 +39,21 @@ public class RankingState implements GameState {
 
         g.setFont(new Font("Dialog", Font.BOLD, 18));
         int y = 150;
-        java.util.List<String> highScores = gameManager.getDatabaseManager().getHighScores();
-        for (String score : highScores) {
-            g.drawString(score, (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(score)) / 2, y);
-            y += 30;
+        if (highScores != null) {
+            for (String score : highScores) {
+                g.drawString(score, (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(score)) / 2, y);
+                y += 30;
+            }
         }
 
         g.setFont(new Font("Dialog", Font.BOLD, 14));
-        g.drawString("Press Fire to return to Main Menu", (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth("Press Fire to return to Main Menu")) / 2, 500);
+        g.drawString("Press Enter to return to Main Menu", (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth("Press Enter to return to Main Menu")) / 2, 500);
     }
 
     @Override
-    public void onEnter() {}
+    public void onEnter() {
+        highScores = gameManager.getDatabaseManager().getHighScores();
+    }
 
     @Override
     public void onExit() {}

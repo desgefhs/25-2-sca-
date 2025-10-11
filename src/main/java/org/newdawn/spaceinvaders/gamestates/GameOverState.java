@@ -23,7 +23,8 @@ public class GameOverState implements GameState {
         if (input.isLeftPressedAndConsume()) gameManager.gameOverMenu.moveLeft();
         if (input.isRightPressedAndConsume()) gameManager.gameOverMenu.moveRight();
 
-        if (input.isFirePressedAndConsume()) {
+        if (input.isEnterPressedAndConsume()) {
+            gameManager.getSoundManager().playSound("buttonselect");
             String selected = gameManager.gameOverMenu.getSelectedItem();
             if ("다시하기".equals(selected)) {
                 gameManager.startGameplay();

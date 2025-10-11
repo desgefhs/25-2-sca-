@@ -23,6 +23,7 @@ public class InputHandler extends KeyAdapter {
     private boolean onePressed = false;
     private boolean twoPressed = false;
     private boolean threePressed = false;
+    private boolean enterPressed = false;
 
     // 키 한 번 누름을 처리하기 위한 플래그들
     private boolean leftKeyProcessed = false;
@@ -38,6 +39,7 @@ public class InputHandler extends KeyAdapter {
     private boolean oneKeyProcessed = false;
     private boolean twoKeyProcessed = false;
     private boolean threeKeyProcessed = false;
+    private boolean enterKeyProcessed = false;
 
     private final List<Character> typedChars = new ArrayList<>();
 
@@ -49,6 +51,14 @@ public class InputHandler extends KeyAdapter {
     public boolean isFirePressed() { return firePressed; }
 
     // --- 단일 입력 처리를 위한 "Consume" 메소드들 --- //
+
+    public boolean isEnterPressedAndConsume() {
+        if (enterPressed && !enterKeyProcessed) {
+            enterKeyProcessed = true;
+            return true;
+        }
+        return false;
+    }
 
     public boolean isKPressedAndConsume() {
         if (kPressed && !kKeyProcessed) {
@@ -185,7 +195,7 @@ public class InputHandler extends KeyAdapter {
         if (keyCode == KeyEvent.VK_DOWN) {
             downKeyProcessed = false;
         }
-        if (keyCode == KeyEvent.VK_SPACE || keyCode == KeyEvent.VK_ENTER) {
+        if (keyCode == KeyEvent.VK_SPACE) {
             fireKeyProcessed = false;
         }
         if (keyCode == KeyEvent.VK_ESCAPE) {
@@ -212,6 +222,9 @@ public class InputHandler extends KeyAdapter {
         if (keyCode == KeyEvent.VK_3) {
             threeKeyProcessed = false;
         }
+        if (keyCode == KeyEvent.VK_ENTER) {
+            enterKeyProcessed = false;
+        }
     }
 
     private void updateKeyState(int keyCode, boolean pressed) {
@@ -227,8 +240,11 @@ public class InputHandler extends KeyAdapter {
         if (keyCode == KeyEvent.VK_DOWN) {
             downPressed = pressed;
         }
-        if (keyCode == KeyEvent.VK_SPACE || keyCode == KeyEvent.VK_ENTER) {
+        if (keyCode == KeyEvent.VK_SPACE) {
             firePressed = pressed;
+        }
+        if (keyCode == KeyEvent.VK_ENTER) {
+            enterPressed = pressed;
         }
         if (keyCode == KeyEvent.VK_ESCAPE) {
             escPressed = pressed;

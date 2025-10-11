@@ -21,7 +21,8 @@ public class ExitConfirmationState implements GameState {
         if (input.isLeftPressedAndConsume()) gameManager.confirmDialog.moveLeft();
         if (input.isRightPressedAndConsume()) gameManager.confirmDialog.moveRight();
 
-        if (input.isFirePressedAndConsume()) {
+        if (input.isEnterPressedAndConsume()) {
+            gameManager.getSoundManager().playSound("buttonselect");
             String selected = gameManager.confirmDialog.getSelectedItem();
             if ("Confirm".equals(selected)) {
                 System.exit(0);

@@ -96,6 +96,7 @@ public class ShipEntity extends Entity {
             return;
         }
         currentWeapon.fire(context, this);
+        context.getSoundManager().playSound(currentWeapon.getSoundName());
     }
 
     @Override

@@ -42,7 +42,8 @@ public class ShopMainMenuState implements GameState {
                 selectedIndex = 0;
             }
         }
-        if (input.isFirePressedAndConsume()) {
+        if (input.isEnterPressedAndConsume()) {
+            gameManager.getSoundManager().playSound("buttonselect");
             switch (selectedIndex) {
                 case 0: // 캐릭터 강화
                     gameManager.setCurrentState(Type.SHOP);

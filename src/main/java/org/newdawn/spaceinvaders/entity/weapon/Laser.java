@@ -36,4 +36,9 @@ public class Laser implements Weapon {
         this.damage = 3 + (level - 1);
         this.firingInterval = 1500 - ((level - 1) * 250);
     }
+
+    @Override
+    public String getSoundName() {
+        return "lasershot";
+    }
 }

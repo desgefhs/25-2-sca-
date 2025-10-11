@@ -61,7 +61,8 @@ public class PetMenuState implements GameState {
             String selectedPetName = ownedPetNames.get(selectedPetIndex);
 
             // Equip/Unequip Logic
-            if (input.isFirePressedAndConsume()) {
+            if (input.isEnterPressedAndConsume()) {
+                gameManager.getSoundManager().playSound("buttonselect");
                 if (selectedPetName.equals(playerData.getEquippedPet())) {
                     playerData.setEquippedPet(null);
                 } else {

@@ -8,4 +8,5 @@ public interface Weapon {
     void fire(GameContext context, ShipEntity owner);
     void upgrade(PlayerStats stats);
     void setLevel(int level);
+    String getSoundName();
 }

@@ -49,7 +49,8 @@ public class WeaponMenuState implements GameState {
             gameManager.setCurrentState(Type.MAIN_MENU);
         }
 
-        if (input.isFirePressedAndConsume()) {
+        if (input.isEnterPressedAndConsume()) {
+            gameManager.getSoundManager().playSound("buttonselect");
             String selectedWeapon = weaponMenu.getSelectedItem();
             PlayerData playerData = gameManager.currentPlayer;
 

@@ -18,6 +18,7 @@ import org.newdawn.spaceinvaders.graphics.SpriteStore;
 import org.newdawn.spaceinvaders.player.PlayerStats;
 import org.newdawn.spaceinvaders.shop.ShopManager;
 import org.newdawn.spaceinvaders.shop.Upgrade;
+import org.newdawn.spaceinvaders.sound.SoundManager;
 import org.newdawn.spaceinvaders.view.*;
 import org.newdawn.spaceinvaders.wave.Formation;
 import org.newdawn.spaceinvaders.wave.FormationManager;
@@ -47,6 +48,7 @@ public class GameManager implements GameContext {
     public final Background background;
     public final Sprite staticBackgroundSprite;
     public ShopMenu shopMenu;
+    private final SoundManager soundManager;
 
     // 사용자, 게임 데이터
     public final AuthenticatedUser user;
@@ -85,6 +87,7 @@ public class GameManager implements GameContext {
         this.gameOverMenu = new GameOverMenu();
         this.shopManager = new ShopManager();
         this.formationManager = new FormationManager();
+        this.soundManager = new SoundManager();
 
         this.background = new Background("sprites/gamebackground.png");
         this.staticBackgroundSprite = SpriteStore.get().getSprite("sprites/background.jpg");
@@ -147,7 +150,6 @@ public class GameManager implements GameContext {
             long delta = SystemTimer.getTime() - lastLoopTime;
             lastLoopTime = SystemTimer.getTime();
 
-
             gsm.handleInput(inputHandler);
 
             gsm.update(delta);
@@ -175,9 +177,16 @@ public class GameManager implements GameContext {
     @Override
     public void removeEntity(Entity entity) { entityManager.removeEntity(entity); }
     @Override
-    public void notifyDeath() { this.nextState = GameState.Type.GAME_OVER; }
+    public void notifyDeath() { 
+        this.nextState = GameState.Type.GAME_OVER;
+        soundManager.stopAllSounds("ship-death-sound");
+        soundManager.playSound("ship-death-sound");
+     }
     @Override
-    public void notifyWin() { setCurrentState(GameState.Type.GAME_WON); }
+    public void notifyWin() {
+        soundManager.stopAllSounds();
+        setCurrentState(GameState.Type.GAME_WON);
+    }
 
     //처치한 적 처리( 점수 처리 )
     @Override
@@ -228,6 +237,7 @@ public class GameManager implements GameContext {
 
 
     public void startGameplay() {
+        soundManager.stopSound("menubackground");
         calculatePlayerStats();
         resetScore();
         wave = 0; // Start at wave 0, so startNextWave() increments to 1
@@ -242,6 +252,16 @@ public class GameManager implements GameContext {
             return;
         }
         message = "Wave " + wave;
+
+        if (wave % 5 == 0) {
+            soundManager.stopSound("gamebackground");
+            soundManager.loopSound("boss1");
+        } else if ((wave - 1) % 5 == 0 && wave > 1) {
+            soundManager.stopSound("boss1");
+            soundManager.loopSound("gamebackground");
+        } else if (wave == 1) {
+            soundManager.loopSound("gamebackground");
+        }
 
         // Create and set the player's equipped weapon
         String equippedWeaponName = currentPlayer.getEquippedWeapon();
@@ -428,5 +448,10 @@ public class GameManager implements GameContext {
         Entity boss = new BossEntity(this, Game.GAME_WIDTH / 2, 50, bossHealth, cycle, wave, false);
         addEntity(boss);
         entityManager.setAlienCount(1);
+    }
+
+    @Override
+    public SoundManager getSoundManager() {
+        return soundManager;
     }
 }

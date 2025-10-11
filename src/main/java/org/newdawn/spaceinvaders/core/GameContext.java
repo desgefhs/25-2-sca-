@@ -2,10 +2,13 @@ package org.newdawn.spaceinvaders.core;
 
 import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
+import org.newdawn.spaceinvaders.sound.SoundManager;
 
 // gamemanager 인터페이스.
 
 public interface GameContext {
+
+    SoundManager getSoundManager();
 
     // 새로운 엔티티를 추가
 

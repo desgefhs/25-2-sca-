@@ -50,6 +50,7 @@ public class LoginDialog extends JDialog {
         });
 
         setContentPane(authScreen);
+        getRootPane().setDefaultButton(authScreen.getLoginButton());
         pack();
         setLocationRelativeTo(owner);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

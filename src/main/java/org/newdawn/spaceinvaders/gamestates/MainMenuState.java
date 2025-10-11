@@ -28,7 +28,8 @@ public class MainMenuState implements GameState {
             gameManager.setCurrentState(Type.EXIT_CONFIRMATION);
         }
 
-        if (input.isFirePressedAndConsume()) {
+        if (input.isEnterPressedAndConsume()) {
+            gameManager.getSoundManager().playSound("buttonselect");
             String selected = mainMenu.getSelectedItem();
             if ("1. 게임시작".equals(selected)) {
                 gameManager.startGameplay();
@@ -76,7 +77,9 @@ public class MainMenuState implements GameState {
     }
 
     @Override
-    public void onEnter() {}
+    public void onEnter() {
+        gameManager.getSoundManager().loopSound("menubackground");
+    }
 
     @Override
     public void onExit() {}

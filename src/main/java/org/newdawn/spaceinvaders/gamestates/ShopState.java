@@ -40,7 +40,8 @@ public class ShopState implements GameState {
             gameManager.setCurrentState(Type.SHOP_MAIN_MENU);
         }
 
-        if (input.isFirePressedAndConsume()) {
+        if (input.isEnterPressedAndConsume()) {
+            gameManager.getSoundManager().playSound("buttonselect");
             // Handle Upgrade Purchase
             if (selectedIndex < upgrades.size()) {
                 Upgrade selectedUpgrade = upgrades.get(selectedIndex);
