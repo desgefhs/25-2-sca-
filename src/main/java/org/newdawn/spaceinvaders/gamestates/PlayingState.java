@@ -47,6 +47,11 @@ public class PlayingState implements GameState {
         new CollisionDetector().checkCollisions(gameManager.getEntityManager().getEntities());
         gameManager.getEntityManager().cleanup();
 
+        // Check for wave completion
+        if (gameManager.getEntityManager().getAlienCount() == 0 && gameManager.formationsSpawnedInWave >= gameManager.formationsPerWave) {
+            gameManager.setCurrentState(GameState.Type.WAVE_CLEARED);
+        }
+
         if (gameManager.logicRequiredThisLoop) {
             gameManager.getEntityManager().doLogicAll();
             gameManager.logicRequiredThisLoop = false;

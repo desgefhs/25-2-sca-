@@ -1,6 +1,6 @@
 package org.newdawn.spaceinvaders;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class GameTest {
     @Test

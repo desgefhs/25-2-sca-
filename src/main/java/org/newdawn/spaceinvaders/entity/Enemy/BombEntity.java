@@ -80,6 +80,7 @@ public class BombEntity extends Entity implements Enemy {
                 }
                 // Create visual explosion
                 // Remove self
+                context.notifyAlienKilled();
                 context.removeEntity(this);
                 break;
         }

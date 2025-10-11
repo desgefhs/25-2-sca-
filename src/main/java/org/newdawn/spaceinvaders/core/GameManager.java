@@ -204,9 +204,6 @@ public class GameManager implements GameContext {
             getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.HEAL);
         }
 
-        if (entityManager.getAlienCount() == 0 && formationsSpawnedInWave >= formationsPerWave) {
-            setCurrentState(GameState.Type.WAVE_CLEARED);
-        }
     }
 
     //화면 밖으로 나간 적 처리
@@ -215,9 +212,6 @@ public class GameManager implements GameContext {
         entityManager.removeEntity(entity);
         entityManager.decreaseAlienCount();
 
-        if (entityManager.getAlienCount() == 0 && formationsSpawnedInWave >= formationsPerWave) {
-            setCurrentState(GameState.Type.WAVE_CLEARED);
-        }
     }
 
     @Override

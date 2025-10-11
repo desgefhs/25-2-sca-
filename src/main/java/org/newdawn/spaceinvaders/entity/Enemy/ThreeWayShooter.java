@@ -180,6 +180,7 @@ public class ThreeWayShooter extends Entity implements Enemy {
 
                         // Remove the shooter from the game
                         context.removeEntity(this);
+                        context.notifyAlienKilled();
                     }
                 }
             }
@@ -198,6 +199,7 @@ public class ThreeWayShooter extends Entity implements Enemy {
 
                     // Remove the shooter from the game
                     context.removeEntity(this);
+                    context.notifyAlienKilled();
                 }
             }
         }

@@ -57,6 +57,7 @@ public class BurstShooterEntity extends Entity implements Enemy {
                         explosion.setY(centeredY);
                         context.addEntity(explosion);
                         context.removeEntity(this);
+                        context.notifyAlienKilled();
                     }
                 }
             }
