@@ -54,6 +54,8 @@ public class GameManager implements GameContext {
     public PlayerStats playerStats;
     public GameState.Type nextState = null;
     public String message = "";
+    private long messageEndTime = 0;
+    private long gameStartTime = 0;
     public int score = 0;
     public int wave = 0;
 
@@ -152,6 +154,12 @@ public class GameManager implements GameContext {
 
             gsm.update(delta);
 
+            // Check for timed message expiry
+            if (messageEndTime > 0 && System.currentTimeMillis() > messageEndTime) {
+                message = "";
+                messageEndTime = 0;
+            }
+
             if (nextState != null) {
                 setCurrentState(nextState);
                 nextState = null;
@@ -228,6 +236,7 @@ public class GameManager implements GameContext {
 
 
     public void startGameplay() {
+        gameStartTime = System.currentTimeMillis();
         calculatePlayerStats();
         resetScore();
         wave = 0; // Start at wave 0, so startNextWave() increments to 1
@@ -242,6 +251,7 @@ public class GameManager implements GameContext {
             return;
         }
         message = "Wave " + wave;
+        messageEndTime = System.currentTimeMillis() + 1000;
 
         // Create and set the player's equipped weapon
         String equippedWeaponName = currentPlayer.getEquippedWeapon();
@@ -393,6 +403,10 @@ public class GameManager implements GameContext {
     public DatabaseManager getDatabaseManager() { return databaseManager; }
     public PlayerData getCurrentPlayer() { return currentPlayer; }
     public GameStateManager getGsm() { return gsm; }
+
+    public long getGameStartTime() {
+        return gameStartTime;
+    }
 
 
     public void notifyItemCollected() {

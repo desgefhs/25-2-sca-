@@ -87,7 +87,16 @@ public class PlayingState implements GameState {
         g.setColor(Color.white);
         g.setFont(new Font("Dialog", Font.BOLD, 14));
         g.drawString(String.format("점수: %03d", gameManager.score), 680, 30);
-        g.drawString(String.format("Wave: %d", gameManager.wave), 20, 30);
+        g.drawString(String.format("Wave: %d", gameManager.wave), 520, 30);
+
+        // Draw Play Time
+        if (gameManager.getGameStartTime() > 0) {
+            long elapsedMillis = System.currentTimeMillis() - gameManager.getGameStartTime();
+            long elapsedSeconds = elapsedMillis / 1000;
+            long minutes = elapsedSeconds / 60;
+            long seconds = elapsedSeconds % 60;
+            g.drawString(String.format("Time: %02d:%02d", minutes, seconds), 520, 55);
+        }
 
         // Draw Buff UI
         if (gameManager.getShip() != null) {

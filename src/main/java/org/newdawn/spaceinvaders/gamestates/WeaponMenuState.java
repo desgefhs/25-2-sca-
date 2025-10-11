@@ -168,7 +168,7 @@ public class WeaponMenuState implements GameState {
                 sprite.draw(g, boxX, boxY, boxWidth, boxHeight);
             }
 
-            // Draw upgrade button
+            // Draw description and upgrade button
             int level = gameManager.currentPlayer.getWeaponLevels().getOrDefault(selectedWeapon, 0);
             boolean isUpgradeableWeapon = selectedWeapon.equals("Shotgun") || selectedWeapon.equals("Laser");
 
@@ -178,6 +178,7 @@ public class WeaponMenuState implements GameState {
                 int buttonWidth = 150;
                 int buttonHeight = 50;
 
+                // Draw Upgrade Button
                 if (level < 5) { // Upgradeable
                     int cost = selectedWeapon.equals("Shotgun") ? getShotgunUpgradeCost(level + 1) : getLaserUpgradeCost(level + 1);
                     
@@ -202,6 +203,31 @@ public class WeaponMenuState implements GameState {
                     String maxLevelText = "Max Level";
                     int textWidth = g.getFontMetrics().stringWidth(maxLevelText);
                     g.drawString(maxLevelText, buttonX + (buttonWidth - textWidth) / 2, buttonY + 30);
+                }
+
+                // Draw description below the button
+                g.setFont(new Font("Dialog", Font.PLAIN, 14));
+                g.setColor(Color.LIGHT_GRAY);
+                String description1 = "";
+                String description2 = "";
+                if (selectedWeapon.equals("Shotgun")) {
+                    int[] numProjectiles = {3, 4, 5, 6, 7};
+                    double[] spreadAngle = {15, 20, 25, 30, 35};
+                    description1 = "탄환 " + numProjectiles[level-1] + "개, " + spreadAngle[level-1] + "도 각도로 발사";
+                    if (level < 5) {
+                        description2 = "다음 레벨: 탄환 " + numProjectiles[level] + "개";
+                    }
+                } else if (selectedWeapon.equals("Laser")) {
+                    int damage = 3 + (level - 1);
+                    long interval = 1500 - ((level - 1) * 250);
+                    description1 = "데미지 " + damage + ", 쿨타임 " + (interval/1000.0) + "초";
+                    if (level < 5) {
+                        description2 = "다음 레벨: 데미지 " + (damage + 1);
+                    }
+                }
+                g.drawString(description1, buttonX, buttonY + buttonHeight + 25);
+                if (level < 5) {
+                    g.drawString(description2, buttonX, buttonY + buttonHeight + 45);
                 }
             }
         }
