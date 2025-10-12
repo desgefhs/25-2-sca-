@@ -38,6 +38,7 @@ public class BuffManager {
     private ShipEntity player;
     /** 현재 활성화된 버프 목록 */
     private List<ActiveBuff> activeBuffs = new ArrayList<>();
+    private float originalMoveSpeed = 0;
 
     public BuffManager(ShipEntity player) {
         this.player = player;
@@ -99,7 +100,10 @@ public class BuffManager {
      */
     private void applyBuffEffect(BuffType type) {
         if (type == BuffType.SPEED_BOOST) {
-            player.setMoveSpeed(player.getMoveSpeed() * 1.5f);
+            if (originalMoveSpeed == 0) {
+                originalMoveSpeed = player.getMoveSpeed();
+            }
+            player.setMoveSpeed(originalMoveSpeed * 1.5f);
         }
     }
 
@@ -109,7 +113,8 @@ public class BuffManager {
      */
     private void removeBuffEffect(BuffType type) {
         if (type == BuffType.SPEED_BOOST) {
-            player.setMoveSpeed(player.getMoveSpeed() / 1.5f);
+            player.setMoveSpeed(originalMoveSpeed);
+            originalMoveSpeed = 0;
         }
     }
 
