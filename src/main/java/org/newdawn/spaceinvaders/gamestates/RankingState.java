@@ -1,17 +1,18 @@
 package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.Game;
-import org.newdawn.spaceinvaders.core.GameManager;
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
 
 import java.awt.*;
 
 public class RankingState implements GameState {
-    private final GameManager gameManager;
+    private final GameContext gameContext;
     private java.util.List<String> highScores;
 
-    public RankingState(GameManager gameManager) {
-        this.gameManager = gameManager;
+    public RankingState(GameContext gameContext) {
+        this.gameContext = gameContext;
     }
 
     @Override
@@ -20,8 +21,8 @@ public class RankingState implements GameState {
     @Override
     public void handleInput(InputHandler input) {
         if (input.isEnterPressedAndConsume()) {
-            gameManager.getSoundManager().playSound("buttonselect");
-            gameManager.setCurrentState(Type.MAIN_MENU);
+            gameContext.getSoundManager().playSound("buttonselect");
+            gameContext.setCurrentState(Type.MAIN_MENU);
         }
     }
 
@@ -52,7 +53,7 @@ public class RankingState implements GameState {
 
     @Override
     public void onEnter() {
-        highScores = gameManager.getDatabaseManager().getHighScores();
+        highScores = gameContext.getDatabaseManager().getHighScores();
     }
 
     @Override

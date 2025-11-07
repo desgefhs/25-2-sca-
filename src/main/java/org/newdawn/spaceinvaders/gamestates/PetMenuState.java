@@ -1,7 +1,8 @@
 package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.Game;
-import org.newdawn.spaceinvaders.core.GameManager;
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
 import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.entity.Pet.PetType;
@@ -16,19 +17,19 @@ import java.util.Map;
 
 public class PetMenuState implements GameState {
 
-    private final GameManager gameManager;
+    private final GameContext gameContext;
     private PlayerData playerData;
     private int selectedPetIndex = 0;
     private List<String> ownedPetNames = new ArrayList<>();
     private Map<String, Sprite> petSprites = new HashMap<>();
 
-    public PetMenuState(GameManager gameManager) {
-        this.gameManager = gameManager;
+    public PetMenuState(GameContext gameContext) {
+        this.gameContext = gameContext;
     }
 
     @Override
     public void init() {
-        this.playerData = gameManager.getCurrentPlayer();
+        this.playerData = gameContext.getPlayerManager().getCurrentPlayer();
         updateOwnedPetList();
 
         petSprites.put("ATTACK", SpriteStore.get().getSprite("sprites/pet/Attackpet.gif"));
@@ -47,7 +48,7 @@ public class PetMenuState implements GameState {
     @Override
     public void handleInput(InputHandler input) {
         if (input.isEscPressedAndConsume()) {
-            gameManager.setCurrentState(Type.MAIN_MENU);
+            gameContext.setCurrentState(Type.MAIN_MENU);
         }
 
         if (!ownedPetNames.isEmpty()) {
@@ -62,20 +63,20 @@ public class PetMenuState implements GameState {
 
             // Equip/Unequip Logic
             if (input.isEnterPressedAndConsume()) {
-                gameManager.getSoundManager().playSound("buttonselect");
+                gameContext.getSoundManager().playSound("buttonselect");
                 if (selectedPetName.equals(playerData.getEquippedPet())) {
                     playerData.setEquippedPet(null);
                 } else {
                     playerData.setEquippedPet(selectedPetName);
                 }
-                gameManager.savePlayerData();
+                gameContext.savePlayerData();
             }
 
             // Upgrade Logic
             if (input.isUPressedAndConsume()) {
                 int currentAmount = playerData.getPetInventory().getOrDefault(selectedPetName, 0);
                 if (currentAmount <= 1) {
-                    gameManager.message = "강화에 필요한 중복 펫이 부족합니다.";
+                    gameContext.setMessage("강화에 필요한 중복 펫이 부족합니다.");
                     return;
                 }
 
@@ -84,18 +85,18 @@ public class PetMenuState implements GameState {
                     int currentLevel = playerData.getPetLevel(petType.name());
 
                     if (currentLevel >= 10) {
-                        gameManager.message = "이미 최고 레벨입니다.";
+                        gameContext.setMessage("이미 최고 레벨입니다.");
                         return;
                     }
 
                     // Proceed with upgrade
                     playerData.increasePetLevel(petType.name());
                     playerData.getPetInventory().put(selectedPetName, currentAmount - 1);
-                    gameManager.savePlayerData();
-                    gameManager.message = petType.getDisplayName() + " 강화 성공!";
+                    gameContext.savePlayerData();
+                    gameContext.setMessage(petType.getDisplayName() + " 강화 성공!");
 
                 } catch (IllegalArgumentException e) {
-                    gameManager.message = "알 수 없는 펫입니다.";
+                    gameContext.setMessage("알 수 없는 펫입니다.");
                 }
             }
         }
@@ -243,10 +244,10 @@ public class PetMenuState implements GameState {
             }
         }
 
-        if (gameManager.message != null && !gameManager.message.isEmpty()) {
+        if (gameContext.getMessage() != null && !gameContext.getMessage().isEmpty()) {
             g.setColor(Color.yellow);
             g.setFont(new Font("Dialog", Font.BOLD, 16));
-            g.drawString(gameManager.message, (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameManager.message)) / 2, Game.SCREEN_HEIGHT - 80);
+            g.drawString(gameContext.getMessage(), (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameContext.getMessage())) / 2, Game.SCREEN_HEIGHT - 80);
         }
 
         g.setFont(new Font("Dialog", Font.PLAIN, 16));
@@ -256,9 +257,9 @@ public class PetMenuState implements GameState {
 
     @Override
     public void onEnter() {
-        this.playerData = gameManager.getCurrentPlayer();
+        this.playerData = gameContext.getPlayerManager().getCurrentPlayer();
         updateOwnedPetList();
-        gameManager.message = "";
+        gameContext.setMessage("");
         this.selectedPetIndex = 0;
     }
 

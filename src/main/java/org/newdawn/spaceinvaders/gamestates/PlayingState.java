@@ -1,22 +1,30 @@
 package org.newdawn.spaceinvaders.gamestates;
 
-import org.newdawn.spaceinvaders.core.*;
-import org.newdawn.spaceinvaders.entity.*;
+import org.newdawn.spaceinvaders.core.Game;
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.GameState;
+import org.newdawn.spaceinvaders.core.InputHandler;
+import org.newdawn.spaceinvaders.entity.Entity;
+import org.newdawn.spaceinvaders.entity.ShipEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.MeteorEntity;
-
+import org.newdawn.spaceinvaders.entity.HealingAreaEntity;
+import org.newdawn.spaceinvaders.core.CollisionDetector;
 import org.newdawn.spaceinvaders.view.BuffUI;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 
 public class PlayingState implements GameState {
 
-    private final GameManager gameManager;
+    private final GameContext gameContext;
     private long lastMeteorSpawnTime;
     private long nextMeteorSpawnInterval;
     private final BuffUI buffUI;
 
-    public PlayingState(GameManager gameManager) {
-        this.gameManager = gameManager;
+    public PlayingState(GameContext gameContext) {
+        this.gameContext = gameContext;
         this.buffUI = new BuffUI();
     }
 
@@ -26,10 +34,10 @@ public class PlayingState implements GameState {
     @Override
     public void handleInput(InputHandler input) {
         if (input.isHPressedAndConsume()) {
-            gameManager.showHitboxes = !gameManager.showHitboxes;
+            gameContext.setShowHitboxes(!gameContext.getShowHitboxes());
         }
         if (input.isEscPressedAndConsume()) {
-            gameManager.setCurrentState(Type.PAUSED);
+            gameContext.setCurrentState(Type.PAUSED);
             return;
         }
 
@@ -38,25 +46,22 @@ public class PlayingState implements GameState {
 
     @Override
     public void update(long delta) {
-        gameManager.background.update(delta);
+        gameContext.getBackground().update(delta);
 
         handleSpawning(delta);
         handleMeteorSpawning();
         handleHealingAreaSpawning();
 
-        gameManager.getEntityManager().moveAll(delta);
-        new CollisionDetector().checkCollisions(gameManager.getEntityManager().getEntities());
-        gameManager.getEntityManager().cleanup();
+        gameContext.getEntityManager().moveAll(delta);
+        new CollisionDetector().checkCollisions(gameContext.getEntityManager().getEntities());
+        gameContext.getEntityManager().cleanup();
 
         // Check for wave completion
-        if (gameManager.getEntityManager().getAlienCount() == 0 && gameManager.formationsSpawnedInWave >= gameManager.formationsPerWave) {
-            gameManager.setCurrentState(GameState.Type.WAVE_CLEARED);
+        if (gameContext.getEntityManager().getAlienCount() == 0 && gameContext.getWaveManager().getFormationsSpawnedInWave() >= gameContext.getWaveManager().getFormationsPerWave()) {
+            gameContext.onWaveCleared();
         }
 
-        if (gameManager.logicRequiredThisLoop) {
-            gameManager.getEntityManager().doLogicAll();
-            gameManager.logicRequiredThisLoop = false;
-        }
+        gameContext.setLogicRequiredThisLoop(true);
     }
 
     @Override
@@ -64,7 +69,7 @@ public class PlayingState implements GameState {
         // Draw Background
         g.setColor(Color.black);
         g.fillRect(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
-        gameManager.background.draw(g);
+        gameContext.getBackground().draw(g);
 
         // --- Start of Clipped Drawing ---
         Shape originalClip = g.getClip();
@@ -72,14 +77,14 @@ public class PlayingState implements GameState {
             g.setClip(0, 0, Game.GAME_WIDTH, Game.GAME_HEIGHT);
 
             // Draw Entities
-            for (Entity entity : gameManager.getEntityManager().getEntities()) {
+            for (Entity entity : gameContext.getEntityManager().getEntities()) {
                 entity.draw(g);
             }
 
             // Draw Hitboxes if enabled
-            if (gameManager.showHitboxes) {
+            if (gameContext.getShowHitboxes()) {
                 g.setColor(Color.RED);
-                for (Entity entity : gameManager.getEntityManager().getEntities()) {
+                for (Entity entity : gameContext.getEntityManager().getEntities()) {
                     g.drawRect(entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight());
                 }
             }
@@ -92,12 +97,12 @@ public class PlayingState implements GameState {
         // Draw UI
         g.setColor(Color.white);
         g.setFont(new Font("Dialog", Font.BOLD, 14));
-        g.drawString(String.format("점수: %03d", gameManager.score), 680, 30);
-        g.drawString(String.format("Wave: %d", gameManager.wave), 520, 30);
+        g.drawString(String.format("점수: %03d", gameContext.getPlayerManager().getScore()), 680, 30);
+        g.drawString(String.format("Wave: %d", gameContext.getWaveManager().getWave()), 520, 30);
 
         // Draw Play Time
-        if (gameManager.getGameStartTime() > 0) {
-            long elapsedMillis = System.currentTimeMillis() - gameManager.getGameStartTime();
+        if (gameContext.getPlayerManager().getGameStartTime() > 0) {
+            long elapsedMillis = System.currentTimeMillis() - gameContext.getPlayerManager().getGameStartTime();
             long elapsedSeconds = elapsedMillis / 1000;
             long minutes = elapsedSeconds / 60;
             long seconds = elapsedSeconds % 60;
@@ -105,20 +110,20 @@ public class PlayingState implements GameState {
         }
 
         // Draw Buff UI
-        if (gameManager.getShip() != null) {
-            buffUI.draw(g, gameManager.getShip().getBuffManager());
+        if (gameContext.getShip() != null) {
+            buffUI.draw(g, gameContext.getShip().getBuffManager());
         }
 
         // Draw Message if any
-        if (gameManager.message != null && !gameManager.message.isEmpty()) {
+        if (gameContext.getMessage() != null && !gameContext.getMessage().isEmpty()) {
             g.setColor(Color.white);
             g.setFont(new Font("Dialog", Font.BOLD, 20));
-            g.drawString(gameManager.message, (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameManager.message)) / 2, 250);
+            g.drawString(gameContext.getMessage(), (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameContext.getMessage())) / 2, 250);
         }
     }
 
     private void handlePlayingInput(InputHandler input) {
-        ShipEntity ship = gameManager.getShip();
+        ShipEntity ship = gameContext.getShip();
         if (ship == null) return;
         ship.setHorizontalMovement(0);
         ship.setVerticalMovement(0);
@@ -126,45 +131,43 @@ public class PlayingState implements GameState {
         if (input.isLeftPressed() && !input.isRightPressed()) ship.setHorizontalMovement(-ship.getMoveSpeed());
         else if (input.isRightPressed() && !input.isLeftPressed()) ship.setHorizontalMovement(ship.getMoveSpeed());
 
-        if (input.isUpPressed() && !input.isDownPressed()) ship.setVerticalMovement(-gameManager.moveSpeed);
-        if (input.isDownPressed() && !input.isUpPressed()) ship.setVerticalMovement(gameManager.moveSpeed);
+        if (input.isUpPressed() && !input.isDownPressed()) ship.setVerticalMovement(-gameContext.getMoveSpeed());
+        if (input.isDownPressed() && !input.isUpPressed()) ship.setVerticalMovement(gameContext.getMoveSpeed());
 
         if (input.isFirePressed()) ship.tryToFire();
 
         if (input.isOnePressedAndConsume()) {
-            org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameManager.getWeapons().get("DefaultGun");
-            weapon.setLevel(gameManager.playerStats.getWeaponLevel("DefaultGun"));
+            org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameContext.getWeapons().get("DefaultGun");
+            weapon.setLevel(gameContext.getPlayerManager().getPlayerStats().getWeaponLevel("DefaultGun"));
             ship.setWeapon(weapon);
         }
         if (input.isTwoPressedAndConsume()) {
-            if (gameManager.playerStats.getWeaponLevel("Shotgun") > 0) {
-                org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameManager.getWeapons().get("Shotgun");
-                weapon.setLevel(gameManager.playerStats.getWeaponLevel("Shotgun"));
+            if (gameContext.getPlayerManager().getPlayerStats().getWeaponLevel("Shotgun") > 0) {
+                org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameContext.getWeapons().get("Shotgun");
+                weapon.setLevel(gameContext.getPlayerManager().getPlayerStats().getWeaponLevel("Shotgun"));
                 ship.setWeapon(weapon);
             }
         }
         if (input.isThreePressedAndConsume()) {
-            if (gameManager.playerStats.getWeaponLevel("Laser") > 0) {
-                org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameManager.getWeapons().get("Laser");
-                weapon.setLevel(gameManager.playerStats.getWeaponLevel("Laser"));
+            if (gameContext.getPlayerManager().getPlayerStats().getWeaponLevel("Laser") > 0) {
+                org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameContext.getWeapons().get("Laser");
+                weapon.setLevel(gameContext.getPlayerManager().getPlayerStats().getWeaponLevel("Laser"));
                 ship.setWeapon(weapon);
             }
         }
 
         if (input.isKPressedAndConsume()) {
-            int targetWave = ((gameManager.wave / 5) * 5) + 5;
-            gameManager.setWave(targetWave);
-            gameManager.startNextWave();
+            gameContext.getWaveManager().skipToNextBossWave();
         }
     }
 
     private void handleSpawning(long delta) {
         // Check if it's time to spawn the next formation in the wave
-        if (gameManager.formationsSpawnedInWave < gameManager.formationsPerWave &&
-            gameManager.nextFormationSpawnTime > 0 && // Make sure timer is set
-            System.currentTimeMillis() > gameManager.nextFormationSpawnTime) {
+        if (gameContext.getWaveManager().getFormationsSpawnedInWave() < gameContext.getWaveManager().getFormationsPerWave() &&
+            gameContext.getWaveManager().getNextFormationSpawnTime() > 0 && // Make sure timer is set
+            System.currentTimeMillis() > gameContext.getWaveManager().getNextFormationSpawnTime()) {
             
-            gameManager.spawnNextFormationInWave();
+            gameContext.getWaveManager().spawnNextFormationInWave();
         }
     }
 
@@ -190,7 +193,7 @@ public class PlayingState implements GameState {
 
             // 2. Create the meteor at a random X position at the top of the screen
             int xPos = (int) (Math.random() * (Game.GAME_WIDTH - 50)); // -50 to avoid spawning partially off-screen
-            MeteorEntity meteor = new MeteorEntity(gameManager, randomType, xPos, -50);
+            MeteorEntity meteor = new MeteorEntity(gameContext, randomType, xPos, -50);
 
             // 3. Set a random downward-diagonal velocity
             double speed = (Math.random() * 50) + 50; // Random base speed
@@ -198,15 +201,15 @@ public class PlayingState implements GameState {
             meteor.setVerticalMovement(Math.sin(angle) * speed);
             meteor.setHorizontalMovement(Math.cos(angle) * speed);
 
-            gameManager.addEntity(meteor);
+            gameContext.addEntity(meteor);
         }
     }
 
     private void handleHealingAreaSpawning() {
-        if (gameManager.wave > 0 && gameManager.wave % 8 == 0 && !gameManager.healingAreaSpawnedForWave) {
+        if (gameContext.getWaveManager().getWave() > 0 && gameContext.getWaveManager().getWave() % 8 == 0 && !gameContext.getWaveManager().isHealingAreaSpawnedForWave()) {
             int xPos = (int) (Math.random() * (Game.GAME_WIDTH - 50));
-            gameManager.addEntity(new HealingAreaEntity(gameManager, xPos, -50));
-            gameManager.healingAreaSpawnedForWave = true;
+            gameContext.addEntity(new HealingAreaEntity(gameContext, xPos, -50));
+            gameContext.getWaveManager().setHealingAreaSpawnedForWave(true);
         }
     }
 }

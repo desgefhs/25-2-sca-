@@ -1,20 +1,21 @@
 package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.Game;
-import org.newdawn.spaceinvaders.core.GameManager;
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
 
 import java.awt.*;
 
 public class ItemDrawState implements GameState {
 
-    private final GameManager gameManager;
+    private final GameContext gameContext;
     private int selectedIndex = 0;
     private final String[] menuItems = {"아이템 뽑기", "뒤로가기"};
     private final Rectangle[] menuBounds = new Rectangle[menuItems.length];
 
-    public ItemDrawState(GameManager gameManager) {
-        this.gameManager = gameManager;
+    public ItemDrawState(GameContext gameContext) {
+        this.gameContext = gameContext;
         for (int i = 0; i < menuItems.length; i++) {
             menuBounds[i] = new Rectangle();
         }
@@ -39,47 +40,47 @@ public class ItemDrawState implements GameState {
             }
         }
         if (input.isEnterPressedAndConsume()) {
-            gameManager.getSoundManager().playSound("buttonselect");
+            gameContext.getSoundManager().playSound("buttonselect");
             if (selectedIndex == 0) { // 아이템 뽑기
-                String result = gameManager.shopManager.drawItem(gameManager.currentPlayer);
+                String result = gameContext.getShopManager().drawItem(gameContext.getPlayerManager().getCurrentPlayer());
                 switch (result) {
                     case "INSUFFICIENT_FUNDS":
-                        gameManager.message = "크레딧이 부족합니다!";
+                        gameContext.setMessage("크레딧이 부족합니다!");
                         break;
                     case "CREDIT_250":
-                        gameManager.message = "250 크레딧에 당첨되었습니다!";
+                        gameContext.setMessage("250 크레딧에 당첨되었습니다!");
                         break;
                     case "PET_ATTACK":
-                        gameManager.message = "'공격형 펫'을 획득했습니다!";
+                        gameContext.setMessage("'공격형 펫'을 획득했습니다!");
                         break;
                     case "PET_DEFENSE":
-                        gameManager.message = "'방어형 펫'을 획득했습니다!";
+                        gameContext.setMessage("'방어형 펫'을 획득했습니다!");
                         break;
                     case "PET_HEAL":
-                        gameManager.message = "'치유형 펫'을 획득했습니다!";
+                        gameContext.setMessage("'치유형 펫'을 획득했습니다!");
                         break;
                     case "PET_BUFF":
-                        gameManager.message = "'버프형 펫'을 획득했습니다!";
+                        gameContext.setMessage("'버프형 펫'을 획득했습니다!");
                         break;
                     case "WEAPON_SHOTGUN":
-                        gameManager.currentPlayer.getWeaponLevels().put("Shotgun", 1);
-                        gameManager.message = "새로운 무기 '샷건'을 잠금 해제했습니다!";
+                        gameContext.getPlayerManager().getCurrentPlayer().getWeaponLevels().put("Shotgun", 1);
+                        gameContext.setMessage("새로운 무기 '샷건'을 잠금 해제했습니다!");
                         break;
                     case "WEAPON_LASER":
-                        gameManager.currentPlayer.getWeaponLevels().put("Laser", 1);
-                        gameManager.message = "새로운 무기 '레이저'를 잠금 해제했습니다!";
+                        gameContext.getPlayerManager().getCurrentPlayer().getWeaponLevels().put("Laser", 1);
+                        gameContext.setMessage("새로운 무기 '레이저'를 잠금 해제했습니다!");
                         break;
                     case "DUPLICATE_WEAPON":
-                        gameManager.message = "이미 보유한 무기입니다! 300 크레딧을 돌려받습니다.";
+                        gameContext.setMessage("이미 보유한 무기입니다! 300 크레딧을 돌려받습니다.");
                         break;
                 }
-                gameManager.savePlayerData(); // Save the result of the draw
+                gameContext.savePlayerData(); // Save the result of the draw
             } else { // 뒤로가기
-                gameManager.setCurrentState(Type.SHOP_MAIN_MENU);
+                gameContext.setCurrentState(Type.SHOP_MAIN_MENU);
             }
         }
         if (input.isEscPressedAndConsume()) {
-            gameManager.setCurrentState(Type.SHOP_MAIN_MENU);
+            gameContext.setCurrentState(Type.SHOP_MAIN_MENU);
         }
     }
 
@@ -99,13 +100,13 @@ public class ItemDrawState implements GameState {
         g.drawString(title, (Game.SCREEN_WIDTH - titleWidth) / 2, 150);
 
         g.setFont(new Font("Dialog", Font.BOLD, 20));
-        String creditText = "보유 크레딧: " + gameManager.currentPlayer.getCredit();
+        String creditText = "보유 크레딧: " + gameContext.getPlayerManager().getCurrentPlayer().getCredit();
         g.drawString(creditText, (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(creditText)) / 2, 200);
 
-        if (gameManager.message != null && !gameManager.message.isEmpty()) {
+        if (gameContext.getMessage() != null && !gameContext.getMessage().isEmpty()) {
             g.setColor(Color.yellow);
             g.setFont(new Font("Dialog", Font.BOLD, 16));
-            g.drawString(gameManager.message, (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameManager.message)) / 2, 450);
+            g.drawString(gameContext.getMessage(), (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameContext.getMessage())) / 2, 450);
         }
 
         g.setFont(new Font("Dialog", Font.BOLD, 24));
@@ -115,7 +116,7 @@ public class ItemDrawState implements GameState {
         for (int i = 0; i < menuItems.length; i++) {
             String menuItemText = menuItems[i];
             if (i == 0) { // "아이템 뽑기" button
-                String costText = " (비용: " + gameManager.shopManager.getItemDrawCost() + ")";
+                String costText = " (비용: " + gameContext.getShopManager().getItemDrawCost() + ")";
                 menuItemText += costText;
             }
 
@@ -139,7 +140,7 @@ public class ItemDrawState implements GameState {
 
     @Override
     public void onEnter() {
-        gameManager.message = "";
+        gameContext.setMessage("");
         selectedIndex = 0;
     }
 

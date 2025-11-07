@@ -8,6 +8,27 @@ import com.google.firebase.cloud.FirestoreClient;
 import org.newdawn.spaceinvaders.auth.AuthManager;
 import org.newdawn.spaceinvaders.auth.AuthenticatedUser;
 import org.newdawn.spaceinvaders.auth.LoginDialog;
+import org.newdawn.spaceinvaders.data.DatabaseManager;
+import org.newdawn.spaceinvaders.shop.ShopManager;
+import org.newdawn.spaceinvaders.wave.FormationManager;
+import org.newdawn.spaceinvaders.sound.SoundManager;
+import org.newdawn.spaceinvaders.player.PlayerManager;
+import org.newdawn.spaceinvaders.entity.EntityManager;
+import org.newdawn.spaceinvaders.wave.WaveManager;
+import org.newdawn.spaceinvaders.view.GameWindow;
+import org.newdawn.spaceinvaders.view.MainMenu;
+import org.newdawn.spaceinvaders.view.PauseMenu;
+import org.newdawn.spaceinvaders.view.GameOverMenu;
+import org.newdawn.spaceinvaders.view.Background;
+import org.newdawn.spaceinvaders.graphics.Sprite;
+import org.newdawn.spaceinvaders.graphics.SpriteStore;
+import org.newdawn.spaceinvaders.view.ConfirmDialog;
+import java.util.HashMap;
+import java.util.Map;
+import org.newdawn.spaceinvaders.core.GameStateManager;
+import org.newdawn.spaceinvaders.gamestates.GameStateFactory;
+
+import org.newdawn.spaceinvaders.data.DatabaseManager;
 
 
 import java.io.IOException;
@@ -45,7 +66,59 @@ public class Game {
 
         // 로그인 성공 시,  게임 시작
         System.out.println(user.getUsername() + "님, 환영합니다!");
-        GameManager gameManager = new GameManager(user, db);
+
+        // 1. Create GameManager
+        GameManager gameManager = new GameManager();
+
+        // 2. Create Dependencies
+        InputHandler inputHandler = new InputHandler();
+        DatabaseManager databaseManager = new DatabaseManager(db);
+        ShopManager shopManager = new ShopManager();
+        FormationManager formationManager = new FormationManager();
+        SoundManager soundManager = new SoundManager();
+        PlayerManager playerManager = new PlayerManager(user, databaseManager, shopManager);
+
+        EntityManager entityManager = new EntityManager(gameManager);
+        WaveManager waveManager = new WaveManager(gameManager, formationManager);
+
+        GameWindow gameWindow = new GameWindow(inputHandler);
+        MainMenu mainMenu = new MainMenu();
+        PauseMenu pauseMenu = new PauseMenu();
+        GameOverMenu gameOverMenu = new GameOverMenu();
+        Background background = new Background("sprites/gamebackground.png");
+        Sprite staticBackgroundSprite = SpriteStore.get().getSprite("sprites/background.jpg");
+        ConfirmDialog confirmDialog = new ConfirmDialog("Are you sure you want to exit?");
+
+        Map<String, org.newdawn.spaceinvaders.entity.weapon.Weapon> weapons = new HashMap<>();
+        weapons.put("DefaultGun", new org.newdawn.spaceinvaders.entity.weapon.DefaultGun());
+        weapons.put("Shotgun", new org.newdawn.spaceinvaders.entity.weapon.Shotgun());
+        weapons.put("Laser", new org.newdawn.spaceinvaders.entity.weapon.Laser());
+
+        GameStateManager gsm = new GameStateManager();
+        GameStateFactory gameStateFactory = new GameStateFactory();
+
+        // 3. Inject Dependencies into GameManager
+        gameManager.setGameStateFactory(gameStateFactory);
+        gameManager.setInputHandler(inputHandler);
+        gameManager.setDatabaseManager(databaseManager);
+        gameManager.setShopManager(shopManager);
+        gameManager.setFormationManager(formationManager);
+        gameManager.setSoundManager(soundManager);
+        gameManager.setPlayerManager(playerManager);
+        gameManager.setEntityManager(entityManager);
+        gameManager.setWaveManager(waveManager);
+        gameManager.setGameWindow(gameWindow);
+        gameManager.setMainMenu(mainMenu);
+        gameManager.setPauseMenu(pauseMenu);
+        gameManager.setGameOverMenu(gameOverMenu);
+        gameManager.setBackground(background);
+        gameManager.setStaticBackgroundSprite(staticBackgroundSprite);
+        gameManager.setConfirmDialog(confirmDialog);
+        gameManager.setWeapons(weapons);
+        gameManager.setGsm(gsm);
+
+        // 4. Initialize and Start Game
+        gameManager.setCurrentState(GameState.Type.MAIN_MENU);
         gameManager.initializePlayer();
         gameManager.startGame();
     }

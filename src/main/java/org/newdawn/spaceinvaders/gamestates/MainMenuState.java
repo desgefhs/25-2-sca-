@@ -1,7 +1,8 @@
 package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.Game;
-import org.newdawn.spaceinvaders.core.GameManager;
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
 import org.newdawn.spaceinvaders.view.MainMenu;
 
@@ -9,12 +10,12 @@ import java.awt.*;
 
 public class MainMenuState implements GameState {
 
-    private final GameManager gameManager;
+    private final GameContext gameContext;
     private final MainMenu mainMenu;
 
-    public MainMenuState(GameManager gameManager) {
-        this.gameManager = gameManager;
-        this.mainMenu = gameManager.mainMenu;
+    public MainMenuState(GameContext gameContext) {
+        this.gameContext = gameContext;
+        this.mainMenu = gameContext.getMainMenu();
     }
 
     @Override
@@ -25,22 +26,22 @@ public class MainMenuState implements GameState {
         if (input.isLeftPressedAndConsume()) mainMenu.moveLeft();
         if (input.isRightPressedAndConsume()) mainMenu.moveRight();
         if (input.isEscPressedAndConsume()) {
-            gameManager.setCurrentState(Type.EXIT_CONFIRMATION);
+            gameContext.setCurrentState(Type.EXIT_CONFIRMATION);
         }
 
         if (input.isEnterPressedAndConsume()) {
-            gameManager.getSoundManager().playSound("buttonselect");
+            gameContext.getSoundManager().playSound("buttonselect");
             String selected = mainMenu.getSelectedItem();
             if ("1. 게임시작".equals(selected)) {
-                gameManager.startGameplay();
+                gameContext.startGameplay();
             } else if ("2. 랭킹".equals(selected)) {
-                gameManager.setCurrentState(Type.RANKING);
+                gameContext.setCurrentState(Type.RANKING);
             } else if ("3. 무기".equals(selected)) {
-                gameManager.setCurrentState(Type.WEAPON_MENU);
+                gameContext.setCurrentState(Type.WEAPON_MENU);
             } else if ("4. 펫".equals(selected)) {
-                gameManager.setCurrentState(Type.PET_MENU);
+                gameContext.setCurrentState(Type.PET_MENU);
             } else if ("5. 상점".equals(selected)) {
-                gameManager.setCurrentState(Type.SHOP_MAIN_MENU);
+                gameContext.setCurrentState(Type.SHOP_MAIN_MENU);
             } else if ("6. 설정".equals(selected)){
                 System.exit(0);
             }
@@ -52,7 +53,7 @@ public class MainMenuState implements GameState {
 
     @Override
     public void render(Graphics2D g) {
-        g.drawImage(gameManager.staticBackgroundSprite.getImage(), 0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT, null);
+        g.drawImage(gameContext.getStaticBackgroundSprite().getImage(), 0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT, null);
 
         g.setFont(new Font("Dialog", Font.BOLD, 24));
         int totalWidth = 0;
@@ -78,7 +79,7 @@ public class MainMenuState implements GameState {
 
     @Override
     public void onEnter() {
-        gameManager.getSoundManager().loopSound("menubackground");
+        gameContext.getSoundManager().loopSound("menubackground");
     }
 
     @Override

@@ -1,49 +1,75 @@
 package org.newdawn.spaceinvaders.core;
 
+import org.newdawn.spaceinvaders.data.DatabaseManager;
 import org.newdawn.spaceinvaders.entity.Entity;
+import org.newdawn.spaceinvaders.entity.EntityManager;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
+import org.newdawn.spaceinvaders.core.GameStateManager;
+import org.newdawn.spaceinvaders.graphics.Sprite;
+import org.newdawn.spaceinvaders.player.PlayerManager;
+import org.newdawn.spaceinvaders.shop.ShopManager;
 import org.newdawn.spaceinvaders.sound.SoundManager;
+import org.newdawn.spaceinvaders.view.*;
+import org.newdawn.spaceinvaders.wave.WaveManager;
+import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 
-// gamemanager 인터페이스.
+import java.util.Map;
 
 public interface GameContext {
 
+    // --- Core Sub-Systems ---
+    EntityManager getEntityManager();
+    PlayerManager getPlayerManager();
+    WaveManager getWaveManager();
+    DatabaseManager getDatabaseManager();
+    ShopManager getShopManager();
     SoundManager getSoundManager();
+    GameStateManager getGsm();
 
-    // 새로운 엔티티를 추가
+    // --- Gameplay Actions ---
+    void startGameplay();
+    void saveGameResults();
+    void savePlayerData();
+    void setCurrentState(GameState.Type stateType);
+    void onWaveCleared();
 
+    // --- Entity Management ---
     void addEntity(Entity entity);
-
-    // 특정 엔티티 제거
     void removeEntity(Entity entity);
-
-    // 플레이어 사망
-    void notifyDeath();
-
-    // 플레이어 승리
-    void notifyWin();
-
-    // 엔티티가 화면 밖으로 나감
-    void notifyAlienEscaped(Entity entity);
-
-    // 적 엔티티 처리함
-    void notifyAlienKilled();
-
-    void notifyMeteorDestroyed(int scoreValue);
-
-    //게임에 존재하는 모든 엔티티를 가져옴
     java.util.List<Entity> getEntities();
-
     ShipEntity getShip();
 
-    void notifyItemCollected();
-
-    boolean hasCollectedAllItems();
-
-    void resetItemCollection();
-
+    // --- Player Status ---
+    boolean canPlayerAttack();
     void stunPlayer(long duration);
 
+    // --- UI & Rendering ---
+    Background getBackground();
+    Sprite getStaticBackgroundSprite();
+    MainMenu getMainMenu();
+    PauseMenu getPauseMenu();
+    GameOverMenu getGameOverMenu();
+    ConfirmDialog getConfirmDialog();
+    ShopMenu getShopMenu();
+    Map<String, Weapon> getWeapons();
+    double getMoveSpeed();
+    boolean getShowHitboxes();
+    void setShowHitboxes(boolean show);
 
-    boolean canPlayerAttack();
+    // --- Notifications & Messages ---
+    void notifyDeath();
+    void notifyWin();
+    void notifyAlienEscaped(Entity entity);
+    void notifyAlienKilled();
+    void notifyMeteorDestroyed(int scoreValue);
+    void notifyItemCollected();
+    String getMessage();
+    void setMessage(String message);
+    long getMessageEndTime();
+    void setMessageEndTime(long time);
+
+    // --- Misc ---
+    boolean hasCollectedAllItems();
+    void resetItemCollection();
+    void setLogicRequiredThisLoop(boolean required);
 }

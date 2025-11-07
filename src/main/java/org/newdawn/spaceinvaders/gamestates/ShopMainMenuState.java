@@ -1,7 +1,8 @@
 package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.Game;
-import org.newdawn.spaceinvaders.core.GameManager;
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
 
 import java.awt.Color;
@@ -11,14 +12,14 @@ import java.awt.Rectangle;
 
 public class ShopMainMenuState implements GameState {
 
-    private final GameManager gameManager;
+    private final GameContext gameContext;
     private int selectedIndex = 0;
     private final String[] menuItems = {"캐릭터 강화", "아이템 뽑기", "뒤로가기"};
 
     private final Rectangle[] menuBounds = new Rectangle[menuItems.length];
 
-    public ShopMainMenuState(GameManager gameManager) {
-        this.gameManager = gameManager;
+    public ShopMainMenuState(GameContext gameContext) {
+        this.gameContext = gameContext;
         for (int i = 0; i < menuItems.length; i++) {
             menuBounds[i] = new Rectangle();
         }
@@ -43,21 +44,21 @@ public class ShopMainMenuState implements GameState {
             }
         }
         if (input.isEnterPressedAndConsume()) {
-            gameManager.getSoundManager().playSound("buttonselect");
+            gameContext.getSoundManager().playSound("buttonselect");
             switch (selectedIndex) {
                 case 0: // 캐릭터 강화
-                    gameManager.setCurrentState(Type.SHOP);
+                    gameContext.setCurrentState(Type.SHOP);
                     break;
                 case 1: // 아이템 뽑기
-                    gameManager.setCurrentState(Type.ITEM_DRAW);
+                    gameContext.setCurrentState(Type.ITEM_DRAW);
                     break;
                 case 2: // 뒤로가기
-                    gameManager.setCurrentState(Type.MAIN_MENU);
+                    gameContext.setCurrentState(Type.MAIN_MENU);
                     break;
             }
         }
         if (input.isEscPressedAndConsume()) {
-            gameManager.setCurrentState(Type.MAIN_MENU);
+            gameContext.setCurrentState(Type.MAIN_MENU);
         }
     }
 

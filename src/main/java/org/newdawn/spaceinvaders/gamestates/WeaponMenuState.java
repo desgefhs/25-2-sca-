@@ -1,7 +1,8 @@
 package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.Game;
-import org.newdawn.spaceinvaders.core.GameManager;
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
 import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.graphics.Sprite;
@@ -15,12 +16,12 @@ import java.util.Map;
 
 public class WeaponMenuState implements GameState {
 
-    private final GameManager gameManager;
+    private final GameContext gameContext;
     private WeaponMenu weaponMenu;
     private Map<String, Sprite> weaponSprites = new HashMap<>();
 
-    public WeaponMenuState(GameManager gameManager) {
-        this.gameManager = gameManager;
+    public WeaponMenuState(GameContext gameContext) {
+        this.gameContext = gameContext;
     }
 
     @Override
@@ -46,65 +47,65 @@ public class WeaponMenuState implements GameState {
             weaponMenu.moveDown();
         }
         if (input.isEscPressedAndConsume()) {
-            gameManager.setCurrentState(Type.MAIN_MENU);
+            gameContext.setCurrentState(Type.MAIN_MENU);
         }
 
         if (input.isEnterPressedAndConsume()) {
-            gameManager.getSoundManager().playSound("buttonselect");
+            gameContext.getSoundManager().playSound("buttonselect");
             String selectedWeapon = weaponMenu.getSelectedItem();
-            PlayerData playerData = gameManager.currentPlayer;
+            PlayerData playerData = gameContext.getPlayerManager().getCurrentPlayer();
 
             // DefaultGun is always available
             if (selectedWeapon.equals("DefaultGun")) {
                 playerData.setEquippedWeapon(selectedWeapon);
-                gameManager.savePlayerData();
-                gameManager.message = selectedWeapon + " 장착됨";
+                gameContext.savePlayerData();
+                gameContext.setMessage(selectedWeapon + " 장착됨");
                 return;
             }
 
             int level = playerData.getWeaponLevels().getOrDefault(selectedWeapon, 0);
             if (level > 0) {
                 playerData.setEquippedWeapon(selectedWeapon);
-                gameManager.savePlayerData();
-                gameManager.message = selectedWeapon + " 장착됨";
+                gameContext.savePlayerData();
+                gameContext.setMessage(selectedWeapon + " 장착됨");
             } else {
-                gameManager.message = "상점에서 먼저 무기를 잠금 해제해야 합니다.";
+                gameContext.setMessage("상점에서 먼저 무기를 잠금 해제해야 합니다.");
             }
         }
 
         if (input.isUPressedAndConsume()) { // Assuming 'U' key for upgrade
             String selectedWeapon = weaponMenu.getSelectedItem();
             if (selectedWeapon.equals("Shotgun")) {
-                PlayerData playerData = gameManager.currentPlayer;
+                PlayerData playerData = gameContext.getPlayerManager().getCurrentPlayer();
                 int currentLevel = playerData.getWeaponLevels().getOrDefault("Shotgun", 0);
                 if (currentLevel > 0 && currentLevel < 5) { // Max level 5 for shotgun
                     int cost = getShotgunUpgradeCost(currentLevel + 1);
                     if (playerData.getCredit() >= cost) {
                         playerData.setCredit(playerData.getCredit() - cost);
                         playerData.getWeaponLevels().put("Shotgun", currentLevel + 1);
-                        gameManager.savePlayerData();
-                        gameManager.message = "Shotgun upgraded to Level " + (currentLevel + 1) + "!";
+                        gameContext.savePlayerData();
+                        gameContext.setMessage("Shotgun upgraded to Level " + (currentLevel + 1) + "!");
                     } else {
-                        gameManager.message = "Not enough credits!";
+                        gameContext.setMessage("Not enough credits!");
                     }
                 } else if (currentLevel >= 5) {
-                    gameManager.message = "Shotgun is already at max level.";
+                    gameContext.setMessage("Shotgun is already at max level.");
                 }
             } else if (selectedWeapon.equals("Laser")) {
-                PlayerData playerData = gameManager.currentPlayer;
+                PlayerData playerData = gameContext.getPlayerManager().getCurrentPlayer();
                 int currentLevel = playerData.getWeaponLevels().getOrDefault("Laser", 0);
                 if (currentLevel > 0 && currentLevel < 5) { // Max level 5 for laser
                     int cost = getLaserUpgradeCost(currentLevel + 1);
                     if (playerData.getCredit() >= cost) {
                         playerData.setCredit(playerData.getCredit() - cost);
                         playerData.getWeaponLevels().put("Laser", currentLevel + 1);
-                        gameManager.savePlayerData();
-                        gameManager.message = "Laser upgraded to Level " + (currentLevel + 1) + "!";
+                        gameContext.savePlayerData();
+                        gameContext.setMessage("Laser upgraded to Level " + (currentLevel + 1) + "!");
                     } else {
-                        gameManager.message = "Not enough credits!";
+                        gameContext.setMessage("Not enough credits!");
                     }
                 } else if (currentLevel >= 5) {
-                    gameManager.message = "Laser is already at max level.";
+                    gameContext.setMessage("Laser is already at max level.");
                 }
             }
         }
@@ -126,8 +127,8 @@ public class WeaponMenuState implements GameState {
         int yPos = 100;
         for (int i = 0; i < weaponMenu.getItems().size(); i++) {
             String weaponName = weaponMenu.getItems().get(i);
-            int level = gameManager.currentPlayer.getWeaponLevels().getOrDefault(weaponName, 0);
-            String equippedWeapon = gameManager.currentPlayer.getEquippedWeapon();
+            int level = gameContext.getPlayerManager().getCurrentPlayer().getWeaponLevels().getOrDefault(weaponName, 0);
+            String equippedWeapon = gameContext.getPlayerManager().getCurrentPlayer().getEquippedWeapon();
 
             if (i == weaponMenu.getSelectedIndex()) {
                 g.setColor(Color.GREEN);
@@ -170,7 +171,7 @@ public class WeaponMenuState implements GameState {
             }
 
             // Draw description and upgrade button
-            int level = gameManager.currentPlayer.getWeaponLevels().getOrDefault(selectedWeapon, 0);
+            int level = gameContext.getPlayerManager().getCurrentPlayer().getWeaponLevels().getOrDefault(selectedWeapon, 0);
             boolean isUpgradeableWeapon = selectedWeapon.equals("Shotgun") || selectedWeapon.equals("Laser");
 
             if (isUpgradeableWeapon && level > 0) { // Show button if unlocked
@@ -234,9 +235,9 @@ public class WeaponMenuState implements GameState {
         }
 
 
-        if (gameManager.message != null && !gameManager.message.isEmpty()) {
+        if (gameContext.getMessage() != null && !gameContext.getMessage().isEmpty()) {
             g.setColor(Color.YELLOW);
-            g.drawString(gameManager.message, 50, 500);
+            g.drawString(gameContext.getMessage(), 50, 500);
         }
 
         g.setColor(Color.GRAY);
@@ -266,11 +267,10 @@ public class WeaponMenuState implements GameState {
     @Override
     public void onEnter() {
         init(); // Re-initialize to get the latest weapon stats
-        gameManager.message = "";
+        gameContext.setMessage("");
     }
-
     @Override
     public void onExit() {
-        gameManager.message = "";
+        gameContext.setMessage("");
     }
 }

@@ -1,16 +1,18 @@
 package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.Game;
-import org.newdawn.spaceinvaders.core.GameManager;
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
+import org.newdawn.spaceinvaders.core.GameStateManager;
 
 import java.awt.*;
 
 public class PausedState implements GameState {
-    private final GameManager gameManager;
+    private final GameContext gameContext;
 
-    public PausedState(GameManager gameManager) {
-        this.gameManager = gameManager;
+    public PausedState(GameContext gameContext) {
+        this.gameContext = gameContext;
     }
 
     @Override
@@ -18,15 +20,15 @@ public class PausedState implements GameState {
 
     @Override
     public void handleInput(InputHandler input) {
-        if (input.isUpPressedAndConsume()) gameManager.pauseMenu.moveUp();
-        if (input.isDownPressedAndConsume()) gameManager.pauseMenu.moveDown();
+        if (input.isUpPressedAndConsume()) gameContext.getPauseMenu().moveUp();
+        if (input.isDownPressedAndConsume()) gameContext.getPauseMenu().moveDown();
         if (input.isEnterPressedAndConsume()) {
-            gameManager.getSoundManager().playSound("buttonselect");
-            String selected = gameManager.pauseMenu.getSelectedItem();
-            if ("재개하기".equals(selected)) gameManager.setCurrentState(Type.PLAYING);
+            gameContext.getSoundManager().playSound("buttonselect");
+            String selected = gameContext.getPauseMenu().getSelectedItem();
+            if ("재개하기".equals(selected)) gameContext.setCurrentState(Type.PLAYING);
             else if ("메인메뉴로 나가기".equals(selected)) {
-                gameManager.saveGameResults();
-                gameManager.setCurrentState(Type.MAIN_MENU);
+                gameContext.saveGameResults();
+                gameContext.setCurrentState(Type.MAIN_MENU);
             }
             else if ("종료하기".equals(selected)) System.exit(0);
         }
@@ -38,7 +40,7 @@ public class PausedState implements GameState {
     @Override
     public void render(Graphics2D g) {
         // Render the playing state underneath
-        PlayingState playingState = gameManager.getGsm().getPlayingState();
+        PlayingState playingState = gameContext.getGsm().getPlayingState();
         if (playingState != null) {
             playingState.render(g);
         }
@@ -49,15 +51,15 @@ public class PausedState implements GameState {
         // 일시정지 메뉴
         g.setFont(new Font("Dialog", Font.BOLD, 24));
         int itemHeight = 40;
-        int startY = (Game.SCREEN_HEIGHT - (gameManager.pauseMenu.getItemCount() * itemHeight)) / 2;
+        int startY = (Game.SCREEN_HEIGHT - (gameContext.getPauseMenu().getItemCount() * itemHeight)) / 2;
 
-        for (int i = 0; i < gameManager.pauseMenu.getItemCount(); i++) {
-            if (i == gameManager.pauseMenu.getSelectedIndex()) {
+        for (int i = 0; i < gameContext.getPauseMenu().getItemCount(); i++) {
+            if (i == gameContext.getPauseMenu().getSelectedIndex()) {
                 g.setColor(Color.GREEN);
             } else {
                 g.setColor(Color.WHITE);
             }
-            String itemText = gameManager.pauseMenu.getItem(i);
+            String itemText = gameContext.getPauseMenu().getItem(i);
             int textWidth = g.getFontMetrics().stringWidth(itemText);
             g.drawString(itemText, (Game.SCREEN_WIDTH - textWidth) / 2, startY + (i * itemHeight));
         }

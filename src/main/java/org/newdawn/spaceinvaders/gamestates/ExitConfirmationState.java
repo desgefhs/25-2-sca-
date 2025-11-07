@@ -1,16 +1,18 @@
 package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.Game;
-import org.newdawn.spaceinvaders.core.GameManager;
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
+import org.newdawn.spaceinvaders.core.GameStateManager;
 
 import java.awt.*;
 
 public class ExitConfirmationState implements GameState {
-    private final GameManager gameManager;
+    private final GameContext gameContext;
 
-    public ExitConfirmationState(GameManager gameManager) {
-        this.gameManager = gameManager;
+    public ExitConfirmationState(GameContext gameContext) {
+        this.gameContext = gameContext;
     }
 
     @Override
@@ -18,16 +20,16 @@ public class ExitConfirmationState implements GameState {
 
     @Override
     public void handleInput(InputHandler input) {
-        if (input.isLeftPressedAndConsume()) gameManager.confirmDialog.moveLeft();
-        if (input.isRightPressedAndConsume()) gameManager.confirmDialog.moveRight();
+        if (input.isLeftPressedAndConsume()) gameContext.getConfirmDialog().moveLeft();
+        if (input.isRightPressedAndConsume()) gameContext.getConfirmDialog().moveRight();
 
         if (input.isEnterPressedAndConsume()) {
-            gameManager.getSoundManager().playSound("buttonselect");
-            String selected = gameManager.confirmDialog.getSelectedItem();
+            gameContext.getSoundManager().playSound("buttonselect");
+            String selected = gameContext.getConfirmDialog().getSelectedItem();
             if ("Confirm".equals(selected)) {
                 System.exit(0);
             } else if ("Cancel".equals(selected)) {
-                gameManager.setCurrentState(Type.MAIN_MENU);
+                gameContext.setCurrentState(Type.MAIN_MENU);
             }
         }
     }
@@ -38,7 +40,7 @@ public class ExitConfirmationState implements GameState {
     @Override
     public void render(Graphics2D g) {
         // Render the main menu underneath
-        MainMenuState mainMenuState = gameManager.getGsm().getMainMenuState();
+        MainMenuState mainMenuState = gameContext.getGsm().getMainMenuState();
         if (mainMenuState != null) {
             mainMenuState.render(g);
         }
@@ -55,28 +57,28 @@ public class ExitConfirmationState implements GameState {
 
         // Draw the message
         g.setFont(new Font("Dialog", Font.BOLD, 20));
-        g.drawString(gameManager.confirmDialog.getMessage(), (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameManager.confirmDialog.getMessage())) / 2, 260);
+        g.drawString(gameContext.getConfirmDialog().getMessage(), (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameContext.getConfirmDialog().getMessage())) / 2, 260);
 
         // Draw the buttons
         g.setFont(new Font("Dialog", Font.BOLD, 24));
         int totalWidth = 0;
         int spacing = 80;
 
-        for (int i = 0; i < gameManager.confirmDialog.getItemCount(); i++) {
-            totalWidth += g.getFontMetrics().stringWidth(gameManager.confirmDialog.getItem(i));
+        for (int i = 0; i < gameContext.getConfirmDialog().getItemCount(); i++) {
+            totalWidth += g.getFontMetrics().stringWidth(gameContext.getConfirmDialog().getItem(i));
         }
-        totalWidth += (gameManager.confirmDialog.getItemCount() - 1) * spacing;
+        totalWidth += (gameContext.getConfirmDialog().getItemCount() - 1) * spacing;
 
         int currentX = (Game.SCREEN_WIDTH - totalWidth) / 2;
 
-        for (int i = 0; i < gameManager.confirmDialog.getItemCount(); i++) {
-            if (i == gameManager.confirmDialog.getSelectedIndex()) {
+        for (int i = 0; i < gameContext.getConfirmDialog().getItemCount(); i++) {
+            if (i == gameContext.getConfirmDialog().getSelectedIndex()) {
                 g.setColor(Color.GREEN);
             } else {
                 g.setColor(Color.WHITE);
             }
-            g.drawString(gameManager.confirmDialog.getItem(i), currentX, 350);
-            currentX += g.getFontMetrics().stringWidth(gameManager.confirmDialog.getItem(i)) + spacing;
+            g.drawString(gameContext.getConfirmDialog().getItem(i), currentX, 350);
+            currentX += g.getFontMetrics().stringWidth(gameContext.getConfirmDialog().getItem(i)) + spacing;
         }
     }
 
