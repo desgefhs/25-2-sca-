@@ -3,8 +3,7 @@ package org.newdawn.spaceinvaders.gamestates;
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
-import org.newdawn.spaceinvaders.entity.ShipEntity;
-import org.newdawn.spaceinvaders.core.CollisionDetector;
+import org.newdawn.spaceinvaders.userinput.PlayingInputHandler;
 import org.newdawn.spaceinvaders.view.PlayingStateRenderer;
 
 import java.awt.Graphics2D;
@@ -13,10 +12,12 @@ public class PlayingState implements GameState {
 
     private final GameContext gameContext;
     private final PlayingStateRenderer renderer;
+    private final PlayingInputHandler inputHandler;
 
     public PlayingState(GameContext gameContext) {
         this.gameContext = gameContext;
         this.renderer = new PlayingStateRenderer(gameContext);
+        this.inputHandler = new PlayingInputHandler(gameContext);
     }
 
     @Override
@@ -26,78 +27,19 @@ public class PlayingState implements GameState {
 
     @Override
     public void handleInput(InputHandler input) {
-        if (input.isHPressedAndConsume()) {
-            gameContext.setShowHitboxes(!gameContext.getShowHitboxes());
-        }
-        if (input.isEscPressedAndConsume()) {
-            gameContext.setCurrentState(Type.PAUSED);
-            return;
-        }
-
-        handlePlayingInput(input);
+        // All input handling is now delegated to the dedicated handler class.
+        inputHandler.handle(input);
     }
 
     @Override
     public void update(long delta) {
-        gameContext.getBackground().update(delta);
-
-        // All spawning logic is now delegated to WaveManager
-        gameContext.getWaveManager().update(delta);
-
-        gameContext.getEntityManager().moveAll(delta);
-        new CollisionDetector().checkCollisions(gameContext.getEntityManager().getEntities());
-        gameContext.getEntityManager().cleanup();
-
-        // Check for wave completion
-        if (gameContext.getEntityManager().getAlienCount() == 0 && gameContext.getWaveManager().getFormationsSpawnedInWave() >= gameContext.getWaveManager().getFormationsPerWave()) {
-            gameContext.onWaveCleared();
-        }
-
-        gameContext.setLogicRequiredThisLoop(true);
+        // The responsibility for the game loop's update order now belongs to GameManager.
+        gameContext.updatePlayingLogic(delta);
     }
 
     @Override
     public void render(Graphics2D g) {
         renderer.render(g);
-    }
-
-    private void handlePlayingInput(InputHandler input) {
-        ShipEntity ship = gameContext.getShip();
-        if (ship == null) return;
-        ship.setHorizontalMovement(0);
-        ship.setVerticalMovement(0);
-
-        if (input.isLeftPressed() && !input.isRightPressed()) ship.setHorizontalMovement(-ship.getMoveSpeed());
-        else if (input.isRightPressed() && !input.isLeftPressed()) ship.setHorizontalMovement(ship.getMoveSpeed());
-
-        if (input.isUpPressed() && !input.isDownPressed()) ship.setVerticalMovement(-gameContext.getMoveSpeed());
-        if (input.isDownPressed() && !input.isUpPressed()) ship.setVerticalMovement(gameContext.getMoveSpeed());
-
-        if (input.isFirePressed()) ship.tryToFire();
-
-        if (input.isOnePressedAndConsume()) {
-            org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameContext.getWeapons().get("DefaultGun");
-            weapon.setLevel(gameContext.getPlayerManager().getPlayerStats().getWeaponLevel("DefaultGun"));
-            ship.setWeapon(weapon);
-        }
-        if (input.isTwoPressedAndConsume()) {
-            if (gameContext.getPlayerManager().getPlayerStats().getWeaponLevel("Shotgun") > 0) {
-                org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameContext.getWeapons().get("Shotgun");
-                weapon.setLevel(gameContext.getPlayerManager().getPlayerStats().getWeaponLevel("Shotgun"));
-                ship.setWeapon(weapon);
-            }
-        }
-        if (input.isThreePressedAndConsume()) {
-            if (gameContext.getPlayerManager().getPlayerStats().getWeaponLevel("Laser") > 0) {
-                org.newdawn.spaceinvaders.entity.weapon.Weapon weapon = gameContext.getWeapons().get("Laser");
-                weapon.setLevel(gameContext.getPlayerManager().getPlayerStats().getWeaponLevel("Laser"));
-                ship.setWeapon(weapon);
-            }
-        }
-
-        if (input.isKPressedAndConsume()) {
-            gameContext.getWaveManager().skipToNextBossWave();
-        }
     }
 
     @Override

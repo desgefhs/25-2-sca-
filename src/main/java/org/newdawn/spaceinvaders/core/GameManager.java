@@ -1,20 +1,13 @@
 package org.newdawn.spaceinvaders.core;
 
-import org.newdawn.spaceinvaders.auth.AuthenticatedUser;
-import com.google.cloud.firestore.Firestore;
 import org.newdawn.spaceinvaders.data.DatabaseManager;
 import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.entity.EntityManager;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
-import org.newdawn.spaceinvaders.core.SystemTimer;
-import org.newdawn.spaceinvaders.entity.weapon.DefaultGun;
-import org.newdawn.spaceinvaders.entity.weapon.Laser;
-import org.newdawn.spaceinvaders.entity.weapon.Shotgun;
 import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.gamestates.*;
 import org.newdawn.spaceinvaders.graphics.Sprite;
-import org.newdawn.spaceinvaders.graphics.SpriteStore;
 import org.newdawn.spaceinvaders.player.PlayerManager;
 import org.newdawn.spaceinvaders.player.PlayerStats;
 import org.newdawn.spaceinvaders.shop.ShopManager;
@@ -24,7 +17,6 @@ import org.newdawn.spaceinvaders.wave.FormationManager;
 import org.newdawn.spaceinvaders.wave.WaveManager;
 
 import java.awt.Graphics2D;
-import java.util.HashMap;
 import java.util.Map;
 
 public class GameManager implements GameContext {
@@ -245,6 +237,21 @@ public class GameManager implements GameContext {
 
     public void onWaveCleared() {
         waveManager.startNextWave();
+    }
+
+    @Override
+    public void updatePlayingLogic(long delta) {
+        this.getBackground().update(delta);
+        this.getWaveManager().update(delta);
+        this.getEntityManager().moveAll(delta);
+        new CollisionDetector().checkCollisions(this.getEntityManager().getEntities());
+        this.getEntityManager().cleanup();
+
+        if (this.getEntityManager().getAlienCount() == 0 && this.getWaveManager().getFormationsSpawnedInWave() >= this.getWaveManager().getFormationsPerWave()) {
+            this.onWaveCleared();
+        }
+
+        this.setLogicRequiredThisLoop(true);
     }
 
     // 메인 루프

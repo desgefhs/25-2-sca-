@@ -4,15 +4,17 @@ import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
-import org.newdawn.spaceinvaders.core.GameStateManager;
+import org.newdawn.spaceinvaders.userinput.PausedInputHandler;
 
 import java.awt.*;
 
 public class PausedState implements GameState {
     private final GameContext gameContext;
+    private final PausedInputHandler inputHandler;
 
     public PausedState(GameContext gameContext) {
         this.gameContext = gameContext;
+        this.inputHandler = new PausedInputHandler(gameContext);
     }
 
     @Override
@@ -20,18 +22,7 @@ public class PausedState implements GameState {
 
     @Override
     public void handleInput(InputHandler input) {
-        if (input.isUpPressedAndConsume()) gameContext.getPauseMenu().moveUp();
-        if (input.isDownPressedAndConsume()) gameContext.getPauseMenu().moveDown();
-        if (input.isEnterPressedAndConsume()) {
-            gameContext.getSoundManager().playSound("buttonselect");
-            String selected = gameContext.getPauseMenu().getSelectedItem();
-            if ("재개하기".equals(selected)) gameContext.setCurrentState(Type.PLAYING);
-            else if ("메인메뉴로 나가기".equals(selected)) {
-                gameContext.saveGameResults();
-                gameContext.setCurrentState(Type.MAIN_MENU);
-            }
-            else if ("종료하기".equals(selected)) System.exit(0);
-        }
+        inputHandler.handle(input);
     }
 
     @Override

@@ -4,15 +4,18 @@ import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
+import org.newdawn.spaceinvaders.userinput.RankingInputHandler;
 
 import java.awt.*;
 
 public class RankingState implements GameState {
     private final GameContext gameContext;
     private java.util.List<String> highScores;
+    private final RankingInputHandler inputHandler;
 
     public RankingState(GameContext gameContext) {
         this.gameContext = gameContext;
+        this.inputHandler = new RankingInputHandler(gameContext);
     }
 
     @Override
@@ -20,10 +23,7 @@ public class RankingState implements GameState {
 
     @Override
     public void handleInput(InputHandler input) {
-        if (input.isEnterPressedAndConsume()) {
-            gameContext.getSoundManager().playSound("buttonselect");
-            gameContext.setCurrentState(Type.MAIN_MENU);
-        }
+        inputHandler.handle(input);
     }
 
     @Override

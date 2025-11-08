@@ -32,6 +32,7 @@ public interface GameContext {
     void savePlayerData();
     void setCurrentState(GameState.Type stateType);
     void onWaveCleared();
+    void updatePlayingLogic(long delta); // ADDED
 
     // --- Entity Management ---
     void addEntity(Entity entity);

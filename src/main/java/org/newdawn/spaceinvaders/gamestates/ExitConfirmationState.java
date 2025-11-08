@@ -4,15 +4,17 @@ import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
-import org.newdawn.spaceinvaders.core.GameStateManager;
+import org.newdawn.spaceinvaders.userinput.ExitConfirmationInputHandler;
 
 import java.awt.*;
 
 public class ExitConfirmationState implements GameState {
     private final GameContext gameContext;
+    private final ExitConfirmationInputHandler inputHandler;
 
     public ExitConfirmationState(GameContext gameContext) {
         this.gameContext = gameContext;
+        this.inputHandler = new ExitConfirmationInputHandler(gameContext);
     }
 
     @Override
@@ -20,18 +22,7 @@ public class ExitConfirmationState implements GameState {
 
     @Override
     public void handleInput(InputHandler input) {
-        if (input.isLeftPressedAndConsume()) gameContext.getConfirmDialog().moveLeft();
-        if (input.isRightPressedAndConsume()) gameContext.getConfirmDialog().moveRight();
-
-        if (input.isEnterPressedAndConsume()) {
-            gameContext.getSoundManager().playSound("buttonselect");
-            String selected = gameContext.getConfirmDialog().getSelectedItem();
-            if ("Confirm".equals(selected)) {
-                System.exit(0);
-            } else if ("Cancel".equals(selected)) {
-                gameContext.setCurrentState(Type.MAIN_MENU);
-            }
-        }
+        inputHandler.handle(input);
     }
 
     @Override

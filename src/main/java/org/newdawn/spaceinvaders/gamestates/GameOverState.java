@@ -4,17 +4,19 @@ import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
-import org.newdawn.spaceinvaders.core.GameStateManager;
+import org.newdawn.spaceinvaders.userinput.GameOverInputHandler;
 
 import java.awt.*;
 
 public class GameOverState implements GameState {
     private final GameContext gameContext;
     private final boolean gameWon;
+    private final GameOverInputHandler inputHandler;
 
     public GameOverState(GameContext gameContext, boolean gameWon) {
         this.gameContext = gameContext;
         this.gameWon = gameWon;
+        this.inputHandler = new GameOverInputHandler(gameContext);
     }
 
     @Override
@@ -22,18 +24,7 @@ public class GameOverState implements GameState {
 
     @Override
     public void handleInput(InputHandler input) {
-        if (input.isLeftPressedAndConsume()) gameContext.getGameOverMenu().moveLeft();
-        if (input.isRightPressedAndConsume()) gameContext.getGameOverMenu().moveRight();
-
-        if (input.isEnterPressedAndConsume()) {
-            gameContext.getSoundManager().playSound("buttonselect");
-            String selected = gameContext.getGameOverMenu().getSelectedItem();
-            if ("다시하기".equals(selected)) {
-                gameContext.startGameplay();
-            } else if ("메인 메뉴로".equals(selected)) {
-                gameContext.setCurrentState(Type.MAIN_MENU);
-            }
-        }
+        inputHandler.handle(input);
     }
 
     @Override

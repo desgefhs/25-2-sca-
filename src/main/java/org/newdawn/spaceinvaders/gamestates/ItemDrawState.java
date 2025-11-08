@@ -4,19 +4,24 @@ import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
+import org.newdawn.spaceinvaders.userinput.ItemDrawInputHandler;
+import org.newdawn.spaceinvaders.view.ItemDrawView;
 
 import java.awt.*;
 
 public class ItemDrawState implements GameState {
 
     private final GameContext gameContext;
-    private int selectedIndex = 0;
-    private final String[] menuItems = {"아이템 뽑기", "뒤로가기"};
-    private final Rectangle[] menuBounds = new Rectangle[menuItems.length];
+    private final ItemDrawView itemView;
+    private final ItemDrawInputHandler inputHandler;
+    private final Rectangle[] menuBounds;
 
     public ItemDrawState(GameContext gameContext) {
         this.gameContext = gameContext;
-        for (int i = 0; i < menuItems.length; i++) {
+        this.itemView = new ItemDrawView();
+        this.inputHandler = new ItemDrawInputHandler(gameContext, this.itemView);
+        this.menuBounds = new Rectangle[itemView.getItemCount()];
+        for (int i = 0; i < itemView.getItemCount(); i++) {
             menuBounds[i] = new Rectangle();
         }
     }
@@ -27,61 +32,7 @@ public class ItemDrawState implements GameState {
 
     @Override
     public void handleInput(InputHandler input) {
-        if (input.isUpPressedAndConsume()) {
-            selectedIndex--;
-            if (selectedIndex < 0) {
-                selectedIndex = menuItems.length - 1;
-            }
-        }
-        if (input.isDownPressedAndConsume()) {
-            selectedIndex++;
-            if (selectedIndex >= menuItems.length) {
-                selectedIndex = 0;
-            }
-        }
-        if (input.isEnterPressedAndConsume()) {
-            gameContext.getSoundManager().playSound("buttonselect");
-            if (selectedIndex == 0) { // 아이템 뽑기
-                String result = gameContext.getShopManager().drawItem(gameContext.getPlayerManager().getCurrentPlayer());
-                switch (result) {
-                    case "INSUFFICIENT_FUNDS":
-                        gameContext.setMessage("크레딧이 부족합니다!");
-                        break;
-                    case "CREDIT_250":
-                        gameContext.setMessage("250 크레딧에 당첨되었습니다!");
-                        break;
-                    case "PET_ATTACK":
-                        gameContext.setMessage("'공격형 펫'을 획득했습니다!");
-                        break;
-                    case "PET_DEFENSE":
-                        gameContext.setMessage("'방어형 펫'을 획득했습니다!");
-                        break;
-                    case "PET_HEAL":
-                        gameContext.setMessage("'치유형 펫'을 획득했습니다!");
-                        break;
-                    case "PET_BUFF":
-                        gameContext.setMessage("'버프형 펫'을 획득했습니다!");
-                        break;
-                    case "WEAPON_SHOTGUN":
-                        gameContext.getPlayerManager().getCurrentPlayer().getWeaponLevels().put("Shotgun", 1);
-                        gameContext.setMessage("새로운 무기 '샷건'을 잠금 해제했습니다!");
-                        break;
-                    case "WEAPON_LASER":
-                        gameContext.getPlayerManager().getCurrentPlayer().getWeaponLevels().put("Laser", 1);
-                        gameContext.setMessage("새로운 무기 '레이저'를 잠금 해제했습니다!");
-                        break;
-                    case "DUPLICATE_WEAPON":
-                        gameContext.setMessage("이미 보유한 무기입니다! 300 크레딧을 돌려받습니다.");
-                        break;
-                }
-                gameContext.savePlayerData(); // Save the result of the draw
-            } else { // 뒤로가기
-                gameContext.setCurrentState(Type.SHOP_MAIN_MENU);
-            }
-        }
-        if (input.isEscPressedAndConsume()) {
-            gameContext.setCurrentState(Type.SHOP_MAIN_MENU);
-        }
+        inputHandler.handle(input);
     }
 
     @Override
@@ -113,8 +64,8 @@ public class ItemDrawState implements GameState {
         int itemHeight = 60;
         int startY = 300;
 
-        for (int i = 0; i < menuItems.length; i++) {
-            String menuItemText = menuItems[i];
+        for (int i = 0; i < itemView.getItemCount(); i++) {
+            String menuItemText = itemView.getItem(i);
             if (i == 0) { // "아이템 뽑기" button
                 String costText = " (비용: " + gameContext.getShopManager().getItemDrawCost() + ")";
                 menuItemText += costText;
@@ -126,7 +77,7 @@ public class ItemDrawState implements GameState {
 
             menuBounds[i].setBounds(x - 20, y - 40, itemWidth + 40, itemHeight);
 
-            if (i == selectedIndex) {
+            if (i == itemView.getSelectedIndex()) {
                 g.setColor(Color.GREEN);
                 g.fillRect(menuBounds[i].x, menuBounds[i].y, menuBounds[i].width, menuBounds[i].height);
                 g.setColor(Color.BLACK);
@@ -141,7 +92,7 @@ public class ItemDrawState implements GameState {
     @Override
     public void onEnter() {
         gameContext.setMessage("");
-        selectedIndex = 0;
+        itemView.setSelectedIndex(0);
     }
 
     @Override
