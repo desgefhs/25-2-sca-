@@ -3,7 +3,6 @@ package org.newdawn.spaceinvaders.entity;
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.entity.Enemy.*;
-import org.newdawn.spaceinvaders.entity.Pet.PetEntity;
 import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.player.PlayerStats;
 import org.newdawn.spaceinvaders.wave.Formation;
@@ -20,11 +19,13 @@ public class EntityManager {
     private final List<Entity> entities = new ArrayList<>();
     private final List<Entity> removeList = new ArrayList<>();
     private final List<Entity> addList = new ArrayList<>();
+    private final EnemyFactory enemyFactory;
     private ShipEntity ship;
     private int alienCount;
 
     public EntityManager(GameContext context) {
         this.context = context;
+        this.enemyFactory = new EnemyFactory(context);
     }
 
     public void initShip(PlayerStats stats, Weapon weapon) {
@@ -48,36 +49,9 @@ public class EntityManager {
     public void spawnFormation(Formation formation, int wave, boolean forceUpgrade) {
         int cycle = (wave - 1) / 5;
         double cycleMultiplier = Math.pow(1.2, cycle); // Slower scaling for normal aliens
-        int baseAlienHealth = 2;
 
         for (SpawnInfo info : formation.getSpawnList()) {
-            Entity newEntity = null;
-            switch (info.entityType) {
-                case ALIEN:
-                    int alienHealth = (int) (baseAlienHealth * cycleMultiplier) + (wave / 2);
-                    AlienEntity alien = new AlienEntity(context, info.x, info.y, alienHealth, info.movementPattern);
-                    switch (info.movementPattern) {
-                        case STRAIGHT_UP:
-                            alien.setVerticalMovement(-alien.getMoveSpeed());
-                            break;
-                        default:
-                            break;
-                    }
-                    newEntity = alien;
-                    break;
-                case THREE_WAY_SHOOTER:
-                    newEntity = new ThreeWayShooter(context, info.x, info.y, info.movementPattern);
-                    break;
-                case BOMB:
-                    newEntity = new BombEntity(context, info.x, info.y);
-                    break;
-                case METEOR_ENEMY:
-                    newEntity = new MeteorEnemyEntity(context, info.x, info.y);
-                    break;
-                case BURST_SHOOTER:
-                    newEntity = new BurstShooterEntity(context, info.x, info.y);
-                    break;
-            }
+            Entity newEntity = enemyFactory.createEnemy(info, wave, cycleMultiplier);
 
             if (newEntity != null) {
                 if (newEntity instanceof Enemy) {
