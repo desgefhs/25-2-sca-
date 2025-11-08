@@ -28,9 +28,33 @@ public class WaveManager {
     private boolean healingAreaSpawnedForWave = false;
     private long nextFormationSpawnTime = 0;
 
+    private long lastMeteorSpawnTime;
+    private long nextMeteorSpawnInterval;
+
+    private WaveState currentState;
+
     public WaveManager(GameManager gameManager, FormationManager formationManager) {
         this.gameManager = gameManager;
         this.formationManager = formationManager;
+    }
+
+    public void setState(WaveState newState) {
+        if (this.currentState != null) {
+            this.currentState.onExit(this);
+        }
+        this.currentState = newState;
+        this.currentState.onEnter(this);
+    }
+
+    public void init() {
+        lastMeteorSpawnTime = System.currentTimeMillis();
+        nextMeteorSpawnInterval = 1000 + (long) (Math.random() * 1000);
+    }
+
+    public void update(long delta) {
+        if (currentState != null) {
+            currentState.update(this, delta);
+        }
     }
 
     public void startFirstWave() {
@@ -47,10 +71,11 @@ public class WaveManager {
         wave++;
         healingAreaSpawnedForWave = false;
         if (wave > 25) {
-                        gameManager.notifyWin();
-                        return;
-                    }
-                    gameManager.setMessage("Wave " + wave);        gameManager.setMessageEndTime(System.currentTimeMillis() + 1000);
+            gameManager.notifyWin();
+            return;
+        }
+        gameManager.setMessage("Wave " + wave);
+        gameManager.setMessageEndTime(System.currentTimeMillis() + 1000);
 
         if (wave % 5 == 0) {
             gameManager.getSoundManager().stopSound("gamebackground");
@@ -130,6 +155,7 @@ public class WaveManager {
         }
 
         gameManager.setCurrentState(GameState.Type.PLAYING);
+        setState(new SpawningState());
     }
 
     public void spawnNextFormationInWave() {
@@ -193,5 +219,25 @@ public class WaveManager {
 
     public long getNextFormationSpawnTime() {
         return nextFormationSpawnTime;
+    }
+    
+    public GameManager getGameManager() { 
+        return gameManager; 
+    }
+
+    public long getLastMeteorSpawnTime() {
+        return lastMeteorSpawnTime;
+    }
+
+    public void setLastMeteorSpawnTime(long lastMeteorSpawnTime) {
+        this.lastMeteorSpawnTime = lastMeteorSpawnTime;
+    }
+
+    public long getNextMeteorSpawnInterval() {
+        return nextMeteorSpawnInterval;
+    }
+
+    public void setNextMeteorSpawnInterval(long nextMeteorSpawnInterval) {
+        this.nextMeteorSpawnInterval = nextMeteorSpawnInterval;
     }
 }
