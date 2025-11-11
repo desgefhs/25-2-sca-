@@ -3,7 +3,7 @@ package org.newdawn.spaceinvaders.wave;
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameManager;
 import org.newdawn.spaceinvaders.data.PlayerData;
-import org.newdawn.spaceinvaders.entity.BossEntity;
+import org.newdawn.spaceinvaders.entity.BossFactory;
 import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.entity.Pet.AttackPetEntity;
 import org.newdawn.spaceinvaders.entity.Pet.BuffPetEntity;
@@ -108,7 +108,7 @@ public class WaveManager {
 
         gameManager.getEntityManager().initShip(gameManager.getPlayerManager().getPlayerStats(), selectedWeapon);
 
-        if (currentPlayer != null && currentPlayer.getEquippedPet() != null) {
+        if (currentPlayer.getEquippedPet() != null) {
             try {
                 ShipEntity playerShip = gameManager.getShip();
                 PetType petType = PetType.valueOf(currentPlayer.getEquippedPet());
@@ -192,7 +192,7 @@ public class WaveManager {
         int cycle = (wave - 1) / 5;
         double cycleMultiplier = Math.pow(1.5, cycle);
         int bossHealth = (int) (50 * cycleMultiplier);
-        Entity boss = new BossEntity(gameManager, Game.GAME_WIDTH / 2, 50, bossHealth, cycle, wave, false);
+        Entity boss = BossFactory.createBoss(gameManager, wave, Game.GAME_WIDTH / 2, 50, bossHealth);
         gameManager.addEntity(boss);
         gameManager.getEntityManager().setAlienCount(1);
     }

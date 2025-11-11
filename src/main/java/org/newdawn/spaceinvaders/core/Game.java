@@ -135,7 +135,7 @@ public class Game {
                 throw new IOException("serviceAccountKey.json 파일을 resources 폴더에서 찾을 수 없습니다.");
             }
 
-            FirebaseOptions options = new FirebaseOptions.Builder()
+            FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .build();
 
@@ -145,8 +145,7 @@ public class Game {
             }
             return FirestoreClient.getFirestore();
         } catch (IOException e) {
-            System.err.println("Firebase 초기화 오류: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Firebase 초기화 오류: " + e.getMessage() + ". 스택 트레이스를 확인하려면 디버그 모드를 사용하세요.");
             return null;
         }
     }
