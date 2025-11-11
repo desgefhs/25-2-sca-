@@ -42,12 +42,27 @@ public abstract class PetEntity extends Entity {
      */
     @Override
     public void move(long delta) {
+        handleMovement(delta);
+        handleAbilityActivation(delta);
+    }
+
+    /**
+     * Handles the movement logic for the pet, following the player.
+     * @param delta The time that has passed in milliseconds
+     */
+    protected void handleMovement(long delta) {
         // Follow the player with an offset
         this.x = player.getX() + offsetX;
         this.y = player.getY();
 
         super.move(delta);
+    }
 
+    /**
+     * Handles the logic for activating the pet's ability based on cooldown.
+     * @param delta The time that has passed in milliseconds, currently unused but good for future extensions.
+     */
+    protected void handleAbilityActivation(long delta) {
         // Activate the pet's ability if the cooldown has passed
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastAbilityTime > getAbilityCooldown()) {
