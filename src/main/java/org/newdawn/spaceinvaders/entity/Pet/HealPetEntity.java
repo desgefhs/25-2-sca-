@@ -1,28 +1,38 @@
 package org.newdawn.spaceinvaders.entity.Pet;
 
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.core.GameManager;
-import org.newdawn.spaceinvaders.entity.*;
+import org.newdawn.spaceinvaders.entity.HealthComponent;
+import org.newdawn.spaceinvaders.entity.HP;
+import org.newdawn.spaceinvaders.entity.ShipEntity;
 
 /**
  * A pet that heals the player.
  */
 public class HealPetEntity extends PetEntity {
 
-    private static final long HEAL_COOLDOWN = 5000; // 5 seconds
+    private static final long BASE_COOLDOWN = 5000; // 5 seconds
     private static final String HEAL_PET_SPRITE = "sprites/pet/Healpet.gif";
+
+    private double healMultiplier;
 
     /**
      * Create a new heal pet.
      *
-     * @param game   The game context in which the pet exists
-     * @param player The player ship to follow
-     * @param x      The initial x location
-     * @param y      The initial y location
+     * @param game         The game context in which the pet exists
+     * @param player       The player ship to follow
+     * @param x            The initial x location
+     * @param y            The initial y location
+     * @param initialLevel The initial level of the pet
      */
-    public HealPetEntity(GameContext game, ShipEntity player, int x, int y) {
-        super(game, player, HEAL_PET_SPRITE, x, y, HEAL_COOLDOWN);
+    public HealPetEntity(GameContext game, ShipEntity player, int x, int y, int initialLevel) {
+        super(game, player, HEAL_PET_SPRITE, x, y, initialLevel);
         setScale(1.0);
+    }
+
+    @Override
+    protected void updateStatsByLevel() {
+        this.abilityCooldown = BASE_COOLDOWN;
+        this.healMultiplier = 0.30 + (this.level * 0.02);
     }
 
     @Override
@@ -38,9 +48,7 @@ public class HealPetEntity extends PetEntity {
 
         // Heal only if the player is not at max health
         if (currentHealth < maxHealth) {
-            GameManager gm = (GameManager) this.game;
-            int level = gm.getCurrentPlayer().getPetLevel(PetType.HEAL.name());
-            double healAmount = currentHealth * (0.30 + (level * 0.02));
+            double healAmount = currentHealth * this.healMultiplier;
             double newHealth = Math.min(currentHealth + healAmount, maxHealth);
             hp.setCurrentHp(newHealth);
         }

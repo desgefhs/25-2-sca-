@@ -9,6 +9,8 @@ import org.newdawn.spaceinvaders.entity.Pet.AttackPetEntity;
 import org.newdawn.spaceinvaders.entity.Pet.BuffPetEntity;
 import org.newdawn.spaceinvaders.entity.Pet.DefensePetEntity;
 import org.newdawn.spaceinvaders.entity.Pet.HealPetEntity;
+import org.newdawn.spaceinvaders.entity.Pet.PetEntity;
+import org.newdawn.spaceinvaders.entity.Pet.PetFactory;
 import org.newdawn.spaceinvaders.entity.Pet.PetType;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
 import org.newdawn.spaceinvaders.entity.weapon.DefaultGun;
@@ -112,23 +114,11 @@ public class WaveManager {
             try {
                 ShipEntity playerShip = gameManager.getShip();
                 PetType petType = PetType.valueOf(currentPlayer.getEquippedPet());
-                switch (petType) {
-                    case ATTACK:
-                        gameManager.addEntity(new AttackPetEntity(gameManager, playerShip, playerShip.getX(), playerShip.getY()));
-                        break;
-                    case DEFENSE:
-                        DefensePetEntity defensePet = new DefensePetEntity(gameManager, playerShip, playerShip.getX(), playerShip.getY());
-                        gameManager.addEntity(defensePet);
-                        playerShip.setShield(true, defensePet::resetAbilityCooldown);
-                        defensePet.resetAbilityCooldown();
-                        break;
-                    case HEAL:
-                        gameManager.addEntity(new HealPetEntity(gameManager, playerShip, playerShip.getX(), playerShip.getY()));
-                        break;
-                    case BUFF:
-                        gameManager.addEntity(new BuffPetEntity(gameManager, playerShip, playerShip.getX(), playerShip.getY()));
-                        break;
-                }
+                int petLevel = currentPlayer.getPetLevel(petType.name());
+
+                PetEntity pet = PetFactory.createPet(petType, petLevel, gameManager, playerShip, playerShip.getX(), playerShip.getY());
+                gameManager.addEntity(pet);
+
             } catch (IllegalArgumentException e) {
                 System.err.println("Attempted to spawn unknown pet type: " + currentPlayer.getEquippedPet());
             }

@@ -15,7 +15,8 @@ public abstract class PetEntity extends Entity {
     private final int offsetX;
 
     private long lastAbilityTime = 0;
-    protected final long abilityCooldown;
+    protected long abilityCooldown;
+    protected int level;
 
     /**
      * Create a new pet entity.
@@ -25,14 +26,14 @@ public abstract class PetEntity extends Entity {
      * @param ref            The sprite reference for this entity
      * @param x              The initial x location of this entity
      * @param y              The initial y location of this entity
-     * @param cooldown       The cooldown for the pet's ability in milliseconds
+     * @param initialLevel   The initial level of the pet
      */
-    public PetEntity(GameContext game, ShipEntity player, String ref, int x, int y, long cooldown) {
+    public PetEntity(GameContext game, ShipEntity player, String ref, int x, int y, int initialLevel) {
         super(ref, x, y);
         this.game = game;
         this.player = player;
         this.offsetX = player.getWidth(); // Position the pet to the right
-        this.abilityCooldown = cooldown;
+        this.setLevel(initialLevel);
     }
 
     /**
@@ -101,4 +102,18 @@ public abstract class PetEntity extends Entity {
     public void resetAbilityCooldown() {
         this.lastAbilityTime = System.currentTimeMillis();
     }
+
+    /**
+     * Sets the pet's level and updates its stats accordingly.
+     * @param level The new level for the pet.
+     */
+    public void setLevel(int level) {
+        this.level = level;
+        updateStatsByLevel();
+    }
+
+    /**
+     * Subclasses must implement this method to update their specific stats based on the current level.
+     */
+    protected abstract void updateStatsByLevel();
 }
