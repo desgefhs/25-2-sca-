@@ -90,15 +90,17 @@ public class DatabaseManager {
      * 데이터베이스에서 상위 10개의 최고 점수 기록을 가져옵니다.
      * @return 랭킹 문자열 목록
      */
-    public List<String> getHighScores() {
-        List<String> highScores = new ArrayList<>();
+    public List<org.newdawn.spaceinvaders.ranking.Ranking> getHighScores() {
+        List<org.newdawn.spaceinvaders.ranking.Ranking> highScores = new ArrayList<>();
         if (db == null) return highScores;
 
         ApiFuture<QuerySnapshot> query = db.collection("users").orderBy("highScore", Query.Direction.DESCENDING).limit(10).get();
         try {
             QuerySnapshot querySnapshot = query.get();
             for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
-                highScores.add(document.getString("username") + ": " + document.getLong("highScore"));
+                String username = document.getString("username");
+                int score = document.getLong("highScore").intValue();
+                highScores.add(new org.newdawn.spaceinvaders.ranking.Ranking(username, score));
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
