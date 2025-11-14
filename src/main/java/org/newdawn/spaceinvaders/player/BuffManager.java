@@ -1,5 +1,6 @@
 package org.newdawn.spaceinvaders.player;
 
+
 import org.newdawn.spaceinvaders.entity.ShipEntity;
 
 import java.util.ArrayList;
@@ -11,11 +12,11 @@ public class BuffManager {
     private static class ActiveBuff {
         BuffType type;
         long startTime;
-        long duration; // in milliseconds
+        long duration;
 
-        ActiveBuff(BuffType type, long duration) {
+        ActiveBuff(BuffType type) {
             this.type = type;
-            this.duration = duration;
+            this.duration = type.getDuration();
             this.startTime = System.currentTimeMillis();
         }
 
@@ -32,22 +33,11 @@ public class BuffManager {
     }
 
     public void addBuff(BuffType type) {
-        long duration = 0;
-        switch (type) {
-            case INVINCIBILITY:
-            case SPEED_BOOST:
-                duration = 3000; // 3 seconds
-                break;
-            case DAMAGE_BOOST:
-                duration = 3000; // 3 seconds
-                break;
-            case HEAL:
-                duration = 500; // Instant, but show on UI for a short time
-                player.getHealth().fullyHeal();
-                break;
+        if (type == BuffType.HEAL) {
+            type.apply(player);
+            return;
         }
 
-        // If the buff is already active, refresh its duration
         for (ActiveBuff buff : activeBuffs) {
             if (buff.type == type) {
                 buff.startTime = System.currentTimeMillis();
@@ -55,10 +45,8 @@ public class BuffManager {
             }
         }
 
-        if (duration > 0) {
-            activeBuffs.add(new ActiveBuff(type, duration));
-            applyBuffEffect(type);
-        }
+        activeBuffs.add(new ActiveBuff(type));
+        type.apply(player);
     }
 
     public void update() {
@@ -66,23 +54,12 @@ public class BuffManager {
         while (iterator.hasNext()) {
             ActiveBuff buff = iterator.next();
             if (buff.isExpired()) {
-                removeBuffEffect(buff.type);
+                buff.type.remove(player);
                 iterator.remove();
             }
         }
     }
 
-    private void applyBuffEffect(BuffType type) {
-        if (type == BuffType.SPEED_BOOST) {
-            player.setMoveSpeed(player.getMoveSpeed() * 1.5f);
-        }
-    }
-
-    private void removeBuffEffect(BuffType type) {
-        if (type == BuffType.SPEED_BOOST) {
-            player.setMoveSpeed(player.getMoveSpeed() / 1.5f);
-        }
-    }
 
     public boolean hasBuff(BuffType type) {
         for (ActiveBuff buff : activeBuffs) {
@@ -91,13 +68,6 @@ public class BuffManager {
             }
         }
         return false;
-    }
-
-    public int getBuffLevel(BuffType type) {
-        if (hasBuff(type)) {
-            return 1; // For now, all buffs have a fixed level of 1
-        }
-        return 0;
     }
 
     public List<BuffType> getActiveBuffs() {
