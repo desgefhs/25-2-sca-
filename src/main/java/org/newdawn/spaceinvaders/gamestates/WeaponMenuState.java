@@ -19,7 +19,7 @@ public class WeaponMenuState implements GameState {
     private final GameContext gameContext;
     private WeaponMenu weaponMenu;
     private final WeaponMenuInputHandler inputHandler;
-    private Map<String, Sprite> weaponSprites = new HashMap<>();
+    private final Map<String, Sprite> weaponSprites = new HashMap<>();
 
     public WeaponMenuState(GameContext gameContext) {
         this.gameContext = gameContext;
@@ -143,7 +143,7 @@ public class WeaponMenuState implements GameState {
                     if (level < 5) description2 = "다음 레벨: 탄환 " + numProjectiles[level] + "개";
                 } else if (selectedWeapon.equals("Laser")) {
                     int damage = 3 + (level - 1);
-                    long interval = 1500 - ((level - 1) * 250);
+                    long interval = 1500 - ((level - 1) * 250L);
                     description1 = "데미지 " + damage + ", 쿨타임 " + (interval/1000.0) + "초";
                     if (level < 5) description2 = "다음 레벨: 데미지 " + (damage + 1);
                 }

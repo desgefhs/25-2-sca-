@@ -42,17 +42,17 @@ public class ItemDrawInputHandler {
     }
 
     public void handle(InputHandler input) {
-        if (input.isUpPressedAndConsume()) {
+        if (input.isPressedAndConsume(KeyEvent.VK_UP)) {
             commandMap.get(KeyEvent.VK_UP).execute();
         }
-        if (input.isDownPressedAndConsume()) {
+        if (input.isPressedAndConsume(KeyEvent.VK_DOWN)) {
             commandMap.get(KeyEvent.VK_DOWN).execute();
         }
-        if (input.isEnterPressedAndConsume()) {
+        if (input.isPressedAndConsume(KeyEvent.VK_ENTER)) {
             gameContext.getSoundManager().playSound("buttonselect");
             commandMap.get(KeyEvent.VK_ENTER).execute();
         }
-        if (input.isEscPressedAndConsume()) {
+        if (input.isPressedAndConsume(KeyEvent.VK_ESCAPE)) {
             commandMap.get(KeyEvent.VK_ESCAPE).execute();
         }
     }

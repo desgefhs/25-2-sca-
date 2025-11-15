@@ -23,6 +23,8 @@ import org.newdawn.spaceinvaders.view.Background;
 import org.newdawn.spaceinvaders.graphics.Sprite;
 import org.newdawn.spaceinvaders.graphics.SpriteStore;
 import org.newdawn.spaceinvaders.view.ConfirmDialog;
+import org.newdawn.spaceinvaders.view.UIManager;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.newdawn.spaceinvaders.core.GameStateManager;
@@ -89,6 +91,9 @@ public class Game {
         Sprite staticBackgroundSprite = SpriteStore.get().getSprite("sprites/background.jpg");
         ConfirmDialog confirmDialog = new ConfirmDialog("Are you sure you want to exit?");
 
+        UIManager uiManager = new UIManager(gameWindow, mainMenu, pauseMenu, gameOverMenu, confirmDialog, staticBackgroundSprite);
+
+
         Map<String, org.newdawn.spaceinvaders.entity.weapon.Weapon> weapons = new HashMap<>();
         weapons.put("DefaultGun", new org.newdawn.spaceinvaders.entity.weapon.DefaultGun());
         weapons.put("Shotgun", new org.newdawn.spaceinvaders.entity.weapon.Shotgun());
@@ -98,6 +103,9 @@ public class Game {
         GameStateFactory gameStateFactory = new GameStateFactory();
 
         // 3. Inject Dependencies into GameManager
+        GameWorld gameWorld = new GameWorld(entityManager, background, waveManager, gameManager);
+        gameManager.setGameWorld(gameWorld);
+
         gameManager.setGameStateFactory(gameStateFactory);
         gameManager.setInputHandler(inputHandler);
         gameManager.setDatabaseManager(databaseManager);
@@ -105,15 +113,7 @@ public class Game {
         gameManager.setFormationManager(formationManager);
         gameManager.setSoundManager(soundManager);
         gameManager.setPlayerManager(playerManager);
-        gameManager.setEntityManager(entityManager);
-        gameManager.setWaveManager(waveManager);
-        gameManager.setGameWindow(gameWindow);
-        gameManager.setMainMenu(mainMenu);
-        gameManager.setPauseMenu(pauseMenu);
-        gameManager.setGameOverMenu(gameOverMenu);
-        gameManager.setBackground(background);
-        gameManager.setStaticBackgroundSprite(staticBackgroundSprite);
-        gameManager.setConfirmDialog(confirmDialog);
+        gameManager.setUIManager(uiManager);
         gameManager.setWeapons(weapons);
         gameManager.setGsm(gsm);
 

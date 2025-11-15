@@ -53,18 +53,17 @@ public class PlayingInputHandler {
         }
 
         // Process continuous-press commands
-        if (input.isLeftPressed()) continuousPressCommands.get(KeyEvent.VK_LEFT).execute();
-        if (input.isRightPressed()) continuousPressCommands.get(KeyEvent.VK_RIGHT).execute();
-        if (input.isUpPressed()) continuousPressCommands.get(KeyEvent.VK_UP).execute();
-        if (input.isDownPressed()) continuousPressCommands.get(KeyEvent.VK_DOWN).execute();
-        if (input.isFirePressed()) continuousPressCommands.get(KeyEvent.VK_SPACE).execute();
+        for (Map.Entry<Integer, Command> entry : continuousPressCommands.entrySet()) {
+            if (input.isPressed(entry.getKey())) {
+                entry.getValue().execute();
+            }
+        }
 
         // Process single-press commands
-        if (input.isEscPressedAndConsume()) singlePressCommands.get(KeyEvent.VK_ESCAPE).execute();
-        if (input.isHPressedAndConsume()) singlePressCommands.get(KeyEvent.VK_H).execute();
-        if (input.isKPressedAndConsume()) singlePressCommands.get(KeyEvent.VK_K).execute();
-        if (input.isOnePressedAndConsume()) singlePressCommands.get(KeyEvent.VK_1).execute();
-        if (input.isTwoPressedAndConsume()) singlePressCommands.get(KeyEvent.VK_2).execute();
-        if (input.isThreePressedAndConsume()) singlePressCommands.get(KeyEvent.VK_3).execute();
+        for (Map.Entry<Integer, Command> entry : singlePressCommands.entrySet()) {
+            if (input.isPressedAndConsume(entry.getKey())) {
+                entry.getValue().execute();
+            }
+        }
     }
 }

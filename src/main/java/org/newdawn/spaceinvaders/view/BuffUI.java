@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class BuffUI {
 
-    private Map<BuffType, Sprite> buffIcons = new HashMap<>();
+    private final Map<BuffType, Sprite> buffIcons = new HashMap<>();
 
     public BuffUI() {
         buffIcons.put(BuffType.INVINCIBILITY, SpriteStore.get().getSprite("sprites/buff/invincible.gif"));

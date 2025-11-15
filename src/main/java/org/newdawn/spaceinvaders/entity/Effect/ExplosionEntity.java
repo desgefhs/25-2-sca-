@@ -7,8 +7,8 @@ import java.awt.Graphics;
 
 public class ExplosionEntity extends Entity {
     private final long lifeTime = 500; // 0.5초
-    private long createdAt;
-    private GameContext context;
+    private final long createdAt;
+    private final GameContext context;
 
     public ExplosionEntity(GameContext context, String sprite, int x, int y) {
         super(sprite, x, y);

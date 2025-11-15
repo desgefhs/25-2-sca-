@@ -9,12 +9,12 @@ import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 public class MeteorEnemyEntity extends Entity implements Enemy {
     private static final long FIRING_INTERVAL = 400L; // 0.4 seconds
     private long lastFire = 0;
-    private GameContext context;
-    private double moveSpeed = 75;
+    private final GameContext context;
+    private final double moveSpeed = 75;
 
     private enum FiringState { FIRING, COOLDOWN }
-    private FiringState currentState = FiringState.FIRING;
-    private long stateTimer = 2000L; // Start in FIRING state
+    private final FiringState currentState = FiringState.FIRING;
+    private final long stateTimer = 2000L; // Start in FIRING state
     private static final long FIRING_DURATION = 2000L;
     private static final long COOLDOWN_DURATION = 1000L;
 

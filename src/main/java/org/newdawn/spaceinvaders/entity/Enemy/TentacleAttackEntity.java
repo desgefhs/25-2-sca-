@@ -16,13 +16,13 @@ public class TentacleAttackEntity extends Entity {
     }
 
     private State state = State.WARNING;
-    private long startTime;
+    private final long startTime;
     private final long warningDuration = 1000; // 1 second warning
     private final long attackDuration = 500;   // 0.5 second attack
     private final int damage = 1;
 
-    private Sprite warningSprite;
-    private Sprite attackSprite;
+    private final Sprite warningSprite;
+    private final Sprite attackSprite;
 
     public TentacleAttackEntity(GameContext context, int x, int y) {
         super("sprites/bosses/fireheart_target.png", x, y); // Initial sprite is the warning

@@ -21,7 +21,7 @@ public class RankingInputHandler {
     }
 
     public void handle(InputHandler input) {
-        if (input.isEnterPressedAndConsume()) {
+        if (input.isPressedAndConsume(KeyEvent.VK_ENTER)) {
             gameContext.getSoundManager().playSound("buttonselect");
             commandMap.get(KeyEvent.VK_ENTER).execute();
         }

@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ShipEntity extends Entity {
-    private GameContext context;
+    private final GameContext context;
     private HpRender hpRender;
     private static final int COLLISION_DAMAGE = 1;
 
@@ -35,8 +35,8 @@ public class ShipEntity extends Entity {
     private boolean isBuffActive = false;
     private long buffTimer = 0;
     private static final long BUFF_DURATION = 3000; // 3 seconds
-    private int buffLevel = 0;
-    private Runnable onBuffEnd = null;
+    private final int buffLevel = 0;
+    private final Runnable onBuffEnd = null;
 
     private Weapon currentWeapon;
     private final Map<PetType, PetEntity> activePets = new HashMap<>();
