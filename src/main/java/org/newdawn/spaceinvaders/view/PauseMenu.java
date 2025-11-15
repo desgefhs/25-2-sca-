@@ -6,7 +6,7 @@ import org.newdawn.spaceinvaders.userinput.Menu;
  * 일시정지 메뉴 아이템이랑 동작 관련
  */
 public class PauseMenu implements Menu {
-    private String[] items = {"재개하기", "메인메뉴로 나가기", "종료하기"};
+    private final String[] items = {"재개하기", "메인메뉴로 나가기", "종료하기"};
     private int selectedItemIndex = 0;
 
     //메뉴 선택 관련 움직임 처리

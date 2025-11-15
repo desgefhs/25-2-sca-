@@ -4,7 +4,7 @@ import org.newdawn.spaceinvaders.userinput.Menu;
 
 //메인메뉴 아이템이랑 동작관련
 public class MainMenu implements Menu {
-    private String[] items = {"1. 게임시작", "2. 랭킹", "3. 무기", "4. 펫", "5. 상점", "6. 설정"};
+    private final String[] items = {"1. 게임시작", "2. 랭킹", "3. 무기", "4. 펫", "5. 상점", "6. 설정"};
     private int selectedItemIndex = 0;
 
     //메뉴 선택 관련 움직임 처리

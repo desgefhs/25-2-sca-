@@ -4,7 +4,7 @@ import org.newdawn.spaceinvaders.userinput.Menu;
 
 //게임 오버 시 메뉴창
 public class GameOverMenu implements Menu {
-    private String[] items = {"다시하기", "메인 메뉴로"};
+    private final String[] items = {"다시하기", "메인 메뉴로"};
     private int selectedItemIndex = 0;
 
     @Override

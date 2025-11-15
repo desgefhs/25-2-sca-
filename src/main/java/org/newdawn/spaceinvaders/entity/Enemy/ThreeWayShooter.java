@@ -13,12 +13,12 @@ import org.newdawn.spaceinvaders.graphics.SpriteStore;
 import java.awt.Graphics;
 
 public class ThreeWayShooter extends Entity implements Enemy {
-    private double moveSpeed = 150; // Adjusted for horizontal movement
-    private GameContext context;
+    private final double moveSpeed = 150; // Adjusted for horizontal movement
+    private final GameContext context;
     private MovementPattern movementPattern;
 
     private long lastFire = 0;
-    private long firingInterval = 2000; // Fires every 2 seconds
+    private final long firingInterval = 2000; // Fires every 2 seconds
 
     // Upgrade state
     private boolean isUpgraded = false;

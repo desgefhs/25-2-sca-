@@ -25,17 +25,10 @@ public class ShopMainMenuInputHandler {
     }
 
     public void handle(InputHandler input) {
-        if (input.isUpPressedAndConsume()) {
-            commandMap.get(KeyEvent.VK_UP).execute();
-        }
-        if (input.isDownPressedAndConsume()) {
-            commandMap.get(KeyEvent.VK_DOWN).execute();
-        }
-        if (input.isEnterPressedAndConsume()) {
-            commandMap.get(KeyEvent.VK_ENTER).execute();
-        }
-        if (input.isEscPressedAndConsume()) {
-            commandMap.get(KeyEvent.VK_ESCAPE).execute();
+        for (Map.Entry<Integer, Command> entry : commandMap.entrySet()) {
+            if (input.isPressedAndConsume(entry.getKey())) {
+                entry.getValue().execute();
+            }
         }
     }
 }

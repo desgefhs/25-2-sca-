@@ -25,8 +25,8 @@ public class BuffManager {
         }
     }
 
-    private ShipEntity player;
-    private List<ActiveBuff> activeBuffs = new ArrayList<>();
+    private final ShipEntity player;
+    private final List<ActiveBuff> activeBuffs = new ArrayList<>();
 
     public BuffManager(ShipEntity player) {
         this.player = player;

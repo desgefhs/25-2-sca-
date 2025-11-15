@@ -16,8 +16,8 @@ public class BombEntity extends Entity implements Enemy {
     private enum State { APPROACHING, WARNING, EXPLODING }
     private State currentState = State.APPROACHING;
 
-    private GameContext context;
-    private double moveSpeed = 75; // Halved the speed
+    private final GameContext context;
+    private final double moveSpeed = 75; // Halved the speed
 
     // Warning & Explosion Stats
     private static final long WARNING_DURATION = 1000L; // 1 second
@@ -28,7 +28,7 @@ public class BombEntity extends Entity implements Enemy {
     private long stateTimer = 0;
 
     // Warning Animation
-    private Sprite[] warningFrames = new Sprite[13];
+    private final Sprite[] warningFrames = new Sprite[13];
     private int currentWarningFrame = 0;
     private static final long WARNING_FRAME_DURATION = WARNING_DURATION / 13;
 
@@ -106,7 +106,6 @@ public class BombEntity extends Entity implements Enemy {
 
         // Does no damage on direct collision with the ship
         if (other instanceof ShipEntity) {
-            return;
         }
     }
 

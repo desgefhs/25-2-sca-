@@ -23,7 +23,7 @@ public class PetMenuState implements GameState {
     private PlayerData playerData;
     private PetMenuView petMenuView;
     private PetMenuInputHandler inputHandler;
-    private Map<String, Sprite> petSprites = new HashMap<>();
+    private final Map<String, Sprite> petSprites = new HashMap<>();
 
     public PetMenuState(GameContext gameContext) {
         this.gameContext = gameContext;
@@ -145,7 +145,7 @@ public class PetMenuState implements GameState {
                                 description = String.format("레벨: %d (힐량: %.0f%%)", currentLevel, healPercent);
                                 break;
                             case BUFF:
-                                double buffPercent = 20 + (currentLevel * 1);
+                                double buffPercent = 20 + (currentLevel);
                                 description = String.format("레벨: %d (공격력/공속: +%.0f%%)", currentLevel, buffPercent);
                                 break;
                         }

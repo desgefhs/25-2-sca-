@@ -42,7 +42,6 @@ public interface GameContext {
 
     // --- Player Status ---
     boolean canPlayerAttack();
-    void stunPlayer(long duration);
 
     // --- UI & Rendering ---
     Background getBackground();
@@ -66,7 +65,6 @@ public interface GameContext {
     void notifyItemCollected();
     String getMessage();
     void setMessage(String message);
-    long getMessageEndTime();
     void setMessageEndTime(long time);
 
     // --- Misc ---

@@ -24,13 +24,13 @@ public abstract class BossEntity extends Entity implements Enemy {
 
     protected GameContext context;
     private long lastFire = 0;
-    private long firingInterval; // Fires every 2.5 seconds
+    private final long firingInterval; // Fires every 2.5 seconds
     private final HpRender hpRender;
     private boolean isFiringFeatherStream = false;
     private int featherStreamCount = 0;
     private long lastFeatherShotTime = 0;
     private boolean isTeleporting = false;
-    private long teleportStartTime = 0;
+    private final long teleportStartTime = 0;
     private final long teleportDisappearTime = 500; // ms boss is invisible
     private long laserGimmickStartTime = 0;
 

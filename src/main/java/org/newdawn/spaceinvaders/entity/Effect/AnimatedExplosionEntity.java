@@ -13,7 +13,7 @@ public class AnimatedExplosionEntity extends Entity {
 
     private long lastFrameChange;
     private int frameNumber;
-    private GameContext context;
+    private final GameContext context;
 
     public AnimatedExplosionEntity(GameContext context, int x, int y) {
         // Start with the first frame

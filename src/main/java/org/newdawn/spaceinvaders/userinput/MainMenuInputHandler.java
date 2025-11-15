@@ -24,17 +24,10 @@ public class MainMenuInputHandler {
     }
 
     public void handle(InputHandler input) {
-        if (input.isLeftPressedAndConsume()) {
-            commandMap.get(KeyEvent.VK_LEFT).execute();
-        }
-        if (input.isRightPressedAndConsume()) {
-            commandMap.get(KeyEvent.VK_RIGHT).execute();
-        }
-        if (input.isEnterPressedAndConsume()) {
-            commandMap.get(KeyEvent.VK_ENTER).execute();
-        }
-        if (input.isEscPressedAndConsume()) {
-            commandMap.get(KeyEvent.VK_ESCAPE).execute();
+        for (Map.Entry<Integer, Command> entry : commandMap.entrySet()) {
+            if (input.isPressedAndConsume(entry.getKey())) {
+                entry.getValue().execute();
+            }
         }
     }
 }

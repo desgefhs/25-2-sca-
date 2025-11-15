@@ -10,11 +10,11 @@ import java.net.URL;
 
 public class AuthScreen extends JPanel {
 
-    private JTextField usernameField;
-    private JPasswordField passwordField;
+    private final JTextField usernameField;
+    private final JPasswordField passwordField;
     private JButton loginButton;
     private JButton signupButton;
-    private JLabel messageLabel;
+    private final JLabel messageLabel;
     private Image backgroundImage;
 
     public AuthScreen() {
@@ -170,7 +170,7 @@ public class AuthScreen extends JPanel {
 
     // Inner class for a panel with a background image
     private class ImagePanel extends JPanel {
-        private Image backgroundImage;
+        private final Image backgroundImage;
 
         public ImagePanel(Image backgroundImage) {
             this.backgroundImage = backgroundImage;

@@ -49,7 +49,7 @@ public class Shotgun implements Weapon {
         if (level > 0 && level <= numProjectiles.length) {
             this.level = level;
             this.bulletDamage = 2 + (level - 1);
-            this.firingInterval = 1000 - ((level - 1) * 50);
+            this.firingInterval = 1000 - ((level - 1) * 50L);
         }
     }
 

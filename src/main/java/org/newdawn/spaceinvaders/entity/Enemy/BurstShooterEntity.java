@@ -7,11 +7,11 @@ import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 
 public class BurstShooterEntity extends Entity implements Enemy {
-    private double moveSpeed = 75;
-    private GameContext context;
+    private final double moveSpeed = 75;
+    private final GameContext context;
 
     private long lastBurstTime = 0;
-    private long burstInterval = 2000; // Time between bursts
+    private final long burstInterval = 2000; // Time between bursts
 
     // Firing state
     private enum FiringState {IDLE, NORMAL_BURST, UPGRADED_BURST}
