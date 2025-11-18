@@ -2,61 +2,116 @@ package org.newdawn.spaceinvaders.wave;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameManager;
-import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.entity.BossFactory;
 import org.newdawn.spaceinvaders.entity.Entity;
-import org.newdawn.spaceinvaders.entity.Pet.AttackPetEntity;
-import org.newdawn.spaceinvaders.entity.Pet.BuffPetEntity;
-import org.newdawn.spaceinvaders.entity.Pet.DefensePetEntity;
-import org.newdawn.spaceinvaders.entity.Pet.HealPetEntity;
-import org.newdawn.spaceinvaders.entity.Pet.PetEntity;
-import org.newdawn.spaceinvaders.entity.Pet.PetFactory;
-import org.newdawn.spaceinvaders.entity.Pet.PetType;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
-import org.newdawn.spaceinvaders.entity.weapon.DefaultGun;
-import org.newdawn.spaceinvaders.entity.weapon.Laser;
-import org.newdawn.spaceinvaders.entity.weapon.Shotgun;
-import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.core.GameState;
 
+/**
+ * Manages the progression of enemy waves in the game.
+ * This class has been refactored to act as a "Wave Executor". It uses a WaveLoader
+ * to get the definition for a wave and then executes the spawn events described
+ * in the WaveDefinition. This separates the data (what a wave is) from the logic
+
+ * (how to spawn the entities).
+ */
 public class WaveManager {
 
     private final GameManager gameManager;
     private final FormationManager formationManager;
+    private final WaveLoader waveLoader; // New dependency
 
     private int wave = 0;
-    private int formationsPerWave;
-    private int formationsSpawnedInWave;
     private boolean healingAreaSpawnedForWave = false;
-    private long nextFormationSpawnTime = 0;
 
+    // New state fields for wave execution
+    private WaveDefinition currentWaveDefinition;
+    private int currentSpawnIndex;
+    private long nextSpawnTime;
+
+    // Meteor spawning fields
     private long lastMeteorSpawnTime;
     private long nextMeteorSpawnInterval;
-
-    private WaveState currentState;
 
     public WaveManager(GameManager gameManager, FormationManager formationManager) {
         this.gameManager = gameManager;
         this.formationManager = formationManager;
+        this.waveLoader = new WaveLoader(); // Instantiate the loader directly
     }
 
-    public void setState(WaveState newState) {
-        if (this.currentState != null) {
-            this.currentState.onExit(this);
-        }
-        this.currentState = newState;
-        this.currentState.onEnter(this);
-    }
-
+    /**
+     * Initializes timers. Called when entering a playing state.
+     */
     public void init() {
         lastMeteorSpawnTime = System.currentTimeMillis();
         nextMeteorSpawnInterval = 1000 + (long) (Math.random() * 1000);
     }
 
+    /**
+     * The main update loop for the wave manager.
+     * Checks if it's time to spawn the next event in the current wave definition.
+     * @param delta Time since the last frame.
+     */
     public void update(long delta) {
-        if (currentState != null) {
-            currentState.update(this, delta);
+        if (currentWaveDefinition == null || currentSpawnIndex >= currentWaveDefinition.getSpawns().size()) {
+            // Wave is not active or all spawn events are complete.
+            return;
         }
+
+        if (System.currentTimeMillis() >= nextSpawnTime) {
+            executeCurrentSpawn();
+        }
+    }
+
+    /**
+     * Executes the spawn event at the current index in the wave definition's spawn list.
+     */
+    private void executeCurrentSpawn() {
+        SpawnInfo spawn = currentWaveDefinition.getSpawns().get(currentSpawnIndex);
+
+        // Execute the spawn based on its type
+        if ("FORMATION".equals(spawn.getType())) {
+            spawnFormation(spawn);
+        } else if ("BOSS".equals(spawn.getType())) {
+            spawnBoss(spawn);
+        }
+
+        currentSpawnIndex++;
+
+        // Schedule the next spawn event
+        if (currentSpawnIndex < currentWaveDefinition.getSpawns().size()) {
+            SpawnInfo nextSpawn = currentWaveDefinition.getSpawns().get(currentSpawnIndex);
+            nextSpawnTime = System.currentTimeMillis() + nextSpawn.getDelay();
+        } else {
+            // All spawns for this wave are done. Mark definition as null to stop updates.
+            currentWaveDefinition = null;
+        }
+    }
+
+    /**
+     * Spawns a formation based on the given SpawnInfo.
+     * @param spawn The spawn information for the formation.
+     */
+    private void spawnFormation(SpawnInfo spawn) {
+        Formation formation = formationManager.getRandomFormationForStage(spawn.getStage());
+        gameManager.getEntityManager().spawnFormation(formation, wave, spawn.isForceUpgrade());
+    }
+
+    /**
+     * Spawns a boss based on the given SpawnInfo.
+     * @param spawn The spawn information for the boss.
+     */
+    private void spawnBoss(SpawnInfo spawn) {
+        // Clear all entities except the player ship before a boss fight.
+        gameManager.getEntityManager().getEntities().removeIf(entity -> !(entity instanceof ShipEntity));
+
+        int waveNumberForBoss = spawn.getStage(); // Re-using stage field for boss wave number
+        int cycle = (waveNumberForBoss - 1) / 5;
+        double cycleMultiplier = Math.pow(1.5, cycle);
+        int bossHealth = (int) (50 * cycleMultiplier);
+        Entity boss = BossFactory.createBoss(gameManager, waveNumberForBoss, Game.GAME_WIDTH / 2, 50, bossHealth);
+        gameManager.addEntity(boss);
+        gameManager.getEntityManager().setAlienCount(1);
     }
 
     public void startFirstWave() {
@@ -69,134 +124,58 @@ public class WaveManager {
         startNextWave();
     }
 
+    /**
+     * Starts the next wave by loading its definition and scheduling the first spawn.
+     */
     public void startNextWave() {
         wave++;
         healingAreaSpawnedForWave = false;
-        if (wave > 25) {
-            gameManager.notifyWin();
+
+        this.currentWaveDefinition = waveLoader.loadWave(wave);
+
+        if (currentWaveDefinition == null) {
+            if (wave > 25) { // Win condition
+                gameManager.notifyWin();
+            }
             return;
         }
+
         gameManager.setMessage("Wave " + wave);
         gameManager.setMessageEndTime(System.currentTimeMillis() + 1000);
 
-        if (wave % 5 == 0) {
-            gameManager.getSoundManager().stopSound("gamebackground");
-            gameManager.getSoundManager().loopSound("boss1");
-        } else if ((wave - 1) % 5 == 0 && wave > 1) {
-            gameManager.getSoundManager().stopSound("boss1");
-            gameManager.getSoundManager().loopSound("gamebackground");
-        } else if (wave == 1) {
-            gameManager.getSoundManager().loopSound("gamebackground");
-        }
-
-        PlayerData currentPlayer = gameManager.getPlayerManager().getCurrentPlayer();
-        String equippedWeaponName = currentPlayer.getEquippedWeapon();
-        Weapon selectedWeapon;
-        if (equippedWeaponName != null) {
-            switch (equippedWeaponName) {
-                case "Shotgun":
-                    selectedWeapon = new Shotgun();
-                    break;
-                case "Laser":
-                    selectedWeapon = new Laser();
-                    break;
-                default:
-                    selectedWeapon = new DefaultGun();
-                    break;
-            }
-        } else {
-            selectedWeapon = new DefaultGun();
-        }
-
-        gameManager.getEntityManager().initShip(gameManager.getPlayerManager().getPlayerStats(), selectedWeapon);
-
-        if (currentPlayer.getEquippedPet() != null) {
-            try {
-                ShipEntity playerShip = gameManager.getShip();
-                PetType petType = PetType.valueOf(currentPlayer.getEquippedPet());
-                int petLevel = currentPlayer.getPetLevel(petType.name());
-
-                PetEntity pet = PetFactory.createPet(petType, petLevel, gameManager, playerShip, playerShip.getX(), playerShip.getY());
-                gameManager.addEntity(pet);
-
-            } catch (IllegalArgumentException e) {
-                System.err.println("Attempted to spawn unknown pet type: " + currentPlayer.getEquippedPet());
+        // Set music if defined for the wave
+        if (currentWaveDefinition.getMusic() != null) {
+            if (currentWaveDefinition.getMusic().equals("boss1")) {
+                gameManager.getSoundManager().stopSound("gamebackground");
+                gameManager.getSoundManager().loopSound("boss1");
+            } else {
+                gameManager.getSoundManager().stopSound("boss1");
+                gameManager.getSoundManager().loopSound("gamebackground");
             }
         }
 
-        if (wave % 5 == 0) {
-            formationsPerWave = 1;
-            formationsSpawnedInWave = 0;
-            spawnBossNow();
-            formationsSpawnedInWave = 1;
-        } else {
-            int stage = ((wave - 1) / 5) + 1;
-            switch (stage) {
-                case 1: formationsPerWave = 3; break;
-                case 2: formationsPerWave = 4; break;
-                case 3: formationsPerWave = 5; break;
-                case 4: formationsPerWave = 6; break;
-                case 5: formationsPerWave = 7; break;
-                default: formationsPerWave = 3; break;
-            }
-            gameManager.setMessage("Wave " + wave);
-            formationsSpawnedInWave = 0;
-            spawnNextFormationInWave();
+        // Reset spawn state and schedule the first spawn
+        this.currentSpawnIndex = 0;
+        if (!currentWaveDefinition.getSpawns().isEmpty()) {
+            this.nextSpawnTime = System.currentTimeMillis() + currentWaveDefinition.getSpawns().get(0).getDelay();
         }
 
         gameManager.setCurrentState(GameState.Type.PLAYING);
-        setState(new SpawningState());
     }
 
-    public void spawnNextFormationInWave() {
-        if (formationsSpawnedInWave >= formationsPerWave || wave % 5 == 0) {
-            return;
+    public boolean hasFinishedSpawning() {
+        // If there is no active wave definition, spawning is considered finished.
+        if (currentWaveDefinition == null) {
+            return true;
         }
-
-        int stage = ((wave - 1) / 5) + 1;
-        Formation formation = formationManager.getRandomFormationForStage(stage);
-
-        boolean forceUpgrade = false;
-        String formationName = formation.getName();
-
-        if (stage == 4 && formationName.contains("Converging Shooters")) {
-            forceUpgrade = true;
-        }
-        if (stage == 5) {
-            if (formationName.contains("Burst Shooters") || formationName.contains("Converging Shooters")) {
-                forceUpgrade = true;
-            }
-        }
-
-        gameManager.getEntityManager().spawnFormation(formation, wave, forceUpgrade);
-        formationsSpawnedInWave++;
-
-        if (formationsSpawnedInWave < formationsPerWave) {
-            nextFormationSpawnTime = System.currentTimeMillis() + 3000L;
-        }
+        // Otherwise, check if all spawn events have been executed.
+        return currentSpawnIndex >= currentWaveDefinition.getSpawns().size();
     }
 
-    public void spawnBossNow() {
-        gameManager.getEntityManager().getEntities().removeIf(entity -> !(entity instanceof ShipEntity));
-
-        int cycle = (wave - 1) / 5;
-        double cycleMultiplier = Math.pow(1.5, cycle);
-        int bossHealth = (int) (50 * cycleMultiplier);
-        Entity boss = BossFactory.createBoss(gameManager, wave, Game.GAME_WIDTH / 2, 50, bossHealth);
-        gameManager.addEntity(boss);
-        gameManager.getEntityManager().setAlienCount(1);
-    }
+    // --- Getters and Setters ---
 
     public int getWave() {
         return wave;
-    }
-
-    public int getFormationsPerWave() {
-        return formationsPerWave;
-    }
-
-    public int getFormationsSpawnedInWave() {
-        return formationsSpawnedInWave;
     }
 
     public boolean isHealingAreaSpawnedForWave() {
@@ -207,12 +186,8 @@ public class WaveManager {
         this.healingAreaSpawnedForWave = healingAreaSpawnedForWave;
     }
 
-    public long getNextFormationSpawnTime() {
-        return nextFormationSpawnTime;
-    }
-    
-    public GameManager getGameManager() { 
-        return gameManager; 
+    public GameManager getGameManager() {
+        return gameManager;
     }
 
     public long getLastMeteorSpawnTime() {

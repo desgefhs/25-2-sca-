@@ -29,7 +29,7 @@ public class GameWorld {
         new CollisionDetector().checkCollisions(entityManager.getEntities());
         entityManager.cleanup();
 
-        if (entityManager.getAlienCount() == 0 && waveManager.getFormationsSpawnedInWave() >= waveManager.getFormationsPerWave()) {
+        if (entityManager.getAlienCount() == 0 && waveManager.hasFinishedSpawning()) {
             gameContext.onWaveCleared();
         }
     }

@@ -3,6 +3,15 @@ package org.newdawn.spaceinvaders.gamestates;
 import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
+import org.newdawn.spaceinvaders.data.PlayerData;
+import org.newdawn.spaceinvaders.entity.Pet.PetEntity;
+import org.newdawn.spaceinvaders.entity.Pet.PetFactory;
+import org.newdawn.spaceinvaders.entity.Pet.PetType;
+import org.newdawn.spaceinvaders.entity.ShipEntity;
+import org.newdawn.spaceinvaders.entity.weapon.DefaultGun;
+import org.newdawn.spaceinvaders.entity.weapon.Laser;
+import org.newdawn.spaceinvaders.entity.weapon.Shotgun;
+import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.userinput.PlayingInputHandler;
 import org.newdawn.spaceinvaders.view.PlayingStateRenderer;
 
@@ -44,8 +53,53 @@ public class PlayingState implements GameState {
 
     @Override
     public void onEnter() {
+        // Initialize the player's ship, weapon, and pet for this gameplay session.
+        setupPlayerShip();
+
         // Initialize the wave manager's timers every time we enter the playing state
         gameContext.getWaveManager().init();
+    }
+
+    private void setupPlayerShip() {
+        PlayerData currentPlayer = gameContext.getPlayerManager().getCurrentPlayer();
+        String equippedWeaponName = currentPlayer.getEquippedWeapon();
+        Weapon selectedWeapon;
+        if (equippedWeaponName != null) {
+            switch (equippedWeaponName) {
+                case "Shotgun":
+                    selectedWeapon = new Shotgun();
+                    break;
+                case "Laser":
+                    selectedWeapon = new Laser();
+                    break;
+                default:
+                    selectedWeapon = new DefaultGun();
+                    break;
+            }
+        } else {
+            selectedWeapon = new DefaultGun();
+        }
+
+        gameContext.getEntityManager().initShip(gameContext.getPlayerManager().getPlayerStats(), selectedWeapon);
+
+        if (currentPlayer.getEquippedPet() != null) {
+            try {
+                ShipEntity playerShip = gameContext.getShip();
+                // Ensure ship is not null before proceeding
+                if (playerShip == null) {
+                    System.err.println("Player ship not initialized before pet setup.");
+                    return;
+                }
+                PetType petType = PetType.valueOf(currentPlayer.getEquippedPet());
+                int petLevel = currentPlayer.getPetLevel(petType.name());
+
+                PetEntity pet = PetFactory.createPet(petType, petLevel, gameContext, playerShip, playerShip.getX(), playerShip.getY());
+                gameContext.addEntity(pet);
+
+            } catch (IllegalArgumentException e) {
+                System.err.println("Attempted to spawn unknown pet type: " + currentPlayer.getEquippedPet());
+            }
+        }
     }
 
     @Override

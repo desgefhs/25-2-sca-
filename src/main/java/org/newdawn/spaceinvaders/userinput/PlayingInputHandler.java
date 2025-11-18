@@ -22,15 +22,14 @@ public class PlayingInputHandler {
     }
 
     private void mapCommands() {
-        ShipEntity ship = gameContext.getShip();
         double moveSpeed = gameContext.getMoveSpeed();
 
         // Commands for continuous key presses (e.g., holding down a key)
-        continuousPressCommands.put(KeyEvent.VK_LEFT, new MoveCommand(ship, -moveSpeed, 0));
-        continuousPressCommands.put(KeyEvent.VK_RIGHT, new MoveCommand(ship, moveSpeed, 0));
-        continuousPressCommands.put(KeyEvent.VK_UP, new MoveCommand(ship, 0, -moveSpeed));
-        continuousPressCommands.put(KeyEvent.VK_DOWN, new MoveCommand(ship, 0, moveSpeed));
-        continuousPressCommands.put(KeyEvent.VK_SPACE, new FireCommand(ship));
+        continuousPressCommands.put(KeyEvent.VK_LEFT, new MoveCommand(gameContext, -moveSpeed, 0));
+        continuousPressCommands.put(KeyEvent.VK_RIGHT, new MoveCommand(gameContext, moveSpeed, 0));
+        continuousPressCommands.put(KeyEvent.VK_UP, new MoveCommand(gameContext, 0, -moveSpeed));
+        continuousPressCommands.put(KeyEvent.VK_DOWN, new MoveCommand(gameContext, 0, moveSpeed));
+        continuousPressCommands.put(KeyEvent.VK_SPACE, new FireCommand(gameContext));
 
         // Commands for single key presses (action happens once per press)
         // Using lambdas for simple, one-line actions
