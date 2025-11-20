@@ -33,7 +33,7 @@ public class GameOverState implements GameState {
     @Override
     public void render(Graphics2D g) {
         // Render the playing state underneath
-        PlayingState playingState = gameContext.getGsm().getPlayingState();
+        PlayingState playingState = gameContext.getGameContainer().getGsm().getPlayingState();
         if (playingState != null) {
             playingState.render(g);
         }
@@ -48,20 +48,20 @@ public class GameOverState implements GameState {
         g.setFont(new Font("Dialog", Font.BOLD, 24));
         int totalWidth = 0;
         int spacing = 40;
-        for (int i = 0; i < gameContext.getGameOverMenu().getItemCount(); i++) {
-            totalWidth += g.getFontMetrics().stringWidth(gameContext.getGameOverMenu().getItem(i));
+        for (int i = 0; i < gameContext.getGameContainer().getUiManager().getGameOverMenu().getItemCount(); i++) {
+            totalWidth += g.getFontMetrics().stringWidth(gameContext.getGameContainer().getUiManager().getGameOverMenu().getItem(i));
         }
-        totalWidth += (gameContext.getGameOverMenu().getItemCount() - 1) * spacing;
+        totalWidth += (gameContext.getGameContainer().getUiManager().getGameOverMenu().getItemCount() - 1) * spacing;
         int currentX = (Game.SCREEN_WIDTH - totalWidth) / 2;
 
-        for (int i = 0; i < gameContext.getGameOverMenu().getItemCount(); i++) {
-            if (i == gameContext.getGameOverMenu().getSelectedIndex()) {
+        for (int i = 0; i < gameContext.getGameContainer().getUiManager().getGameOverMenu().getItemCount(); i++) {
+            if (i == gameContext.getGameContainer().getUiManager().getGameOverMenu().getSelectedIndex()) {
                 g.setColor(Color.GREEN);
             } else {
                 g.setColor(Color.WHITE);
             }
-            g.drawString(gameContext.getGameOverMenu().getItem(i), currentX, 350);
-            currentX += g.getFontMetrics().stringWidth(gameContext.getGameOverMenu().getItem(i)) + spacing;
+            g.drawString(gameContext.getGameContainer().getUiManager().getGameOverMenu().getItem(i), currentX, 350);
+            currentX += g.getFontMetrics().stringWidth(gameContext.getGameContainer().getUiManager().getGameOverMenu().getItem(i)) + spacing;
         }
     }
 
@@ -70,9 +70,9 @@ public class GameOverState implements GameState {
         if (gameWon) {
             gameContext.setMessage("Well done! You Win!");
         } else {
-            gameContext.saveGameResults();
-            long finalCredit = gameContext.getPlayerManager().getCurrentPlayer().getCredit();
-            gameContext.setMessage(String.format("이번 라운드 점수: %d / 최종 크레딧: %d", gameContext.getPlayerManager().getScore(), finalCredit));
+            gameContext.getGameContainer().getPlayerManager().saveGameResults();
+            long finalCredit = gameContext.getGameContainer().getPlayerManager().getCurrentPlayer().getCredit();
+            gameContext.setMessage(String.format("이번 라운드 점수: %d / 최종 크레딧: %d", gameContext.getGameContainer().getPlayerManager().getScore(), finalCredit));
         }
     }
 

@@ -15,8 +15,8 @@ public class GameOverInputHandler {
     private final Map<Integer, Command> commandMap = new HashMap<>();
 
     public GameOverInputHandler(GameContext gameContext) {
-        commandMap.put(KeyEvent.VK_LEFT, new MenuNavigateCommand(() -> gameContext.getGameOverMenu(), MenuNavigateCommand.Direction.LEFT));
-        commandMap.put(KeyEvent.VK_RIGHT, new MenuNavigateCommand(() -> gameContext.getGameOverMenu(), MenuNavigateCommand.Direction.RIGHT));
+        commandMap.put(KeyEvent.VK_LEFT, new MenuNavigateCommand(() -> gameContext.getGameContainer().getUiManager().getGameOverMenu(), MenuNavigateCommand.Direction.LEFT));
+        commandMap.put(KeyEvent.VK_RIGHT, new MenuNavigateCommand(() -> gameContext.getGameContainer().getUiManager().getGameOverMenu(), MenuNavigateCommand.Direction.RIGHT));
         commandMap.put(KeyEvent.VK_ENTER, new ProcessGameOverMenuSelectionCommand(gameContext));
     }
 

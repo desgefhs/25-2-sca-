@@ -35,7 +35,7 @@ public class PlayingInputHandler {
         // Using lambdas for simple, one-line actions
         singlePressCommands.put(KeyEvent.VK_ESCAPE, () -> gameContext.setCurrentState(GameState.Type.PAUSED));
         singlePressCommands.put(KeyEvent.VK_H, () -> gameContext.setShowHitboxes(!gameContext.getShowHitboxes()));
-        singlePressCommands.put(KeyEvent.VK_K, () -> gameContext.getWaveManager().skipToNextBossWave());
+        singlePressCommands.put(KeyEvent.VK_K, () -> gameContext.getGameContainer().getWaveManager().skipToNextBossWave());
         
         // Using dedicated classes for more complex or reusable actions
         singlePressCommands.put(KeyEvent.VK_1, new SwitchWeaponCommand(gameContext, "DefaultGun"));

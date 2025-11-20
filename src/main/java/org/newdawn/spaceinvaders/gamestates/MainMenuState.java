@@ -17,7 +17,7 @@ public class MainMenuState implements GameState {
 
     public MainMenuState(GameContext gameContext) {
         this.gameContext = gameContext;
-        this.mainMenu = gameContext.getMainMenu();
+        this.mainMenu = gameContext.getGameContainer().getUiManager().getMainMenu();
         this.inputHandler = new MainMenuInputHandler(gameContext);
     }
 
@@ -60,7 +60,7 @@ public class MainMenuState implements GameState {
 
     @Override
     public void onEnter() {
-        gameContext.getSoundManager().loopSound("menubackground");
+        gameContext.getGameContainer().getSoundManager().loopSound("menubackground");
     }
 
     @Override

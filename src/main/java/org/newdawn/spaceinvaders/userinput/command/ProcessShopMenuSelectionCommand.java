@@ -35,7 +35,7 @@ public class ProcessShopMenuSelectionCommand implements Command {
         
         Command command = selectionCommands.get(selectedItem);
         if (command != null) {
-            gameContext.getSoundManager().playSound("buttonselect");
+            gameContext.getGameContainer().getSoundManager().playSound("buttonselect");
             command.execute();
         }
     }

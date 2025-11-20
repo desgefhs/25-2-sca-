@@ -17,58 +17,88 @@ import java.util.Map;
 
 public interface GameContext {
 
-    // --- Core Sub-Systems ---
-    EntityManager getEntityManager();
-    PlayerManager getPlayerManager();
-    WaveManager getWaveManager();
-    DatabaseManager getDatabaseManager();
-    ShopManager getShopManager();
-    SoundManager getSoundManager();
-    GameStateManager getGsm();
+        GameContainer getGameContainer();
 
-    // --- Gameplay Actions ---
-    void startGameplay();
-    void saveGameResults();
-    void savePlayerData();
-    void setCurrentState(GameState.Type stateType);
-    void onWaveCleared();
-    void updatePlayingLogic(long delta); // ADDED
+    
 
-    // --- Entity Management ---
-    void addEntity(Entity entity);
-    void removeEntity(Entity entity);
-    java.util.List<Entity> getEntities();
-    ShipEntity getShip();
+        // --- Gameplay Actions ---
 
-    // --- Player Status ---
-    boolean canPlayerAttack();
+        void startGameplay();
 
-    // --- UI & Rendering ---
-    Background getBackground();
-    Sprite getStaticBackgroundSprite();
-    MainMenu getMainMenu();
-    PauseMenu getPauseMenu();
-    GameOverMenu getGameOverMenu();
-    ConfirmDialog getConfirmDialog();
-    ShopMenu getShopMenu();
-    Map<String, Weapon> getWeapons();
-    double getMoveSpeed();
-    boolean getShowHitboxes();
-    void setShowHitboxes(boolean show);
+        void setCurrentState(GameState.Type stateType);
 
-    // --- Notifications & Messages ---
-    void notifyDeath();
-    void notifyWin();
-    void notifyAlienEscaped(Entity entity);
-    void notifyAlienKilled();
-    void notifyMeteorDestroyed(int scoreValue);
-    void notifyItemCollected();
-    String getMessage();
-    void setMessage(String message);
-    void setMessageEndTime(long time);
+        void setNextState(GameState.Type stateType);
 
-    // --- Misc ---
-    boolean hasCollectedAllItems();
-    void resetItemCollection();
-    void setLogicRequiredThisLoop(boolean required);
-}
+        void onWaveCleared();
+
+        void updatePlayingLogic(long delta); // ADDED
+
+    
+
+        // --- Entity Management ---
+
+        void addEntity(Entity entity);
+
+        void removeEntity(Entity entity);
+
+        java.util.List<Entity> getEntities();
+
+        ShipEntity getShip();
+
+    
+
+        // --- Player Status ---
+
+        boolean canPlayerAttack();
+
+    
+
+        // --- UI & Rendering ---
+
+        Background getBackground();
+
+        Sprite getStaticBackgroundSprite();
+
+        Map<String, Weapon> getWeapons();
+
+        double getMoveSpeed();
+
+        boolean getShowHitboxes();
+
+        void setShowHitboxes(boolean show);
+
+    
+
+        // --- Notifications & Messages ---
+
+        void notifyDeath();
+
+        void notifyWin();
+
+        void notifyAlienEscaped(Entity entity);
+
+        void notifyAlienKilled();
+
+        void notifyMeteorDestroyed(int scoreValue);
+
+        void notifyItemCollected();
+
+        String getMessage();
+
+        void setMessage(String message);
+
+        void setMessageEndTime(long time);
+
+    
+
+        // --- Misc ---
+
+        boolean hasCollectedAllItems();
+
+        void resetItemCollection();
+
+        void setLogicRequiredThisLoop(boolean required);
+
+    }
+
+    

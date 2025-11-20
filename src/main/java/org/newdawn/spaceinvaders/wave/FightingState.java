@@ -18,7 +18,7 @@ public class FightingState implements WaveState {
         handleHealingAreaSpawning(waveManager);
 
         // Check if all aliens are defeated to end the wave.
-        if (waveManager.getGameManager().getEntityManager().getAlienCount() <= 0) {
+        if (waveManager.getGameManager().getGameContainer().getEntityManager().getAlienCount() <= 0) {
             // Instead of changing to a new state, directly trigger the next wave logic.
             waveManager.getGameManager().onWaveCleared();
         }

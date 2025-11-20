@@ -24,14 +24,14 @@ public class ToggleEquipPetCommand implements Command {
         String selectedPetName = menuView.getSelectedItem();
         if (selectedPetName == null) return;
 
-        gameContext.getSoundManager().playSound("buttonselect");
-        PlayerData playerData = gameContext.getPlayerManager().getCurrentPlayer();
+        gameContext.getGameContainer().getSoundManager().playSound("buttonselect");
+        PlayerData playerData = gameContext.getGameContainer().getPlayerManager().getCurrentPlayer();
 
         if (selectedPetName.equals(playerData.getEquippedPet())) {
             playerData.setEquippedPet(null); // Unequip
         } else {
             playerData.setEquippedPet(selectedPetName); // Equip
         }
-        gameContext.savePlayerData();
+        gameContext.getGameContainer().getPlayerManager().savePlayerData();
     }
 }

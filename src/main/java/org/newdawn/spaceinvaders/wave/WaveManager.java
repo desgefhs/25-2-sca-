@@ -94,7 +94,7 @@ public class WaveManager {
      */
     private void spawnFormation(SpawnInfo spawn) {
         Formation formation = formationManager.getRandomFormationForStage(spawn.getStage());
-        gameManager.getEntityManager().spawnFormation(formation, wave, spawn.isForceUpgrade());
+        gameManager.getGameContainer().getEntityManager().spawnFormation(formation, wave, spawn.isForceUpgrade());
     }
 
     /**
@@ -103,7 +103,7 @@ public class WaveManager {
      */
     private void spawnBoss(SpawnInfo spawn) {
         // Clear all entities except the player ship before a boss fight.
-        gameManager.getEntityManager().getEntities().removeIf(entity -> !(entity instanceof ShipEntity));
+        gameManager.getGameContainer().getEntityManager().getEntities().removeIf(entity -> !(entity instanceof ShipEntity));
 
         int waveNumberForBoss = spawn.getStage(); // Re-using stage field for boss wave number
         int cycle = (waveNumberForBoss - 1) / 5;
@@ -111,7 +111,7 @@ public class WaveManager {
         int bossHealth = (int) (50 * cycleMultiplier);
         Entity boss = BossFactory.createBoss(gameManager, waveNumberForBoss, Game.GAME_WIDTH / 2, 50, bossHealth);
         gameManager.addEntity(boss);
-        gameManager.getEntityManager().setAlienCount(1);
+        gameManager.getGameContainer().getEntityManager().setAlienCount(1);
     }
 
     public void startFirstWave() {

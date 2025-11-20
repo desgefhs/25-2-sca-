@@ -57,11 +57,11 @@ public class PlayingState implements GameState {
         setupPlayerShip();
 
         // Initialize the wave manager's timers every time we enter the playing state
-        gameContext.getWaveManager().init();
+        gameContext.getGameContainer().getWaveManager().init();
     }
 
     private void setupPlayerShip() {
-        PlayerData currentPlayer = gameContext.getPlayerManager().getCurrentPlayer();
+        PlayerData currentPlayer = gameContext.getGameContainer().getPlayerManager().getCurrentPlayer();
         String equippedWeaponName = currentPlayer.getEquippedWeapon();
         Weapon selectedWeapon;
         if (equippedWeaponName != null) {
@@ -80,7 +80,7 @@ public class PlayingState implements GameState {
             selectedWeapon = new DefaultGun();
         }
 
-        gameContext.getEntityManager().initShip(gameContext.getPlayerManager().getPlayerStats(), selectedWeapon);
+        gameContext.getGameContainer().getEntityManager().initShip(gameContext.getGameContainer().getPlayerManager().getPlayerStats(), selectedWeapon);
 
         if (currentPlayer.getEquippedPet() != null) {
             try {

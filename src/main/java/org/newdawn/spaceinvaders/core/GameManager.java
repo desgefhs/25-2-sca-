@@ -21,16 +21,9 @@ import java.util.Map;
 
 public class GameManager implements GameContext {
 
-    private InputHandler inputHandler;
-    private GameStateManager gsm;
+    private GameContainer gameContainer;
     private Map<String, Weapon> weapons;
 
-    private DatabaseManager databaseManager;
-    private UIManager uiManager;
-    private ShopManager shopManager;
-    private FormationManager formationManager;
-    private PlayerManager playerManager;
-    private SoundManager soundManager;
     private GameStateFactory gameStateFactory;
     private final GameSession gameSession;
     private GameWorld gameWorld;
@@ -45,13 +38,17 @@ public class GameManager implements GameContext {
 
     // 설정
     public final double moveSpeed = 300;
-    public static final int ALIEN_SCORE = 10;
 
-    private final boolean gameRunning = true;
+    private GameEventHandler gameEventHandler;
+    private GameLoop gameLoop;
 
     public GameManager() {
         this.gameSession = new GameSession();
         // Dependencies will be injected via setters
+    }
+
+    public void init() {
+        this.gameEventHandler = new GameEventHandler(this, getPlayerManager(), getEntityManager(), getSoundManager());
     }
 
     @Override
@@ -84,6 +81,10 @@ public class GameManager implements GameContext {
         this.messageEndTime = time;
     }
 
+    public long getMessageEndTime() {
+        return messageEndTime;
+    }
+
     @Override
     public double getMoveSpeed() {
         return moveSpeed;
@@ -97,99 +98,78 @@ public class GameManager implements GameContext {
         this.gameWorld = gameWorld;
     }
 
-    public void setInputHandler(InputHandler inputHandler) {
-        this.inputHandler = inputHandler;
-    }
-
-    public void setGsm(GameStateManager gsm) {
-        this.gsm = gsm;
+    public void setGameContainer(GameContainer gameContainer) {
+        this.gameContainer = gameContainer;
     }
 
     public void setWeapons(Map<String, Weapon> weapons) {
         this.weapons = weapons;
     }
 
-    public void setDatabaseManager(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
-    }
-
-    public void setUIManager(UIManager uiManager) {
-        this.uiManager = uiManager;
-    }
-
-    public void setShopManager(ShopManager shopManager) {
-        this.shopManager = shopManager;
-    }
-
-    public void setFormationManager(FormationManager formationManager) {
-        this.formationManager = formationManager;
-    }
-
-    public void setPlayerManager(PlayerManager playerManager) {
-        this.playerManager = playerManager;
-    }
-
-    public void setSoundManager(SoundManager soundManager) {
-        this.soundManager = soundManager;
-    }
-
     @Override
+    public GameContainer getGameContainer() {
+        return gameContainer;
+    }
+
     public MainMenu getMainMenu() {
-        return uiManager.getMainMenu();
+        return gameContainer.getUiManager().getMainMenu();
     }
 
-    @Override
     public PauseMenu getPauseMenu() {
-        return uiManager.getPauseMenu();
+        return gameContainer.getUiManager().getPauseMenu();
     }
 
-    @Override
     public GameOverMenu getGameOverMenu() {
-        return uiManager.getGameOverMenu();
+        return gameContainer.getUiManager().getGameOverMenu();
     }
 
-    @Override
     public ConfirmDialog getConfirmDialog() {
-        return uiManager.getConfirmDialog();
+        return gameContainer.getUiManager().getConfirmDialog();
     }
 
-    @Override
     public ShopMenu getShopMenu() {
-        return uiManager.getShopMenu();
+        return gameContainer.getUiManager().getShopMenu();
     }
 
-    @Override
     public Sprite getStaticBackgroundSprite() {
-        return uiManager.getStaticBackgroundSprite();
+        return gameContainer.getUiManager().getStaticBackgroundSprite();
+    }
+
+    public ShopManager getShopManager() {
+        return gameContainer.getShopManager();
     }
 
     @Override
-    public ShopManager getShopManager() {
-        return shopManager;
-    }
-
     public Map<String, Weapon> getWeapons() {
         return weapons;
     }
 
     //
     public void initializePlayer() {
-        playerManager.initializePlayer();
-        uiManager.setShopMenu(new ShopMenu(shopManager.getAllUpgrades()));
+        getPlayerManager().initializePlayer();
+        gameContainer.getUiManager().setShopMenu(new ShopMenu(getShopManager().getAllUpgrades()));
     }
 
     //게임 시작, 메인루프 호출
     public void startGame() {
-        uiManager.getGameWindow().setVisible(true);
-        mainLoop();
+        gameContainer.getUiManager().getGameWindow().setVisible(true);
+        gameLoop = new GameLoop(getGsm(), getInputHandler(), gameContainer.getUiManager().getGameWindow(), this);
+        gameLoop.run();
     }
 
     //현재 상태 설정
+    @Override
     public void setCurrentState(GameState.Type stateType) {
         GameState newState = gameStateFactory.create(stateType, this);
-        gsm.setState(newState);
+        getGsm().setState(newState);
     }
 
+    @Override
+    public void setNextState(GameState.Type stateType) {
+        this.nextState = stateType;
+    }
+
+    @Override
     public void onWaveCleared() {
         getWaveManager().startNextWave();
     }
@@ -200,40 +180,6 @@ public class GameManager implements GameContext {
         this.setLogicRequiredThisLoop(true);
     }
 
-    // 메인 루프
-    private void mainLoop() {
-        long lastLoopTime = SystemTimer.getTime();
-        while (gameRunning) {
-            long delta = SystemTimer.getTime() - lastLoopTime;
-            lastLoopTime = SystemTimer.getTime();
-
-            gsm.handleInput(inputHandler);
-
-            gsm.update(delta);
-
-            // Check for timed message expiry
-            if (messageEndTime > 0 && System.currentTimeMillis() > messageEndTime) {
-                message = "";
-                messageEndTime = 0;
-            }
-
-            if (nextState != null) {
-                setCurrentState(nextState);
-                nextState = null;
-            }
-
-
-            Graphics2D g = uiManager.getGameWindow().getGameCanvas().getGraphics2D();
-            if (g != null) {
-                gsm.render(g);
-                g.dispose();
-                uiManager.getGameWindow().getGameCanvas().showStrategy();
-            }
-
-            SystemTimer.sleep(lastLoopTime + 10 - SystemTimer.getTime());
-        }
-    }
-
     // playingstate 정보
     @Override
     public void addEntity(Entity entity) { gameWorld.addEntity(entity); }
@@ -241,45 +187,28 @@ public class GameManager implements GameContext {
     public void removeEntity(Entity entity) { gameWorld.removeEntity(entity); }
     @Override
     public void notifyDeath() {
-        this.nextState = GameState.Type.GAME_OVER;
-        soundManager.stopAllSounds("ship-death-sound");
-        soundManager.playSound("ship-death-sound");
+        gameEventHandler.notifyDeath();
      }
     @Override
     public void notifyWin() {
-        soundManager.stopAllSounds();
-        setCurrentState(GameState.Type.GAME_WON);
+        gameEventHandler.notifyWin();
     }
 
     //처치한 적 처리( 점수 처리 )
     @Override
     public void notifyAlienKilled() {
-        playerManager.increaseScore(ALIEN_SCORE);
-        getEntityManager().decreaseAlienCount();
-
-        // Buff drop logic
-        double roll = Math.random();
-        if (roll < 0.05) { // 5% chance for invincibility
-            getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.INVINCIBILITY);
-        } else if (roll < 0.10) { // 5% chance for speed boost
-            getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.SPEED_BOOST);
-        } else if (roll < 0.15) { // 5% chance for heal
-            getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.HEAL);
-        }
-
+        gameEventHandler.notifyAlienKilled();
     }
 
     //화면 밖으로 나간 적 처리
     @Override
     public void notifyAlienEscaped(Entity entity) {
-        getEntityManager().removeEntity(entity);
-        getEntityManager().decreaseAlienCount();
-
+        gameEventHandler.notifyAlienEscaped(entity);
     }
 
     @Override
     public void notifyMeteorDestroyed(int scoreValue) {
-        playerManager.increaseScore(scoreValue);
+        gameEventHandler.notifyMeteorDestroyed(scoreValue);
     }
 
     @Override
@@ -288,34 +217,19 @@ public class GameManager implements GameContext {
     @Override
     public ShipEntity getShip() { return gameWorld.getShip(); }
 
+    @Override
     public void startGameplay() {
-        soundManager.stopSound("menubackground");
-        playerManager.setGameStartTime(System.currentTimeMillis());
-        playerManager.calculatePlayerStats();
-        playerManager.resetScore();
-        getWaveManager().startFirstWave();
+        getPlayerManager().startGameplay();
     }
 
-    // 게임 결과 저장( 크레딧, 스코어 )
-    public void saveGameResults() {
-        playerManager.saveGameResults();
-    }
-
-    /**
-     * Saves the current state of the player data to the database.
-     */
-    public void savePlayerData() {
-        playerManager.savePlayerData();
-    }
-
-    public InputHandler getInputHandler() { return inputHandler; }
+    public InputHandler getInputHandler() { return gameContainer.getInputHandler(); }
     public EntityManager getEntityManager() { return gameWorld.getEntityManager(); }
-    public DatabaseManager getDatabaseManager() { return databaseManager; }
-    public PlayerData getCurrentPlayer() { return playerManager.getCurrentPlayer(); }
-    public PlayerStats getPlayerStats() { return playerManager.getPlayerStats(); }
-    public GameStateManager getGsm() { return gsm; }
+    public DatabaseManager getDatabaseManager() { return gameContainer.getDatabaseManager(); }
+    public PlayerData getCurrentPlayer() { return gameContainer.getPlayerManager().getCurrentPlayer(); }
+    public PlayerStats getPlayerStats() { return gameContainer.getPlayerManager().getPlayerStats(); }
+    public GameStateManager getGsm() { return gameContainer.getGsm(); }
     public WaveManager getWaveManager() { return gameWorld.getWaveManager(); }
-    public PlayerManager getPlayerManager() { return playerManager; }
+    public PlayerManager getPlayerManager() { return gameContainer.getPlayerManager(); }
 
     @Override
     public void notifyItemCollected() {
@@ -338,12 +252,10 @@ public class GameManager implements GameContext {
     }
 
 
-    @Override
     public SoundManager getSoundManager() {
-        return soundManager;
+        return gameContainer.getSoundManager();
     }
 
-    @Override
     public Background getBackground() {
         return gameWorld.getBackground();
     }

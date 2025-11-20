@@ -62,8 +62,8 @@ public class WeaponMenuState implements GameState {
         int yPos = 100;
         for (int i = 0; i < weaponMenu.getItems().size(); i++) {
             String weaponName = weaponMenu.getItems().get(i);
-            int level = gameContext.getPlayerManager().getCurrentPlayer().getWeaponLevels().getOrDefault(weaponName, 0);
-            String equippedWeapon = gameContext.getPlayerManager().getCurrentPlayer().getEquippedWeapon();
+            int level = gameContext.getGameContainer().getPlayerManager().getCurrentPlayer().getWeaponLevels().getOrDefault(weaponName, 0);
+            String equippedWeapon = gameContext.getGameContainer().getPlayerManager().getCurrentPlayer().getEquippedWeapon();
 
             if (i == weaponMenu.getSelectedIndex()) {
                 g.setColor(Color.GREEN);
@@ -102,7 +102,7 @@ public class WeaponMenuState implements GameState {
                 sprite.draw(g, boxX, boxY, boxWidth, boxHeight);
             }
 
-            int level = gameContext.getPlayerManager().getCurrentPlayer().getWeaponLevels().getOrDefault(selectedWeapon, 0);
+            int level = gameContext.getGameContainer().getPlayerManager().getCurrentPlayer().getWeaponLevels().getOrDefault(selectedWeapon, 0);
             boolean isUpgradeableWeapon = selectedWeapon.equals("Shotgun") || selectedWeapon.equals("Laser");
 
             if (isUpgradeableWeapon && level > 0) {

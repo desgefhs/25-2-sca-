@@ -24,7 +24,7 @@ public class ProcessGameOverMenuSelectionCommand implements Command {
 
     @Override
     public void execute() {
-        GameOverMenu menu = gameContext.getGameOverMenu();
+        GameOverMenu menu = gameContext.getGameContainer().getUiManager().getGameOverMenu();
         if (menu == null) {
             return;
         }
@@ -32,7 +32,7 @@ public class ProcessGameOverMenuSelectionCommand implements Command {
         
         Command command = selectionCommands.get(selectedItem);
         if (command != null) {
-            gameContext.getSoundManager().playSound("buttonselect");
+            gameContext.getGameContainer().getSoundManager().playSound("buttonselect");
             command.execute();
         }
     }

@@ -14,20 +14,20 @@ public class ProcessPausedMenuSelectionCommand implements Command {
 
     @Override
     public void execute() {
-        PauseMenu menu = gameContext.getPauseMenu();
+        PauseMenu menu = gameContext.getGameContainer().getUiManager().getPauseMenu();
         if (menu == null) {
             return;
         }
         String selectedItem = menu.getSelectedItem();
 
-        gameContext.getSoundManager().playSound("buttonselect");
+        gameContext.getGameContainer().getSoundManager().playSound("buttonselect");
 
         switch (selectedItem) {
             case "재개하기":
                 gameContext.setCurrentState(GameState.Type.PLAYING);
                 break;
             case "메인메뉴로 나가기":
-                gameContext.saveGameResults();
+                gameContext.getGameContainer().getPlayerManager().saveGameResults();
                 gameContext.setCurrentState(GameState.Type.MAIN_MENU);
                 break;
             case "종료하기":

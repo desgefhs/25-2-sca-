@@ -13,13 +13,13 @@ public class DrawItemCommand implements Command {
 
     @Override
     public void execute() {
-        DrawResult result = gameContext.getShopManager().drawItem(gameContext.getPlayerManager().getCurrentPlayer());
+        DrawResult result = gameContext.getGameContainer().getShopManager().drawItem(gameContext.getGameContainer().getPlayerManager().getCurrentPlayer());
         gameContext.setMessage(result.getMessage());
         
         // The drawItem method now handles saving internally if needed,
         // but we can also save here to ensure consistency.
         if (result.isSuccess()) {
-            gameContext.savePlayerData();
+            gameContext.getGameContainer().getPlayerManager().savePlayerData();
         }
     }
 }

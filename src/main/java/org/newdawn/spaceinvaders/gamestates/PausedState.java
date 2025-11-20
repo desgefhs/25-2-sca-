@@ -31,7 +31,7 @@ public class PausedState implements GameState {
     @Override
     public void render(Graphics2D g) {
         // Render the playing state underneath
-        PlayingState playingState = gameContext.getGsm().getPlayingState();
+        PlayingState playingState = gameContext.getGameContainer().getGsm().getPlayingState();
         if (playingState != null) {
             playingState.render(g);
         }
@@ -42,15 +42,15 @@ public class PausedState implements GameState {
         // 일시정지 메뉴
         g.setFont(new Font("Dialog", Font.BOLD, 24));
         int itemHeight = 40;
-        int startY = (Game.SCREEN_HEIGHT - (gameContext.getPauseMenu().getItemCount() * itemHeight)) / 2;
+        int startY = (Game.SCREEN_HEIGHT - (gameContext.getGameContainer().getUiManager().getPauseMenu().getItemCount() * itemHeight)) / 2;
 
-        for (int i = 0; i < gameContext.getPauseMenu().getItemCount(); i++) {
-            if (i == gameContext.getPauseMenu().getSelectedIndex()) {
+        for (int i = 0; i < gameContext.getGameContainer().getUiManager().getPauseMenu().getItemCount(); i++) {
+            if (i == gameContext.getGameContainer().getUiManager().getPauseMenu().getSelectedIndex()) {
                 g.setColor(Color.GREEN);
             } else {
                 g.setColor(Color.WHITE);
             }
-            String itemText = gameContext.getPauseMenu().getItem(i);
+            String itemText = gameContext.getGameContainer().getUiManager().getPauseMenu().getItem(i);
             int textWidth = g.getFontMetrics().stringWidth(itemText);
             g.drawString(itemText, (Game.SCREEN_WIDTH - textWidth) / 2, startY + (i * itemHeight));
         }

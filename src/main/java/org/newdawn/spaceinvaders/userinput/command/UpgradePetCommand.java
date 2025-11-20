@@ -25,7 +25,7 @@ public class UpgradePetCommand implements Command {
         String selectedPetName = menuView.getSelectedItem();
         if (selectedPetName == null) return;
 
-        PlayerData playerData = gameContext.getPlayerManager().getCurrentPlayer();
+        PlayerData playerData = gameContext.getGameContainer().getPlayerManager().getCurrentPlayer();
         int currentAmount = playerData.getPetInventory().getOrDefault(selectedPetName, 0);
 
         if (currentAmount <= 1) {
@@ -45,7 +45,7 @@ public class UpgradePetCommand implements Command {
             // Proceed with upgrade
             playerData.increasePetLevel(petType.name());
             playerData.getPetInventory().put(selectedPetName, currentAmount - 1);
-            gameContext.savePlayerData();
+            gameContext.getGameContainer().getPlayerManager().savePlayerData();
             gameContext.setMessage(petType.getDisplayName() + " 강화 성공!");
 
         } catch (IllegalArgumentException e) {

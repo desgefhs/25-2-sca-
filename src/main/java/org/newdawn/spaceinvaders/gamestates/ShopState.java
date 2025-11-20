@@ -18,7 +18,7 @@ public class ShopState implements GameState {
 
     public ShopState(GameContext gameContext) {
         this.gameContext = gameContext;
-        this.shopView = new ShopView(gameContext.getShopMenu().getItems());
+        this.shopView = new ShopView(gameContext.getGameContainer().getUiManager().getShopMenu().getItems());
         this.inputHandler = new ShopInputHandler(gameContext, this.shopView);
     }
 
@@ -45,7 +45,7 @@ public class ShopState implements GameState {
         g.drawString("캐릭터 강화", (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth("캐릭터 강화")) / 2, 80);
 
         g.setFont(new Font("Dialog", Font.BOLD, 20));
-        String creditText = "보유 크레딧: " + gameContext.getPlayerManager().getCurrentPlayer().getCredit();
+        String creditText = "보유 크레딧: " + gameContext.getGameContainer().getPlayerManager().getCurrentPlayer().getCredit();
         g.drawString(creditText, (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(creditText)) / 2, 120);
 
         g.setFont(new Font("Dialog", Font.PLAIN, 14));
@@ -63,7 +63,7 @@ public class ShopState implements GameState {
         List<Upgrade> upgrades = shopView.getUpgrades();
         for (int i = 0; i < upgrades.size(); i++) {
             Upgrade upgrade = upgrades.get(i);
-            int currentLevel = gameContext.getPlayerManager().getCurrentPlayer().getUpgradeLevel(upgrade.getId());
+            int currentLevel = gameContext.getGameContainer().getPlayerManager().getCurrentPlayer().getUpgradeLevel(upgrade.getId());
             int maxLevel = upgrade.getMaxLevel();
 
             Rectangle itemBounds = new Rectangle(100, startY + (i * itemHeight) - 40, Game.SCREEN_WIDTH - 200, itemHeight);

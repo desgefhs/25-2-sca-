@@ -78,11 +78,9 @@ public class Game {
         ShopManager shopManager = new ShopManager();
         FormationManager formationManager = new FormationManager();
         SoundManager soundManager = new SoundManager();
-        PlayerManager playerManager = new PlayerManager(user, databaseManager, shopManager);
-
-        EntityManager entityManager = new EntityManager(gameManager);
         WaveManager waveManager = new WaveManager(gameManager, formationManager);
-
+        PlayerManager playerManager = new PlayerManager(user, databaseManager, shopManager, soundManager, waveManager);
+        EntityManager entityManager = new EntityManager(gameManager);
         GameWindow gameWindow = new GameWindow(inputHandler);
         MainMenu mainMenu = new MainMenu();
         PauseMenu pauseMenu = new PauseMenu();
@@ -90,34 +88,27 @@ public class Game {
         Background background = new Background("sprites/gamebackground.png");
         Sprite staticBackgroundSprite = SpriteStore.get().getSprite("sprites/background.jpg");
         ConfirmDialog confirmDialog = new ConfirmDialog("Are you sure you want to exit?");
-
         UIManager uiManager = new UIManager(gameWindow, mainMenu, pauseMenu, gameOverMenu, confirmDialog, staticBackgroundSprite);
+        GameStateManager gsm = new GameStateManager();
+        GameStateFactory gameStateFactory = new GameStateFactory();
 
+        GameContainer gameContainer = new GameContainer(databaseManager, playerManager, shopManager, soundManager,
+                formationManager, waveManager, entityManager, uiManager, gsm, inputHandler);
 
         Map<String, org.newdawn.spaceinvaders.entity.weapon.Weapon> weapons = new HashMap<>();
         weapons.put("DefaultGun", new org.newdawn.spaceinvaders.entity.weapon.DefaultGun());
         weapons.put("Shotgun", new org.newdawn.spaceinvaders.entity.weapon.Shotgun());
         weapons.put("Laser", new org.newdawn.spaceinvaders.entity.weapon.Laser());
 
-        GameStateManager gsm = new GameStateManager();
-        GameStateFactory gameStateFactory = new GameStateFactory();
-
         // 3. Inject Dependencies into GameManager
         GameWorld gameWorld = new GameWorld(entityManager, background, waveManager, gameManager);
         gameManager.setGameWorld(gameWorld);
-
+        gameManager.setGameContainer(gameContainer);
         gameManager.setGameStateFactory(gameStateFactory);
-        gameManager.setInputHandler(inputHandler);
-        gameManager.setDatabaseManager(databaseManager);
-        gameManager.setShopManager(shopManager);
-        gameManager.setFormationManager(formationManager);
-        gameManager.setSoundManager(soundManager);
-        gameManager.setPlayerManager(playerManager);
-        gameManager.setUIManager(uiManager);
         gameManager.setWeapons(weapons);
-        gameManager.setGsm(gsm);
 
         // 4. Initialize and Start Game
+        gameManager.init();
         gameManager.setCurrentState(GameState.Type.MAIN_MENU);
         gameManager.initializePlayer();
         gameManager.startGame();

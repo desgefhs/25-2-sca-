@@ -51,7 +51,7 @@ public class ItemDrawState implements GameState {
         g.drawString(title, (Game.SCREEN_WIDTH - titleWidth) / 2, 150);
 
         g.setFont(new Font("Dialog", Font.BOLD, 20));
-        String creditText = "보유 크레딧: " + gameContext.getPlayerManager().getCurrentPlayer().getCredit();
+        String creditText = "보유 크레딧: " + gameContext.getGameContainer().getPlayerManager().getCurrentPlayer().getCredit();
         g.drawString(creditText, (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(creditText)) / 2, 200);
 
         if (gameContext.getMessage() != null && !gameContext.getMessage().isEmpty()) {
@@ -67,7 +67,7 @@ public class ItemDrawState implements GameState {
         for (int i = 0; i < itemView.getItemCount(); i++) {
             String menuItemText = itemView.getItem(i);
             if (i == 0) { // "아이템 뽑기" button
-                String costText = " (비용: " + gameContext.getShopManager().getItemDrawCost() + ")";
+                String costText = " (비용: " + gameContext.getGameContainer().getShopManager().getItemDrawCost() + ")";
                 menuItemText += costText;
             }
 

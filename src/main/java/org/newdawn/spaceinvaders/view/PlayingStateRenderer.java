@@ -28,14 +28,14 @@ public class PlayingStateRenderer {
             g.setClip(0, 0, Game.GAME_WIDTH, Game.GAME_HEIGHT);
 
             // Draw Entities
-            for (Entity entity : gameContext.getEntityManager().getEntities()) {
+            for (Entity entity : gameContext.getGameContainer().getEntityManager().getEntities()) {
                 entity.draw(g);
             }
 
             // Draw Hitboxes if enabled
             if (gameContext.getShowHitboxes()) {
                 g.setColor(Color.RED);
-                for (Entity entity : gameContext.getEntityManager().getEntities()) {
+                for (Entity entity : gameContext.getGameContainer().getEntityManager().getEntities()) {
                     g.drawRect(entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight());
                 }
             }
@@ -48,12 +48,12 @@ public class PlayingStateRenderer {
         // Draw UI
         g.setColor(Color.white);
         g.setFont(new Font("Dialog", Font.BOLD, 14));
-        g.drawString(String.format("점수: %03d", gameContext.getPlayerManager().getScore()), 680, 30);
-        g.drawString(String.format("Wave: %d", gameContext.getWaveManager().getWave()), 520, 30);
+        g.drawString(String.format("점수: %03d", gameContext.getGameContainer().getPlayerManager().getScore()), 680, 30);
+        g.drawString(String.format("Wave: %d", gameContext.getGameContainer().getWaveManager().getWave()), 520, 30);
 
         // Draw Play Time
-        if (gameContext.getPlayerManager().getGameStartTime() > 0) {
-            long elapsedMillis = System.currentTimeMillis() - gameContext.getPlayerManager().getGameStartTime();
+        if (gameContext.getGameContainer().getPlayerManager().getGameStartTime() > 0) {
+            long elapsedMillis = System.currentTimeMillis() - gameContext.getGameContainer().getPlayerManager().getGameStartTime();
             long elapsedSeconds = elapsedMillis / 1000;
             long minutes = elapsedSeconds / 60;
             long seconds = elapsedSeconds % 60;

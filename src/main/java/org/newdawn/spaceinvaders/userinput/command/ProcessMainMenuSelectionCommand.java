@@ -28,7 +28,7 @@ public class ProcessMainMenuSelectionCommand implements Command {
 
     @Override
     public void execute() {
-        MainMenu mainMenu = gameContext.getMainMenu();
+        MainMenu mainMenu = gameContext.getGameContainer().getUiManager().getMainMenu();
         if (mainMenu == null) {
             return;
         }
@@ -36,7 +36,7 @@ public class ProcessMainMenuSelectionCommand implements Command {
         
         Command command = selectionCommands.get(selectedItem);
         if (command != null) {
-            gameContext.getSoundManager().playSound("buttonselect");
+            gameContext.getGameContainer().getSoundManager().playSound("buttonselect");
             command.execute();
         }
     }

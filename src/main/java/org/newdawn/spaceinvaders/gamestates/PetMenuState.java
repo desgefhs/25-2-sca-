@@ -66,7 +66,7 @@ public class PetMenuState implements GameState {
 
     @Override
     public void onEnter() {
-        this.playerData = gameContext.getPlayerManager().getCurrentPlayer();
+        this.playerData = gameContext.getGameContainer().getPlayerManager().getCurrentPlayer();
         setupMenu();
         gameContext.setMessage("");
     }

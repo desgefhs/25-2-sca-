@@ -17,12 +17,12 @@ public class PurchaseUpgradeCommand implements Command {
 
     @Override
     public void execute() {
-        gameContext.getSoundManager().playSound("buttonselect");
+        gameContext.getGameContainer().getSoundManager().playSound("buttonselect");
             
         Upgrade selectedUpgrade = shopView.getSelectedUpgrade();
         if (selectedUpgrade == null) return;
 
-        PlayerData currentPlayer = gameContext.getPlayerManager().getCurrentPlayer();
+        PlayerData currentPlayer = gameContext.getGameContainer().getPlayerManager().getCurrentPlayer();
         int currentLevel = currentPlayer.getUpgradeLevel(selectedUpgrade.getId());
         
         if (currentLevel >= selectedUpgrade.getMaxLevel()) {
@@ -34,7 +34,7 @@ public class PurchaseUpgradeCommand implements Command {
         if (currentPlayer.getCredit() >= cost) {
             currentPlayer.setCredit(currentPlayer.getCredit() - cost);
             currentPlayer.setUpgradeLevel(selectedUpgrade.getId(), currentLevel + 1);
-            gameContext.savePlayerData(); // Save after purchase
+            gameContext.getGameContainer().getPlayerManager().savePlayerData(); // Save after purchase
             gameContext.setMessage("업그레이드 성공!");
         } else {
             gameContext.setMessage("크레딧이 부족합니다!");

@@ -17,8 +17,8 @@ public class MainMenuInputHandler {
     private final Map<Integer, Command> commandMap = new HashMap<>();
 
     public MainMenuInputHandler(GameContext gameContext) {
-        commandMap.put(KeyEvent.VK_LEFT, new MenuNavigateCommand(() -> gameContext.getMainMenu(), MenuNavigateCommand.Direction.LEFT));
-        commandMap.put(KeyEvent.VK_RIGHT, new MenuNavigateCommand(() -> gameContext.getMainMenu(), MenuNavigateCommand.Direction.RIGHT));
+        commandMap.put(KeyEvent.VK_LEFT, new MenuNavigateCommand(() -> gameContext.getGameContainer().getUiManager().getMainMenu(), MenuNavigateCommand.Direction.LEFT));
+        commandMap.put(KeyEvent.VK_RIGHT, new MenuNavigateCommand(() -> gameContext.getGameContainer().getUiManager().getMainMenu(), MenuNavigateCommand.Direction.RIGHT));
         commandMap.put(KeyEvent.VK_ENTER, new ProcessMainMenuSelectionCommand(gameContext));
         commandMap.put(KeyEvent.VK_ESCAPE, new GoToStateCommand(gameContext, GameState.Type.EXIT_CONFIRMATION));
     }

@@ -17,7 +17,7 @@ public class SwitchWeaponCommand implements Command {
     @Override
     public void execute() {
         // The default gun is always available. For others, check if the player has upgraded it.
-        if (!"DefaultGun".equals(weaponName) && gameContext.getPlayerManager().getPlayerStats().getWeaponLevel(weaponName) <= 0) {
+        if (!"DefaultGun".equals(weaponName) && gameContext.getGameContainer().getPlayerManager().getPlayerStats().getWeaponLevel(weaponName) <= 0) {
             return; // Player doesn't own this weapon yet.
         }
 
@@ -32,7 +32,7 @@ public class SwitchWeaponCommand implements Command {
         }
 
         // Set the weapon's level from player stats before equipping
-        weapon.setLevel(gameContext.getPlayerManager().getPlayerStats().getWeaponLevel(weaponName));
+        weapon.setLevel(gameContext.getGameContainer().getPlayerManager().getPlayerStats().getWeaponLevel(weaponName));
         ship.setWeapon(weapon);
     }
 }

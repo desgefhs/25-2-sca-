@@ -49,7 +49,7 @@ public class ItemDrawInputHandler {
             commandMap.get(KeyEvent.VK_DOWN).execute();
         }
         if (input.isPressedAndConsume(KeyEvent.VK_ENTER)) {
-            gameContext.getSoundManager().playSound("buttonselect");
+            gameContext.getGameContainer().getSoundManager().playSound("buttonselect");
             commandMap.get(KeyEvent.VK_ENTER).execute();
         }
         if (input.isPressedAndConsume(KeyEvent.VK_ESCAPE)) {

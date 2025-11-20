@@ -37,7 +37,7 @@ public class UpgradeWeaponCommand implements Command {
     }
 
     private void upgradeSpecificWeapon(String weaponName, int maxLevel, Function<Integer, Integer> costFunction) {
-        PlayerData playerData = gameContext.getPlayerManager().getCurrentPlayer();
+        PlayerData playerData = gameContext.getGameContainer().getPlayerManager().getCurrentPlayer();
         int currentLevel = playerData.getWeaponLevels().getOrDefault(weaponName, 0);
 
         if (currentLevel <= 0) {
@@ -55,7 +55,7 @@ public class UpgradeWeaponCommand implements Command {
         if (playerData.getCredit() >= cost) {
             playerData.setCredit(playerData.getCredit() - cost);
             playerData.getWeaponLevels().put(weaponName, currentLevel + 1);
-            gameContext.savePlayerData();
+            gameContext.getGameContainer().getPlayerManager().savePlayerData();
             gameContext.setMessage(weaponName + " upgraded to Level " + (currentLevel + 1) + "!");
         } else {
             gameContext.setMessage("Not enough credits!");

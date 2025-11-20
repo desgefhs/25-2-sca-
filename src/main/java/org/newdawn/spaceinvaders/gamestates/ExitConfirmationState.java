@@ -31,7 +31,7 @@ public class ExitConfirmationState implements GameState {
     @Override
     public void render(Graphics2D g) {
         // Render the main menu underneath
-        MainMenuState mainMenuState = gameContext.getGsm().getMainMenuState();
+        MainMenuState mainMenuState = gameContext.getGameContainer().getGsm().getMainMenuState();
         if (mainMenuState != null) {
             mainMenuState.render(g);
         }
@@ -48,28 +48,28 @@ public class ExitConfirmationState implements GameState {
 
         // Draw the message
         g.setFont(new Font("Dialog", Font.BOLD, 20));
-        g.drawString(gameContext.getConfirmDialog().getMessage(), (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameContext.getConfirmDialog().getMessage())) / 2, 260);
+        g.drawString(gameContext.getGameContainer().getUiManager().getConfirmDialog().getMessage(), (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameContext.getGameContainer().getUiManager().getConfirmDialog().getMessage())) / 2, 260);
 
         // Draw the buttons
         g.setFont(new Font("Dialog", Font.BOLD, 24));
         int totalWidth = 0;
         int spacing = 80;
 
-        for (int i = 0; i < gameContext.getConfirmDialog().getItemCount(); i++) {
-            totalWidth += g.getFontMetrics().stringWidth(gameContext.getConfirmDialog().getItem(i));
+        for (int i = 0; i < gameContext.getGameContainer().getUiManager().getConfirmDialog().getItemCount(); i++) {
+            totalWidth += g.getFontMetrics().stringWidth(gameContext.getGameContainer().getUiManager().getConfirmDialog().getItem(i));
         }
-        totalWidth += (gameContext.getConfirmDialog().getItemCount() - 1) * spacing;
+        totalWidth += (gameContext.getGameContainer().getUiManager().getConfirmDialog().getItemCount() - 1) * spacing;
 
         int currentX = (Game.SCREEN_WIDTH - totalWidth) / 2;
 
-        for (int i = 0; i < gameContext.getConfirmDialog().getItemCount(); i++) {
-            if (i == gameContext.getConfirmDialog().getSelectedIndex()) {
+        for (int i = 0; i < gameContext.getGameContainer().getUiManager().getConfirmDialog().getItemCount(); i++) {
+            if (i == gameContext.getGameContainer().getUiManager().getConfirmDialog().getSelectedIndex()) {
                 g.setColor(Color.GREEN);
             } else {
                 g.setColor(Color.WHITE);
             }
-            g.drawString(gameContext.getConfirmDialog().getItem(i), currentX, 350);
-            currentX += g.getFontMetrics().stringWidth(gameContext.getConfirmDialog().getItem(i)) + spacing;
+            g.drawString(gameContext.getGameContainer().getUiManager().getConfirmDialog().getItem(i), currentX, 350);
+            currentX += g.getFontMetrics().stringWidth(gameContext.getGameContainer().getUiManager().getConfirmDialog().getItem(i)) + spacing;
         }
     }
 

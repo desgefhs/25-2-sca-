@@ -16,8 +16,8 @@ public class PausedInputHandler {
 
     public PausedInputHandler(GameContext gameContext) {
         // Map single-press keys to their respective commands
-        commandMap.put(KeyEvent.VK_UP, new MenuNavigateCommand(() -> gameContext.getPauseMenu(), MenuNavigateCommand.Direction.UP));
-        commandMap.put(KeyEvent.VK_DOWN, new MenuNavigateCommand(() -> gameContext.getPauseMenu(), MenuNavigateCommand.Direction.DOWN));
+        commandMap.put(KeyEvent.VK_UP, new MenuNavigateCommand(() -> gameContext.getGameContainer().getUiManager().getPauseMenu(), MenuNavigateCommand.Direction.UP));
+        commandMap.put(KeyEvent.VK_DOWN, new MenuNavigateCommand(() -> gameContext.getGameContainer().getUiManager().getPauseMenu(), MenuNavigateCommand.Direction.DOWN));
         commandMap.put(KeyEvent.VK_ENTER, new ProcessPausedMenuSelectionCommand(gameContext));
     }
 

@@ -39,7 +39,7 @@ public class RankingState implements GameState {
 
     @Override
     public void onEnter() {
-        highScores = gameContext.getDatabaseManager().getHighScores();
+        highScores = gameContext.getGameContainer().getDatabaseManager().getHighScores();
     }
 
     @Override

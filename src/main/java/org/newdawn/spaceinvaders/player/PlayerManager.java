@@ -5,13 +5,17 @@ import org.newdawn.spaceinvaders.data.DatabaseManager;
 import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.shop.ShopManager;
 import org.newdawn.spaceinvaders.shop.Upgrade;
+import org.newdawn.spaceinvaders.sound.SoundManager;
 import org.newdawn.spaceinvaders.view.ShopMenu;
+import org.newdawn.spaceinvaders.wave.WaveManager;
 
 public class PlayerManager {
 
     private final AuthenticatedUser user;
     private final DatabaseManager databaseManager;
     private final ShopManager shopManager;
+    private final SoundManager soundManager;
+    private final WaveManager waveManager;
 
     private PlayerData currentPlayer;
     private PlayerStats playerStats;
@@ -19,10 +23,12 @@ public class PlayerManager {
     private long gameStartTime = 0;
     private ShopMenu shopMenu;
 
-    public PlayerManager(AuthenticatedUser user, DatabaseManager databaseManager, ShopManager shopManager) {
+    public PlayerManager(AuthenticatedUser user, DatabaseManager databaseManager, ShopManager shopManager, SoundManager soundManager, WaveManager waveManager) {
         this.user = user;
         this.databaseManager = databaseManager;
         this.shopManager = shopManager;
+        this.soundManager = soundManager;
+        this.waveManager = waveManager;
         this.playerStats = new PlayerStats();
     }
 
@@ -95,6 +101,14 @@ public class PlayerManager {
 
     public void setGameStartTime(long gameStartTime) {
         this.gameStartTime = gameStartTime;
+    }
+
+    public void startGameplay() {
+        soundManager.stopSound("menubackground");
+        setGameStartTime(System.currentTimeMillis());
+        calculatePlayerStats();
+        resetScore();
+        waveManager.startFirstWave();
     }
     
     public void setShopMenu(ShopMenu shopMenu) {

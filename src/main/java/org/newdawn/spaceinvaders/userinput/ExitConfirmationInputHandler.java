@@ -15,8 +15,8 @@ public class ExitConfirmationInputHandler {
     private final Map<Integer, Command> commandMap = new HashMap<>();
 
     public ExitConfirmationInputHandler(GameContext gameContext) {
-        commandMap.put(KeyEvent.VK_LEFT, new MenuNavigateCommand(() -> gameContext.getConfirmDialog(), MenuNavigateCommand.Direction.LEFT));
-        commandMap.put(KeyEvent.VK_RIGHT, new MenuNavigateCommand(() -> gameContext.getConfirmDialog(), MenuNavigateCommand.Direction.RIGHT));
+        commandMap.put(KeyEvent.VK_LEFT, new MenuNavigateCommand(() -> gameContext.getGameContainer().getUiManager().getConfirmDialog(), MenuNavigateCommand.Direction.LEFT));
+        commandMap.put(KeyEvent.VK_RIGHT, new MenuNavigateCommand(() -> gameContext.getGameContainer().getUiManager().getConfirmDialog(), MenuNavigateCommand.Direction.RIGHT));
         commandMap.put(KeyEvent.VK_ENTER, new ProcessConfirmDialogSelectionCommand(gameContext));
     }
 

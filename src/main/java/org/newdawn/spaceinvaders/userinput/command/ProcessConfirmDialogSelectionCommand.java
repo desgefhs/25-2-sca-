@@ -24,7 +24,7 @@ public class ProcessConfirmDialogSelectionCommand implements Command {
 
     @Override
     public void execute() {
-        ConfirmDialog menu = gameContext.getConfirmDialog();
+        ConfirmDialog menu = gameContext.getGameContainer().getUiManager().getConfirmDialog();
         if (menu == null) {
             return;
         }
@@ -32,7 +32,7 @@ public class ProcessConfirmDialogSelectionCommand implements Command {
         
         Command command = selectionCommands.get(selectedItem);
         if (command != null) {
-            gameContext.getSoundManager().playSound("buttonselect");
+            gameContext.getGameContainer().getSoundManager().playSound("buttonselect");
             command.execute();
         }
     }
