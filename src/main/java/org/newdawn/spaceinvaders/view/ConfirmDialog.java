@@ -27,12 +27,17 @@ public class ConfirmDialog implements Menu {
         }
     }
 
-    // Not used in ConfirmDialog, but required by Menu interface
     @Override
-    public void moveUp() {}
+    public void moveUp() {
+        // Not used in ConfirmDialog, but required by Menu interface
+        throw new UnsupportedOperationException("moveUp is not supported in ConfirmDialog");
+    }
 
     @Override
-    public void moveDown() {}
+    public void moveDown() {
+        // Not used in ConfirmDialog, but required by Menu interface
+        throw new UnsupportedOperationException("moveDown is not supported in ConfirmDialog");
+    }
 
     public String getMessage() {
         return message;
