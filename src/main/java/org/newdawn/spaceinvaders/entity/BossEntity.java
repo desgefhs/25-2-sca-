@@ -34,6 +34,7 @@ public abstract class BossEntity extends Entity implements Enemy {
     private final long teleportStartTime = 0;
     private final long teleportDisappearTime = 500; // ms boss is invisible
     private long laserGimmickStartTime = 0;
+    private final java.util.Random random;
 
 
     public BossEntity(GameContext context, String sprite, int x, int y, int health) {
@@ -47,6 +48,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         dy = 0;
 
         setScale(2.5);
+        this.random = new java.util.Random(); // Initialize the random instance
 
         setupPatterns();
     }
@@ -112,7 +114,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         final long teleportTotalTime = 1000; // ms until boss reappears and fires
         if (System.currentTimeMillis() - teleportStartTime >= teleportTotalTime) {
             isTeleporting = false;
-            int newX = new java.util.Random().nextInt(Game.GAME_WIDTH - getWidth());
+            int newX = random.nextInt(Game.GAME_WIDTH - getWidth());
             setX(newX);
             fireCirclePattern();
         }
@@ -136,8 +138,7 @@ public abstract class BossEntity extends Entity implements Enemy {
             selectablePatterns.remove(lastUsedPattern);
         }
 
-        java.util.Random rand = new java.util.Random();
-        BossPattern selectedPattern = selectablePatterns.get(rand.nextInt(selectablePatterns.size()));
+        BossPattern selectedPattern = selectablePatterns.get(random.nextInt(selectablePatterns.size()));
 
         selectedPattern.execute();
         this.lastUsedPattern = selectedPattern;
@@ -148,7 +149,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         int damage = 1;
         double shotMoveSpeed = type.moveSpeed;
         int gapWidth = 100; // Width of the safe zone
-        int gapPosition = new java.util.Random().nextInt(Game.GAME_WIDTH - gapWidth);
+        int gapPosition = random.nextInt(Game.GAME_WIDTH - gapWidth);
         int projectileWidth = 10; // Approximate width of the projectile sprite
 
         for (int x = 0; x < Game.GAME_WIDTH; x += projectileWidth) {
@@ -208,9 +209,8 @@ public abstract class BossEntity extends Entity implements Enemy {
         laserGimmickStartTime = System.currentTimeMillis();
 
         // Spawn two item entities at random x positions
-        java.util.Random rand = new java.util.Random();
-        context.addEntity(new ItemEntity(context, rand.nextInt(Game.GAME_WIDTH), 50));
-        context.addEntity(new ItemEntity(context, rand.nextInt(Game.GAME_WIDTH), 50));
+        context.addEntity(new ItemEntity(context, random.nextInt(Game.GAME_WIDTH), 50));
+        context.addEntity(new ItemEntity(context, random.nextInt(Game.GAME_WIDTH), 50));
     }
 
     protected void fireFeatherPattern() {
@@ -242,7 +242,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         for (int i = 0; i < numberOfAttacks; i++) {
             // Spawn at a random location on the screen.
             // The area should be restricted to the game area.
-            int randomX = (int) (Math.random() * (Game.GAME_WIDTH - 100)) + 50; // Avoid edges
+            int randomX = (int) (random.nextDouble() * (Game.GAME_WIDTH - 100)) + 50; // Avoid edges
             int randomY = (int) (Math.random() * (Game.GAME_HEIGHT - 200)) + 100; // Avoid top/bottom edges
             context.addEntity(new TentacleAttackEntity(context, randomX, randomY));
         }
