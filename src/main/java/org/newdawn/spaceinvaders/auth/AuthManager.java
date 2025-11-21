@@ -13,6 +13,8 @@ import java.util.concurrent.ExecutionException;
 
 public class AuthManager {
 
+    private static final String USERNAME_KEY = "username";
+
     private final Firestore db;
     private final CollectionReference usersCollection;
 
@@ -24,7 +26,7 @@ public class AuthManager {
     public boolean signUp(String username, String password) {
         try {
             // 존재하는 계정인지 확인
-            ApiFuture<QuerySnapshot> future = usersCollection.whereEqualTo("username", username).get();
+            ApiFuture<QuerySnapshot> future = usersCollection.whereEqualTo(USERNAME_KEY, username).get();
             QuerySnapshot snapshot = future.get();
             if (!snapshot.isEmpty()) {
                 System.err.println("Username already exists.");
@@ -38,7 +40,7 @@ public class AuthManager {
 
             // 새로운 사용자 문서 생성
             Map<String, Object> user = new HashMap<>();
-            user.put("username", username);
+            user.put(USERNAME_KEY, username);
             user.put("hashedPassword", hashedPassword);
 
             usersCollection.add(user).get();
@@ -53,7 +55,7 @@ public class AuthManager {
     public String signIn(String username, String password) {
         try {
             // username으로 사용자 찾기
-            ApiFuture<QuerySnapshot> future = usersCollection.whereEqualTo("username", username).limit(1).get();
+            ApiFuture<QuerySnapshot> future = usersCollection.whereEqualTo(USERNAME_KEY, username).limit(1).get();
             QuerySnapshot snapshot = future.get();
 
             if (snapshot.isEmpty()) {
