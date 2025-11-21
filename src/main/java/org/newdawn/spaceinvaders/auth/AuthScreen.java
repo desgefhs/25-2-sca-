@@ -170,7 +170,7 @@ public class AuthScreen extends JPanel {
 
     // Inner class for a panel with a background image
     private class ImagePanel extends JPanel {
-        private final Image backgroundImage;
+        private final transient Image backgroundImage;
 
         public ImagePanel(Image backgroundImage) {
             this.backgroundImage = backgroundImage;
