@@ -148,29 +148,40 @@ public class AlienEntity extends Entity implements Enemy {
 
     public void collidedWith(Entity other) {
         if (other instanceof ProjectileEntity) {
-            ProjectileEntity shot = (ProjectileEntity) other;
-            if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
-                if (health.isAlive()) {
-                    if (!health.decreaseHealth(shot.getDamage())) {
-                        this.destroy();
-                    }
-                }
-            }
+            handleProjectileCollision((ProjectileEntity) other);
         } else if (other instanceof LaserBeamEntity) {
-            LaserBeamEntity laser = (LaserBeamEntity) other;
-            if (health.isAlive()) {
-                if (!health.decreaseHealth(laser.getDamage())) {
-                    AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
-                    explosion.setScale(0.1);
-                    int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
-                    int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
-                    explosion.setX(centeredX);
-                    explosion.setY(centeredY);
-                    context.addEntity(explosion);
-
-                    this.destroy();
-                }
-            }
+            handleLaserBeamCollision((LaserBeamEntity) other);
         }
+    }
+
+    private void handleProjectileCollision(ProjectileEntity shot) {
+        if (shot.getType().targetType != ProjectileType.TargetType.ENEMY || !health.isAlive()) {
+            return;
+        }
+
+        if (!health.decreaseHealth(shot.getDamage())) {
+            this.destroy();
+        }
+    }
+
+    private void handleLaserBeamCollision(LaserBeamEntity laser) {
+        if (!health.isAlive()) {
+            return;
+        }
+
+        if (!health.decreaseHealth(laser.getDamage())) {
+            createExplosion();
+            this.destroy();
+        }
+    }
+
+    private void createExplosion() {
+        AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
+        explosion.setScale(0.1);
+        int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
+        int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
+        explosion.setX(centeredX);
+        explosion.setY(centeredY);
+        context.addEntity(explosion);
     }
 }
