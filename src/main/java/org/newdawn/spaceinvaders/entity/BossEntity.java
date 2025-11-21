@@ -250,21 +250,25 @@ public abstract class BossEntity extends Entity implements Enemy {
 
     public void collidedWith(Entity other) {
         if (other instanceof ProjectileEntity) {
-            ProjectileEntity shot = (ProjectileEntity) other;
-            if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
-                if (health.isAlive()) {
-                    if (!health.decreaseHealth(shot.getDamage())) {
-                        this.destroy();
-                    }
-                }
-            }
+            handleProjectileCollision((ProjectileEntity) other);
         } else if (other instanceof LaserBeamEntity) {
-            LaserBeamEntity laser = (LaserBeamEntity) other;
-            if (health.isAlive()) {
-                if (!health.decreaseHealth(laser.getDamage())) {
-                    this.destroy();
-                    laser.destroy();
-                }
+            handleLaserCollision((LaserBeamEntity) other);
+        }
+    }
+
+    private void handleProjectileCollision(ProjectileEntity shot) {
+        if (shot.getType().targetType == ProjectileType.TargetType.ENEMY && health.isAlive()) {
+            if (!health.decreaseHealth(shot.getDamage())) {
+                this.destroy();
+            }
+        }
+    }
+
+    private void handleLaserCollision(LaserBeamEntity laser) {
+        if (health.isAlive()) {
+            if (!health.decreaseHealth(laser.getDamage())) {
+                this.destroy();
+                laser.destroy();
             }
         }
     }
