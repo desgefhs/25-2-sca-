@@ -70,13 +70,7 @@ public abstract class BossEntity extends Entity implements Enemy {
 
         // Handle special states first, and return to prevent normal movement
         if (isTeleporting) {
-            long timeSinceTeleport = System.currentTimeMillis() - teleportStartTime;
-            if (timeSinceTeleport >= teleportTotalTime) {
-                isTeleporting = false;
-                int newX = new java.util.Random().nextInt(Game.GAME_WIDTH - getWidth());
-                setX(newX);
-                fireCirclePattern();
-            }
+            handleTeleportation();
             return; // Boss is invisible and immobile
         }
 
@@ -112,6 +106,16 @@ public abstract class BossEntity extends Entity implements Enemy {
 
         tryToFire();
         super.move(delta);
+    }
+
+    private void handleTeleportation() {
+        final long teleportTotalTime = 1000; // ms until boss reappears and fires
+        if (System.currentTimeMillis() - teleportStartTime >= teleportTotalTime) {
+            isTeleporting = false;
+            int newX = new java.util.Random().nextInt(Game.GAME_WIDTH - getWidth());
+            setX(newX);
+            fireCirclePattern();
+        }
     }
 
     private void tryToFire() {
