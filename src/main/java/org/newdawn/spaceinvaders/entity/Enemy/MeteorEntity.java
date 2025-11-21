@@ -1,6 +1,7 @@
 package org.newdawn.spaceinvaders.entity.Enemy;
 
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.events.MeteorDestroyedEvent;
 import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.LaserBeamEntity;
@@ -49,7 +50,7 @@ public class MeteorEntity extends Entity {
                 if (!health.decreaseHealth(1)) {
                     // This meteor is destroyed
                     context.removeEntity(this);
-                    context.notifyMeteorDestroyed(this.scoreValue);
+                    context.getEventBus().publish(new MeteorDestroyedEvent(this.scoreValue));
 
                     // Create a scaled and centered explosion effect
                     AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
@@ -74,7 +75,7 @@ public class MeteorEntity extends Entity {
         } else if (other instanceof LaserBeamEntity) {
             // Meteors are instantly destroyed by lasers for now.
             context.removeEntity(this);
-            context.notifyMeteorDestroyed(this.scoreValue);
+            context.getEventBus().publish(new MeteorDestroyedEvent(this.scoreValue));
 
             // Create a scaled and centered explosion effect
             AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);

@@ -1,0 +1,84 @@
+package org.newdawn.spaceinvaders.core;
+
+import com.google.cloud.firestore.Firestore;
+import org.newdawn.spaceinvaders.auth.AuthenticatedUser;
+import org.newdawn.spaceinvaders.data.DatabaseManager;
+import org.newdawn.spaceinvaders.shop.ShopManager;
+import org.newdawn.spaceinvaders.sound.SoundManager;
+import org.newdawn.spaceinvaders.player.PlayerManager;
+import org.newdawn.spaceinvaders.entity.EntityManager;
+import org.newdawn.spaceinvaders.wave.WaveManager;
+import org.newdawn.spaceinvaders.wave.FormationManager;
+import org.newdawn.spaceinvaders.view.GameWindow;
+import org.newdawn.spaceinvaders.view.MainMenu;
+import org.newdawn.spaceinvaders.view.PauseMenu;
+import org.newdawn.spaceinvaders.view.GameOverMenu;
+import org.newdawn.spaceinvaders.view.Background;
+import org.newdawn.spaceinvaders.graphics.Sprite;
+import org.newdawn.spaceinvaders.graphics.SpriteStore;
+import org.newdawn.spaceinvaders.view.ConfirmDialog;
+import org.newdawn.spaceinvaders.view.UIManager;
+import org.newdawn.spaceinvaders.gamestates.GameStateFactory;
+import org.newdawn.spaceinvaders.entity.weapon.Weapon;
+import org.newdawn.spaceinvaders.entity.weapon.DefaultGun;
+import org.newdawn.spaceinvaders.entity.weapon.Shotgun;
+import org.newdawn.spaceinvaders.entity.weapon.Laser;
+
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class GameFactory {
+
+    private final Firestore db;
+    private final AuthenticatedUser user;
+
+    public GameFactory(Firestore db, AuthenticatedUser user) {
+        this.db = db;
+        this.user = user;
+    }
+
+    public GameManager createGame() {
+        // 1. Create Managers and Core Components
+        GameManager gameManager = new GameManager();
+        InputHandler inputHandler = new InputHandler();
+        DatabaseManager databaseManager = new DatabaseManager(db);
+        ShopManager shopManager = new ShopManager();
+        FormationManager formationManager = new FormationManager();
+        SoundManager soundManager = new SoundManager();
+        WaveManager waveManager = new WaveManager(gameManager, formationManager);
+        PlayerManager playerManager = new PlayerManager(user, databaseManager, shopManager, soundManager, waveManager);
+        EntityManager entityManager = new EntityManager(gameManager);
+        GameStateManager gsm = new GameStateManager();
+        GameStateFactory gameStateFactory = new GameStateFactory();
+
+        // 2. Create UI Components
+        GameWindow gameWindow = new GameWindow(inputHandler);
+        MainMenu mainMenu = new MainMenu();
+        PauseMenu pauseMenu = new PauseMenu();
+        GameOverMenu gameOverMenu = new GameOverMenu();
+        ConfirmDialog confirmDialog = new ConfirmDialog("Are you sure you want to exit?");
+        Sprite staticBackgroundSprite = SpriteStore.get().getSprite("sprites/background.jpg");
+        UIManager uiManager = new UIManager(gameWindow, mainMenu, pauseMenu, gameOverMenu, confirmDialog, staticBackgroundSprite);
+
+        // 3. Create Game World and Container
+        GameContainer gameContainer = new GameContainer(databaseManager, playerManager, shopManager, soundManager,
+                formationManager, waveManager, entityManager, uiManager, gsm, inputHandler);
+        Background background = new Background("sprites/gamebackground.png");
+        GameWorld gameWorld = new GameWorld(entityManager, background, waveManager, gameManager);
+
+        // 4. Create Weapons
+        Map<String, Weapon> weapons = new HashMap<>();
+        weapons.put("DefaultGun", new DefaultGun());
+        weapons.put("Shotgun", new Shotgun());
+        weapons.put("Laser", new Laser());
+
+        // 5. Inject Dependencies into GameManager
+        gameManager.setGameWorld(gameWorld);
+        gameManager.setGameContainer(gameContainer);
+        gameManager.setGameStateFactory(gameStateFactory);
+        gameManager.setWeapons(weapons);
+
+        return gameManager;
+    }
+}

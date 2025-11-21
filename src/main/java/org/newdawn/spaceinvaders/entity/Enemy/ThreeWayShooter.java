@@ -2,6 +2,8 @@ package org.newdawn.spaceinvaders.entity.Enemy;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.events.AlienKilledEvent;
+import org.newdawn.spaceinvaders.core.events.AlienEscapedEvent;
 import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.LaserBeamEntity;
@@ -137,7 +139,7 @@ public class ThreeWayShooter extends Entity implements Enemy {
 
         // if we have gone off the bottom of the screen, remove ourselves
         if (y > 600) {
-            context.notifyAlienEscaped(this);
+            context.getEventBus().publish(new AlienEscapedEvent(this));
             context.removeEntity(this);
         }
     }
@@ -179,9 +181,8 @@ public class ThreeWayShooter extends Entity implements Enemy {
                         context.addEntity(explosion);
 
                         // Remove the shooter from the game
-                        context.removeEntity(this);
-                        context.notifyAlienKilled();
-                    }
+                                                context.removeEntity(this);
+                                                context.getEventBus().publish(new AlienKilledEvent());                    }
                 }
             }
         } else if (other instanceof LaserBeamEntity) {
@@ -198,9 +199,8 @@ public class ThreeWayShooter extends Entity implements Enemy {
                     context.addEntity(explosion);
 
                     // Remove the shooter from the game
-                    context.removeEntity(this);
-                    context.notifyAlienKilled();
-                }
+                                            context.removeEntity(this);
+                                            context.getEventBus().publish(new AlienKilledEvent());                }
             }
         }
     }

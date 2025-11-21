@@ -71,18 +71,6 @@ public interface GameContext {
 
         // --- Notifications & Messages ---
 
-        void notifyDeath();
-
-        void notifyWin();
-
-        void notifyAlienEscaped(Entity entity);
-
-        void notifyAlienKilled();
-
-        void notifyMeteorDestroyed(int scoreValue);
-
-        void notifyItemCollected();
-
         String getMessage();
 
         void setMessage(String message);
@@ -97,8 +85,12 @@ public interface GameContext {
 
         void resetItemCollection();
 
-        void setLogicRequiredThisLoop(boolean required);
+                void setLogicRequiredThisLoop(boolean required);
 
-    }
+        
+
+                EventBus getEventBus();
+
+            }
 
     

@@ -2,6 +2,7 @@ package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.events.AlienEscapedEvent;
 import org.newdawn.spaceinvaders.entity.Enemy.*;
 import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 import org.newdawn.spaceinvaders.player.PlayerStats;
@@ -94,7 +95,7 @@ public class EntityManager {
         // Notify the game manager about escaped enemies
         for (Entity entity : escapedEnemies) {
             // This call will also add the entity to the removeList via the entity manager
-            context.notifyAlienEscaped(entity);
+            context.getEventBus().publish(new AlienEscapedEvent(entity));
         }
 
         // Create a copy to iterate over, to avoid ConcurrentModificationException

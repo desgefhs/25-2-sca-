@@ -6,6 +6,7 @@ import org.newdawn.spaceinvaders.entity.BossFactory;
 import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
 import org.newdawn.spaceinvaders.core.GameState;
+import org.newdawn.spaceinvaders.core.events.GameWonEvent;
 
 /**
  * Manages the progression of enemy waves in the game.
@@ -135,7 +136,7 @@ public class WaveManager {
 
         if (currentWaveDefinition == null) {
             if (wave > 25) { // Win condition
-                gameManager.notifyWin();
+                gameManager.getEventBus().publish(new GameWonEvent());
             }
             return;
         }

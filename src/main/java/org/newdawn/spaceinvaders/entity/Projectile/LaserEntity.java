@@ -2,6 +2,7 @@ package org.newdawn.spaceinvaders.entity.Projectile;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.events.PlayerDiedEvent;
 
 import org.newdawn.spaceinvaders.entity.Entity;
 
@@ -23,7 +24,7 @@ public class LaserEntity extends Entity {
         // Perform the death check only once, right after the laser is created.
         if (!fired) {
             if (!context.hasCollectedAllItems()) {
-                context.notifyDeath();
+                context.getEventBus().publish(new PlayerDiedEvent());
             }
             fired = true;
         }

@@ -1,6 +1,8 @@
 package org.newdawn.spaceinvaders.entity;
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.events.AlienKilledEvent;
+import org.newdawn.spaceinvaders.core.events.PlayerDiedEvent;
 import org.newdawn.spaceinvaders.entity.Enemy.BombEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.Enemy;
 import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
@@ -143,11 +145,11 @@ public class ShipEntity extends Entity {
 
             // For all other enemies, they are destroyed on collision
             context.removeEntity(other);
-            context.notifyAlienKilled(); // This is the critical fix to decrement alienCount
+            context.getEventBus().publish(new AlienKilledEvent()); // This is the critical fix to decrement alienCount
 
             // And the ship takes collision damage
             if (!health.decreaseHealth(COLLISION_DAMAGE)) {
-                context.notifyDeath();
+                context.getEventBus().publish(new PlayerDiedEvent());
             }
             return; // Collision handled
         }
@@ -155,7 +157,7 @@ public class ShipEntity extends Entity {
         if (other instanceof ProjectileEntity) {
             // Projectile damage is handled by HealthComponent, which also grants invincibility
             if (!health.decreaseHealth(((ProjectileEntity) other).getDamage())) {
-                context.notifyDeath();
+                context.getEventBus().publish(new PlayerDiedEvent());
             }
         }
     }

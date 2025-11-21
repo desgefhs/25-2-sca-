@@ -41,14 +41,17 @@ public class GameManager implements GameContext {
 
     private GameEventHandler gameEventHandler;
     private GameLoop gameLoop;
+    private final EventBus eventBus;
 
     public GameManager() {
         this.gameSession = new GameSession();
+        this.eventBus = new EventBus();
         // Dependencies will be injected via setters
     }
 
     public void init() {
-        this.gameEventHandler = new GameEventHandler(this, getPlayerManager(), getEntityManager(), getSoundManager());
+        this.gameEventHandler = new GameEventHandler(this, getPlayerManager(), getEntityManager(), getSoundManager(), this.gameSession);
+        getEventBus().register(this.gameEventHandler);
     }
 
     @Override
@@ -185,31 +188,7 @@ public class GameManager implements GameContext {
     public void addEntity(Entity entity) { gameWorld.addEntity(entity); }
     @Override
     public void removeEntity(Entity entity) { gameWorld.removeEntity(entity); }
-    @Override
-    public void notifyDeath() {
-        gameEventHandler.notifyDeath();
-     }
-    @Override
-    public void notifyWin() {
-        gameEventHandler.notifyWin();
-    }
 
-    //처치한 적 처리( 점수 처리 )
-    @Override
-    public void notifyAlienKilled() {
-        gameEventHandler.notifyAlienKilled();
-    }
-
-    //화면 밖으로 나간 적 처리
-    @Override
-    public void notifyAlienEscaped(Entity entity) {
-        gameEventHandler.notifyAlienEscaped(entity);
-    }
-
-    @Override
-    public void notifyMeteorDestroyed(int scoreValue) {
-        gameEventHandler.notifyMeteorDestroyed(scoreValue);
-    }
 
     @Override
     public java.util.List<Entity> getEntities() { return gameWorld.getEntities(); }
@@ -231,10 +210,7 @@ public class GameManager implements GameContext {
     public WaveManager getWaveManager() { return gameWorld.getWaveManager(); }
     public PlayerManager getPlayerManager() { return gameContainer.getPlayerManager(); }
 
-    @Override
-    public void notifyItemCollected() {
-        gameSession.notifyItemCollected();
-    }
+
 
     @Override
     public boolean hasCollectedAllItems() {
@@ -258,5 +234,10 @@ public class GameManager implements GameContext {
 
     public Background getBackground() {
         return gameWorld.getBackground();
+    }
+
+    @Override
+    public EventBus getEventBus() {
+        return eventBus;
     }
 }

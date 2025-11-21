@@ -1,6 +1,7 @@
 package org.newdawn.spaceinvaders.entity.Enemy;
 
 import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.events.AlienKilledEvent;
 import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
@@ -57,7 +58,7 @@ public class BurstShooterEntity extends Entity implements Enemy {
                         explosion.setY(centeredY);
                         context.addEntity(explosion);
                         context.removeEntity(this);
-                        context.notifyAlienKilled();
+                        context.getEventBus().publish(new AlienKilledEvent());
                     }
                 }
             }

@@ -8,30 +8,7 @@ import com.google.firebase.cloud.FirestoreClient;
 import org.newdawn.spaceinvaders.auth.AuthManager;
 import org.newdawn.spaceinvaders.auth.AuthenticatedUser;
 import org.newdawn.spaceinvaders.auth.LoginDialog;
-import org.newdawn.spaceinvaders.data.DatabaseManager;
-import org.newdawn.spaceinvaders.shop.ShopManager;
-import org.newdawn.spaceinvaders.wave.FormationManager;
-import org.newdawn.spaceinvaders.sound.SoundManager;
-import org.newdawn.spaceinvaders.player.PlayerManager;
-import org.newdawn.spaceinvaders.entity.EntityManager;
-import org.newdawn.spaceinvaders.wave.WaveManager;
-import org.newdawn.spaceinvaders.view.GameWindow;
-import org.newdawn.spaceinvaders.view.MainMenu;
-import org.newdawn.spaceinvaders.view.PauseMenu;
-import org.newdawn.spaceinvaders.view.GameOverMenu;
-import org.newdawn.spaceinvaders.view.Background;
-import org.newdawn.spaceinvaders.graphics.Sprite;
-import org.newdawn.spaceinvaders.graphics.SpriteStore;
-import org.newdawn.spaceinvaders.view.ConfirmDialog;
-import org.newdawn.spaceinvaders.view.UIManager;
-
-import java.util.HashMap;
-import java.util.Map;
-import org.newdawn.spaceinvaders.core.GameStateManager;
-import org.newdawn.spaceinvaders.gamestates.GameStateFactory;
-
-import org.newdawn.spaceinvaders.data.DatabaseManager;
-
+import org.newdawn.spaceinvaders.core.GameState;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +23,7 @@ public class Game {
 
     public static void main(String[] argv) {
         // Firebase 초기 화
+
         Firestore db = initializeFirebase();
         if (db == null) {
             System.err.println("Firebase 초기화 실패. 프로그램을 종료합니다.");
@@ -57,7 +35,7 @@ public class Game {
 
         // 로그인 다이얼로그 생성 및 표시
         LoginDialog loginDialog = new LoginDialog(null, authManager);
-         AuthenticatedUser user = loginDialog.showDialog();
+        AuthenticatedUser user = loginDialog.showDialog();
 
         //   로그인 성공 여부 확인
         if (user == null) {
@@ -69,45 +47,11 @@ public class Game {
         // 로그인 성공 시,  게임 시작
         System.out.println(user.getUsername() + "님, 환영합니다!");
 
-        // 1. Create GameManager
-        GameManager gameManager = new GameManager();
+        // Use the factory to create the game instance
+        GameFactory gameFactory = new GameFactory(db, user);
+        GameManager gameManager = gameFactory.createGame();
 
-        // 2. Create Dependencies
-        InputHandler inputHandler = new InputHandler();
-        DatabaseManager databaseManager = new DatabaseManager(db);
-        ShopManager shopManager = new ShopManager();
-        FormationManager formationManager = new FormationManager();
-        SoundManager soundManager = new SoundManager();
-        WaveManager waveManager = new WaveManager(gameManager, formationManager);
-        PlayerManager playerManager = new PlayerManager(user, databaseManager, shopManager, soundManager, waveManager);
-        EntityManager entityManager = new EntityManager(gameManager);
-        GameWindow gameWindow = new GameWindow(inputHandler);
-        MainMenu mainMenu = new MainMenu();
-        PauseMenu pauseMenu = new PauseMenu();
-        GameOverMenu gameOverMenu = new GameOverMenu();
-        Background background = new Background("sprites/gamebackground.png");
-        Sprite staticBackgroundSprite = SpriteStore.get().getSprite("sprites/background.jpg");
-        ConfirmDialog confirmDialog = new ConfirmDialog("Are you sure you want to exit?");
-        UIManager uiManager = new UIManager(gameWindow, mainMenu, pauseMenu, gameOverMenu, confirmDialog, staticBackgroundSprite);
-        GameStateManager gsm = new GameStateManager();
-        GameStateFactory gameStateFactory = new GameStateFactory();
-
-        GameContainer gameContainer = new GameContainer(databaseManager, playerManager, shopManager, soundManager,
-                formationManager, waveManager, entityManager, uiManager, gsm, inputHandler);
-
-        Map<String, org.newdawn.spaceinvaders.entity.weapon.Weapon> weapons = new HashMap<>();
-        weapons.put("DefaultGun", new org.newdawn.spaceinvaders.entity.weapon.DefaultGun());
-        weapons.put("Shotgun", new org.newdawn.spaceinvaders.entity.weapon.Shotgun());
-        weapons.put("Laser", new org.newdawn.spaceinvaders.entity.weapon.Laser());
-
-        // 3. Inject Dependencies into GameManager
-        GameWorld gameWorld = new GameWorld(entityManager, background, waveManager, gameManager);
-        gameManager.setGameWorld(gameWorld);
-        gameManager.setGameContainer(gameContainer);
-        gameManager.setGameStateFactory(gameStateFactory);
-        gameManager.setWeapons(weapons);
-
-        // 4. Initialize and Start Game
+        // Initialize and Start Game
         gameManager.init();
         gameManager.setCurrentState(GameState.Type.MAIN_MENU);
         gameManager.initializePlayer();

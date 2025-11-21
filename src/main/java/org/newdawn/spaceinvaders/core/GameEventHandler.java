@@ -1,38 +1,62 @@
 package org.newdawn.spaceinvaders.core;
 
+import org.newdawn.spaceinvaders.core.events.*;
 import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.entity.EntityManager;
 import org.newdawn.spaceinvaders.player.PlayerManager;
 import org.newdawn.spaceinvaders.sound.SoundManager;
 
-public class GameEventHandler {
+public class GameEventHandler implements EventListener {
 
     private final GameContext gameContext;
     private final PlayerManager playerManager;
     private final EntityManager entityManager;
     private final SoundManager soundManager;
+    private final GameSession gameSession;
 
     public static final int ALIEN_SCORE = 10;
 
-    public GameEventHandler(GameContext gameContext, PlayerManager playerManager, EntityManager entityManager, SoundManager soundManager) {
+    public GameEventHandler(GameContext gameContext, PlayerManager playerManager, EntityManager entityManager, SoundManager soundManager, GameSession gameSession) {
         this.gameContext = gameContext;
         this.playerManager = playerManager;
         this.entityManager = entityManager;
         this.soundManager = soundManager;
+        this.gameSession = gameSession;
     }
 
-    public void notifyDeath() {
+    @Override
+    public void onEvent(Event event) {
+        if (event instanceof PlayerDiedEvent) {
+            handlePlayerDied();
+        } else if (event instanceof GameWonEvent) {
+            handleGameWon();
+        } else if (event instanceof AlienKilledEvent) {
+            handleAlienKilled();
+        } else if (event instanceof AlienEscapedEvent) {
+            handleAlienEscaped((AlienEscapedEvent) event);
+        } else if (event instanceof MeteorDestroyedEvent) {
+            handleMeteorDestroyed((MeteorDestroyedEvent) event);
+        } else if (event instanceof ItemCollectedEvent) {
+            handleItemCollected();
+        }
+    }
+
+    private void handleItemCollected() {
+        gameSession.notifyItemCollected();
+    }
+
+    private void handlePlayerDied() {
         gameContext.setNextState(GameState.Type.GAME_OVER);
         soundManager.stopAllSounds("ship-death-sound");
         soundManager.playSound("ship-death-sound");
     }
 
-    public void notifyWin() {
+    private void handleGameWon() {
         soundManager.stopAllSounds();
         gameContext.setCurrentState(GameState.Type.GAME_WON);
     }
 
-    public void notifyAlienKilled() {
+    private void handleAlienKilled() {
         playerManager.increaseScore(ALIEN_SCORE);
         entityManager.decreaseAlienCount();
 
@@ -47,12 +71,12 @@ public class GameEventHandler {
         }
     }
 
-    public void notifyAlienEscaped(Entity entity) {
-        entityManager.removeEntity(entity);
+    private void handleAlienEscaped(AlienEscapedEvent event) {
+        entityManager.removeEntity(event.getAlien());
         entityManager.decreaseAlienCount();
     }
 
-    public void notifyMeteorDestroyed(int scoreValue) {
-        playerManager.increaseScore(scoreValue);
+    private void handleMeteorDestroyed(MeteorDestroyedEvent event) {
+        playerManager.increaseScore(event.getScoreValue());
     }
 }
