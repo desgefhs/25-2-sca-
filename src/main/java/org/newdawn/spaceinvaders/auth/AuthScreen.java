@@ -15,7 +15,7 @@ public class AuthScreen extends JPanel {
     private JButton loginButton;
     private JButton signupButton;
     private final JLabel messageLabel;
-    private Image backgroundImage;
+    private transient Image backgroundImage;
 
     public AuthScreen() {
         setPreferredSize(new Dimension(Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT));
