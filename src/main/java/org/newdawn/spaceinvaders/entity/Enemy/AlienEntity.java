@@ -19,11 +19,11 @@ import java.awt.Graphics;
  * @author Kevin Glass
  */
 public class AlienEntity extends Entity implements Enemy {
-	private final double moveSpeed = 100;
+	private final double MOVE_SPEED = 100;
 	private final GameContext context;
 
 	private long lastFire = 0;
-	private static final long firingInterval = 1000;
+	private static final long FIRING_INTERVAL = 1000;
 
     private boolean isUpgraded = false;
 
@@ -32,10 +32,10 @@ public class AlienEntity extends Entity implements Enemy {
 
     // Integrated engine fire effect
     private final Sprite[] fireFrames = new Sprite[3];
-    private final long fireFrameDuration = 100; // ms
+    private final long FIRE_FRAME_DURATION = 100; // ms
     private long fireLastFrameChange;
     private int fireFrameNumber;
-    private final double fireSpriteScale = 0.8;
+    private final double FIRE_SPRITE_SCALE = 0.8;
 
 
 	public AlienEntity(GameContext context, int x, int y, int health, MovementPattern movementPattern) {
@@ -44,7 +44,7 @@ public class AlienEntity extends Entity implements Enemy {
 		this.context = context;
 		this.movementPattern = movementPattern;
 		this.initialX = x;
-		this.dy = moveSpeed; // Default downward movement
+		this.dy = MOVE_SPEED; // Default downward movement
 
         // Pre-load all fire frames
         fireFrames[0] = SpriteStore.get().getSprite("sprites/fire effect/18 Ion.png");
@@ -58,7 +58,7 @@ public class AlienEntity extends Entity implements Enemy {
     }
 
 	private void tryToFire() {
-		if (System.currentTimeMillis() - lastFire < firingInterval) {
+		if (System.currentTimeMillis() - lastFire < FIRING_INTERVAL) {
 			return;
 		}
 
@@ -84,7 +84,7 @@ public class AlienEntity extends Entity implements Enemy {
 
         // Update fire animation
         fireLastFrameChange += delta;
-        if (fireLastFrameChange > fireFrameDuration) {
+        if (fireLastFrameChange > FIRE_FRAME_DURATION) {
             fireLastFrameChange = 0;
             fireFrameNumber = (fireFrameNumber + 1) % fireFrames.length;
         }
@@ -127,8 +127,8 @@ public class AlienEntity extends Entity implements Enemy {
     public void draw(Graphics g) {
         // Draw the fire effect first, so it's behind the alien
         Sprite fireSprite = fireFrames[fireFrameNumber];
-        int fireWidth = (int) (fireSprite.getWidth() * fireSpriteScale);
-        int fireHeight = (int) (fireSprite.getHeight() * fireSpriteScale);
+        int fireWidth = (int) (fireSprite.getWidth() * FIRE_SPRITE_SCALE);
+        int fireHeight = (int) (fireSprite.getHeight() * FIRE_SPRITE_SCALE);
         double fireX = this.x + (this.width / 2.0) - (fireWidth / 2.0);
         double fireY = this.y - fireHeight + 20; // Position it at the top-rear
         g.drawImage(fireSprite.getImage(), (int) fireX, (int) fireY, fireWidth, fireHeight-30, null);
@@ -143,7 +143,7 @@ public class AlienEntity extends Entity implements Enemy {
     }
 
     public double getMoveSpeed() {
-        return moveSpeed;
+        return MOVE_SPEED;
     }
 
     public void collidedWith(Entity other) {
