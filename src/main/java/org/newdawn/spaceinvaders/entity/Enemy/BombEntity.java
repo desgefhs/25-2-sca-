@@ -2,8 +2,7 @@ package org.newdawn.spaceinvaders.entity.Enemy;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.core.events.AlienKilledEvent;
-import org.newdawn.spaceinvaders.core.events.PlayerDiedEvent;
+
 import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
@@ -77,13 +76,12 @@ public class BombEntity extends Entity implements Enemy {
                 // Check distance again in case ship moved
                 if (distanceToShip <= EXPLOSION_RADIUS) {
                     if (!ship.getHealth().decreaseHealth(EXPLOSION_DAMAGE)) {
-                        context.getEventBus().publish(new PlayerDiedEvent());
+                        ship.destroy();
                     }
                 }
                 // Create visual explosion
-                // Remove self
-                context.getEventBus().publish(new AlienKilledEvent());
-                context.removeEntity(this);
+                // Destroy self
+                this.destroy();
                 break;
         }
     }

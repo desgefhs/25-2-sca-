@@ -2,7 +2,7 @@ package org.newdawn.spaceinvaders.entity.Enemy;
 
 
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.core.events.AlienKilledEvent;
+
 import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.LaserBeamEntity;
@@ -152,8 +152,7 @@ public class AlienEntity extends Entity implements Enemy {
             if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
                 if (health.isAlive()) {
                     if (!health.decreaseHealth(shot.getDamage())) {
-                        context.removeEntity(this);
-                        context.getEventBus().publish(new AlienKilledEvent());
+                        this.destroy();
                     }
                 }
             }
@@ -169,8 +168,7 @@ public class AlienEntity extends Entity implements Enemy {
                     explosion.setY(centeredY);
                     context.addEntity(explosion);
 
-                    context.removeEntity(this);
-                    context.getEventBus().publish(new AlienKilledEvent());
+                    this.destroy();
                 }
             }
         }

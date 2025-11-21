@@ -1,7 +1,7 @@
 package org.newdawn.spaceinvaders.entity.Enemy;
 
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.core.events.AlienKilledEvent;
+
 import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
@@ -61,9 +61,7 @@ public class MeteorEnemyEntity extends Entity implements Enemy {
                         explosion.setY(centeredY);
                         context.addEntity(explosion);
 
-                        // Remove this entity and notify that an alien was killed
-                        context.removeEntity(this);
-                        context.getEventBus().publish(new AlienKilledEvent());
+                        this.destroy();
                     }
                 }
                 // Remove the player's projectile upon impact

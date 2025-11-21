@@ -51,6 +51,7 @@ public class GameFactory {
         EntityManager entityManager = new EntityManager(gameManager);
         GameStateManager gsm = new GameStateManager();
         GameStateFactory gameStateFactory = new GameStateFactory();
+        EntityLifecycleManager entityLifecycleManager = new EntityLifecycleManager(); // ADD THIS
 
         // 2. Create UI Components
         GameWindow gameWindow = new GameWindow(inputHandler);
@@ -65,7 +66,7 @@ public class GameFactory {
         GameContainer gameContainer = new GameContainer(databaseManager, playerManager, shopManager, soundManager,
                 formationManager, waveManager, entityManager, uiManager, gsm, inputHandler);
         Background background = new Background("sprites/gamebackground.png");
-        GameWorld gameWorld = new GameWorld(entityManager, background, waveManager, gameManager);
+        GameWorld gameWorld = new GameWorld(entityManager, background, waveManager, gameManager, entityLifecycleManager); // ADD entityLifecycleManager
 
         // 4. Create Weapons
         Map<String, Weapon> weapons = new HashMap<>();

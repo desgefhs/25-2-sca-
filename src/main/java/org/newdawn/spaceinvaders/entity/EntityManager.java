@@ -35,6 +35,9 @@ public class EntityManager {
             entities.add(ship);
         } else {
             ship.setMaxHealth(stats.getMaxHealth());
+            if (!entities.contains(ship)) {
+                entities.add(ship);
+            }
         }
         ship.setWeapon(weapon);
         ship.reset();

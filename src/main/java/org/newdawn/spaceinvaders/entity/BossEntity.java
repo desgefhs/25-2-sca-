@@ -3,7 +3,7 @@ package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.core.events.AlienKilledEvent;
+
 import org.newdawn.spaceinvaders.entity.Enemy.Enemy;
 import org.newdawn.spaceinvaders.entity.Enemy.TentacleAttackEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
@@ -250,8 +250,7 @@ public abstract class BossEntity extends Entity implements Enemy {
             if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
                 if (health.isAlive()) {
                     if (!health.decreaseHealth(shot.getDamage())) {
-                        context.removeEntity(this);
-                        context.getEventBus().publish(new AlienKilledEvent()); // Notify for score and wave progression
+                        this.destroy();
                     }
                 }
             }
@@ -259,9 +258,8 @@ public abstract class BossEntity extends Entity implements Enemy {
             LaserBeamEntity laser = (LaserBeamEntity) other;
             if (health.isAlive()) {
                 if (!health.decreaseHealth(laser.getDamage())) {
-                    context.removeEntity(this);
-                    context.removeEntity(laser);
-                    context.getEventBus().publish(new AlienKilledEvent()); // Notify for score and wave progression
+                    this.destroy();
+                    laser.destroy();
                 }
             }
         }

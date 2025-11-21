@@ -2,8 +2,7 @@ package org.newdawn.spaceinvaders.entity.Enemy;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.core.events.AlienKilledEvent;
-import org.newdawn.spaceinvaders.core.events.AlienEscapedEvent;
+
 import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.LaserBeamEntity;
@@ -137,10 +136,9 @@ public class ThreeWayShooter extends Entity implements Enemy {
             specialShotPending = false; // Reset the flag
         }
 
-        // if we have gone off the bottom of the screen, remove ourselves
+        // if we have gone off the bottom of the screen, destroy self
         if (y > 600) {
-            context.getEventBus().publish(new AlienEscapedEvent(this));
-            context.removeEntity(this);
+            this.destroy();
         }
     }
 
@@ -179,10 +177,9 @@ public class ThreeWayShooter extends Entity implements Enemy {
                         explosion.setX(centeredX);
                         explosion.setY(centeredY);
                         context.addEntity(explosion);
-
-                        // Remove the shooter from the game
-                                                context.removeEntity(this);
-                                                context.getEventBus().publish(new AlienKilledEvent());                    }
+                        
+                        this.destroy();
+                    }
                 }
             }
         } else if (other instanceof LaserBeamEntity) {
@@ -198,9 +195,8 @@ public class ThreeWayShooter extends Entity implements Enemy {
                     explosion.setY(centeredY);
                     context.addEntity(explosion);
 
-                    // Remove the shooter from the game
-                                            context.removeEntity(this);
-                                            context.getEventBus().publish(new AlienKilledEvent());                }
+                    this.destroy();
+                }
             }
         }
     }

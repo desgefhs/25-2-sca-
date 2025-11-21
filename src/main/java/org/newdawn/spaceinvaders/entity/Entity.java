@@ -70,6 +70,10 @@ public abstract class Entity {
 	public HealthComponent getHealth() {
 		return health;
 	}
+
+	public void reset() {
+		this.destroyed = false;
+	}
 	
 	/**
 	 * Request that this entity move itself based on a certain ammount
@@ -209,4 +213,15 @@ public abstract class Entity {
 	     * Subclasses can override this to perform cleanup.
 	     */
 	    public void onDestroy() {
-	    }}
+	    }
+
+	    private boolean destroyed = false;
+
+	    public void destroy() {
+	        this.destroyed = true;
+	    }
+
+	    public boolean isDestroyed() {
+	        return destroyed;
+	    }
+	}

@@ -1,7 +1,7 @@
 package org.newdawn.spaceinvaders.entity.Enemy;
 
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.core.events.MeteorDestroyedEvent;
+
 import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.LaserBeamEntity;
@@ -27,6 +27,10 @@ public class MeteorEntity extends Entity {
     private final GameContext context;
     private final int scoreValue;
 
+    public int getScoreValue() {
+        return scoreValue;
+    }
+
     public MeteorEntity(GameContext context, MeteorType type, int x, int y) {
         super(type.spritePath, x, y);
         this.context = context;
@@ -49,8 +53,7 @@ public class MeteorEntity extends Entity {
                 // Decrease health by a fixed amount of 1, regardless of shot damage
                 if (!health.decreaseHealth(1)) {
                     // This meteor is destroyed
-                    context.removeEntity(this);
-                    context.getEventBus().publish(new MeteorDestroyedEvent(this.scoreValue));
+                    this.destroy();
 
                     // Create a scaled and centered explosion effect
                     AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
@@ -68,14 +71,15 @@ public class MeteorEntity extends Entity {
         if (other instanceof ShipEntity) {
             // Damage the player equal to the meteor's remaining health
             ShipEntity ship = (ShipEntity) other;
-            ship.getHealth().decreaseHealth(this.health.getCurrentHealth());
+            if (!ship.getHealth().decreaseHealth(this.health.getCurrentHealth())) {
+                ship.destroy();
+            }
 
             // Destroy the meteor on impact
-            context.removeEntity(this);
+            this.destroy();
         } else if (other instanceof LaserBeamEntity) {
             // Meteors are instantly destroyed by lasers for now.
-            context.removeEntity(this);
-            context.getEventBus().publish(new MeteorDestroyedEvent(this.scoreValue));
+            this.destroy();
 
             // Create a scaled and centered explosion effect
             AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);

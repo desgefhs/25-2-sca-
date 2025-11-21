@@ -5,6 +5,7 @@ import org.newdawn.spaceinvaders.entity.EntityManager;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
 import org.newdawn.spaceinvaders.view.Background;
 import org.newdawn.spaceinvaders.wave.WaveManager;
+import org.newdawn.spaceinvaders.core.EntityLifecycleManager;
 
 import java.util.List;
 
@@ -14,12 +15,14 @@ public class GameWorld {
     private final Background background;
     private final WaveManager waveManager;
     private final GameContext gameContext;
+    private final EntityLifecycleManager entityLifecycleManager;
 
-    public GameWorld(EntityManager entityManager, Background background, WaveManager waveManager, GameContext gameContext) {
+    public GameWorld(EntityManager entityManager, Background background, WaveManager waveManager, GameContext gameContext, EntityLifecycleManager entityLifecycleManager) {
         this.entityManager = entityManager;
         this.background = background;
         this.waveManager = waveManager;
         this.gameContext = gameContext;
+        this.entityLifecycleManager = entityLifecycleManager;
     }
 
     public void update(long delta) {
@@ -27,6 +30,10 @@ public class GameWorld {
         waveManager.update(delta);
         entityManager.moveAll(delta);
         new CollisionDetector().checkCollisions(entityManager.getEntities());
+
+        // Process entities that are marked for destruction and publish events
+        entityLifecycleManager.processStateChanges(entityManager.getEntities(), gameContext.getEventBus(), entityManager);
+
         entityManager.cleanup();
 
         if (entityManager.getAlienCount() == 0 && waveManager.hasFinishedSpawning()) {
