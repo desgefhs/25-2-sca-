@@ -163,40 +163,30 @@ public class ThreeWayShooter extends Entity implements Enemy {
 
     @Override
     public void collidedWith(Entity other) {
-        // if it's a shot from the player, take damage
         if (other instanceof ProjectileEntity) {
             ProjectileEntity shot = (ProjectileEntity) other;
             if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
-                if (health.isAlive()) {
-                    if (!health.decreaseHealth(shot.getDamage())) {
-                        // Create, scale, and position the explosion to be centered on the shooter
-                        AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
-                        explosion.setScale(0.1);
-                        int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
-                        int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
-                        explosion.setX(centeredX);
-                        explosion.setY(centeredY);
-                        context.addEntity(explosion);
-                        
-                        this.destroy();
-                    }
-                }
+                handleDamage(shot.getDamage());
             }
         } else if (other instanceof LaserBeamEntity) {
             LaserBeamEntity laser = (LaserBeamEntity) other;
-            if (health.isAlive()) {
-                if (!health.decreaseHealth(laser.getDamage())) {
-                    // Create, scale, and position the explosion to be centered on the shooter
-                    AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
-                    explosion.setScale(0.1);
-                    int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
-                    int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
-                    explosion.setX(centeredX);
-                    explosion.setY(centeredY);
-                    context.addEntity(explosion);
+            handleDamage(laser.getDamage());
+        }
+    }
 
-                    this.destroy();
-                }
+    private void handleDamage(int damage) {
+        if (health.isAlive()) {
+            if (!health.decreaseHealth(damage)) {
+                // Create, scale, and position the explosion to be centered on the shooter
+                AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
+                explosion.setScale(0.1);
+                int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
+                int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
+                explosion.setX(centeredX);
+                explosion.setY(centeredY);
+                context.addEntity(explosion);
+
+                this.destroy();
             }
         }
     }

@@ -12,6 +12,7 @@ import java.awt.*;
 import java.util.List;
 
 public class ShopState implements GameState {
+    private static final String FONT_NAME = "Dialog";
     private final GameContext gameContext;
     private final ShopView shopView;
     private final ShopInputHandler inputHandler;
@@ -24,6 +25,7 @@ public class ShopState implements GameState {
 
     @Override
     public void init() {
+        // 이 상태에서는 사용하지 않음
     }
 
     @Override
@@ -33,6 +35,7 @@ public class ShopState implements GameState {
 
     @Override
     public void update(long delta) {
+        // 이 상태에서는 사용하지 않음
     }
 
     @Override
@@ -41,19 +44,19 @@ public class ShopState implements GameState {
         g.fillRect(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 
         g.setColor(Color.white);
-        g.setFont(new Font("Dialog", Font.BOLD, 32));
+        g.setFont(new Font(FONT_NAME, Font.BOLD, 32));
         g.drawString("캐릭터 강화", (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth("캐릭터 강화")) / 2, 80);
 
-        g.setFont(new Font("Dialog", Font.BOLD, 20));
+        g.setFont(new Font(FONT_NAME, Font.BOLD, 20));
         String creditText = "보유 크레딧: " + gameContext.getGameContainer().getPlayerManager().getCurrentPlayer().getCredit();
         g.drawString(creditText, (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(creditText)) / 2, 120);
 
-        g.setFont(new Font("Dialog", Font.PLAIN, 14));
+        g.setFont(new Font(FONT_NAME, Font.PLAIN, 14));
         g.drawString("위/아래 키로 이동, 엔터 키로 구매, ESC 키로 나가기", (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth("위/아래 키로 이동, 엔터 키로 구매, ESC 키로 나가기")) / 2, 550);
 
         if (gameContext.getMessage() != null && !gameContext.getMessage().isEmpty()) {
             g.setColor(Color.yellow);
-            g.setFont(new Font("Dialog", Font.BOLD, 16));
+            g.setFont(new Font(FONT_NAME, Font.BOLD, 16));
             g.drawString(gameContext.getMessage(), (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameContext.getMessage())) / 2, 520);
         }
 
@@ -77,10 +80,10 @@ public class ShopState implements GameState {
                 g.drawRect(itemBounds.x, itemBounds.y, itemBounds.width, itemBounds.height);
             }
 
-            g.setFont(new Font("Dialog", Font.BOLD, 20));
+            g.setFont(new Font(FONT_NAME, Font.BOLD, 20));
             g.drawString(upgrade.getName(), 120, startY + (i * itemHeight));
 
-            g.setFont(new Font("Dialog", Font.PLAIN, 16));
+            g.setFont(new Font(FONT_NAME, Font.PLAIN, 16));
             g.drawString("레벨: " + currentLevel + " / " + maxLevel, 370, startY + (i * itemHeight));
 
             String costString = (currentLevel >= maxLevel) ? "최고 레벨" : "비용: " + upgrade.getCost(currentLevel + 1);
@@ -95,5 +98,7 @@ public class ShopState implements GameState {
     }
 
     @Override
-    public void onExit() {}
+    public void onExit() {
+        // 이 상태에서는 사용하지 않음
+    }
 }
