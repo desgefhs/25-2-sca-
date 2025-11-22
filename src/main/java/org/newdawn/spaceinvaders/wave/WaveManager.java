@@ -18,6 +18,7 @@ import org.newdawn.spaceinvaders.core.events.GameWonEvent;
  */
 public class WaveManager {
 
+    private static final String BOSS_MUSIC = "boss1";
     private final GameManager gameManager;
     private final FormationManager formationManager;
     private final WaveLoader waveLoader; // New dependency
@@ -120,6 +121,8 @@ public class WaveManager {
         startNextWave();
     }
 
+
+
     public void skipToNextBossWave() {
         this.wave = ((this.wave / 5) * 5) + 4; // Set to the wave before the next boss
         startNextWave();
@@ -146,11 +149,11 @@ public class WaveManager {
 
         // Set music if defined for the wave
         if (currentWaveDefinition.getMusic() != null) {
-            if (currentWaveDefinition.getMusic().equals("boss1")) {
+            if (currentWaveDefinition.getMusic().equals(BOSS_MUSIC)) {
                 gameManager.getSoundManager().stopSound("gamebackground");
-                gameManager.getSoundManager().loopSound("boss1");
+                gameManager.getSoundManager().loopSound(BOSS_MUSIC);
             } else {
-                gameManager.getSoundManager().stopSound("boss1");
+                gameManager.getSoundManager().stopSound(BOSS_MUSIC);
                 gameManager.getSoundManager().loopSound("gamebackground");
             }
         }
