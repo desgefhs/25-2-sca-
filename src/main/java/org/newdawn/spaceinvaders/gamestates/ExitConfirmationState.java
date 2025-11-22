@@ -18,7 +18,9 @@ public class ExitConfirmationState implements GameState {
     }
 
     @Override
-    public void init() {}
+    public void init() {
+        // 이 상태에서는 사용하지 않음
+    }
 
     @Override
     public void handleInput(InputHandler input) {
@@ -26,7 +28,9 @@ public class ExitConfirmationState implements GameState {
     }
 
     @Override
-    public void update(long delta) {}
+    public void update(long delta) {
+        // 이 상태에서는 사용하지 않음
+    }
 
     @Override
     public void render(Graphics2D g) {
@@ -74,8 +78,12 @@ public class ExitConfirmationState implements GameState {
     }
 
     @Override
-    public void onEnter() {}
+    public void onEnter() {
+        // 이 상태에서는 사용하지 않음
+    }
 
     @Override
-    public void onExit() {}
+    public void onExit() {
+        // 이 상태에서는 사용하지 않음
+    }
 }

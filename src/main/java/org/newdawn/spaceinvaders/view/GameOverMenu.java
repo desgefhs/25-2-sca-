@@ -23,12 +23,14 @@ public class GameOverMenu implements Menu {
         }
     }
 
-    // Not used in GameOverMenu, but required by Menu interface
     @Override
-    public void moveUp() {}
-
+    public void moveUp() {
+        // Not used in GameOverMenu, but required by Menu interface
+    }
     @Override
-    public void moveDown() {}
+    public void moveDown() {
+        // Not used in GameOverMenu, but required by Menu interface
+    }
 
     @Override
     public String getSelectedItem() {
