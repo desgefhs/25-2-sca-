@@ -23,10 +23,14 @@ public class ItemDrawView implements Menu {
     }
 
     @Override
-    public void moveLeft() {}
+    public void moveLeft() {
+        // 이 뷰에서는 사용하지 않음
+    }
 
     @Override
-    public void moveRight() {}
+    public void moveRight() {
+        // 이 뷰에서는 사용하지 않음
+    }
 
     @Override
     public String getSelectedItem() {

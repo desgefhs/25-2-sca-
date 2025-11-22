@@ -11,6 +11,7 @@ import java.awt.*;
 
 public class ItemDrawState implements GameState {
 
+    private static final String FONT_NAME = "Dialog";
     private final GameContext gameContext;
     private final ItemDrawView itemView;
     private final ItemDrawInputHandler inputHandler;
@@ -28,6 +29,7 @@ public class ItemDrawState implements GameState {
 
     @Override
     public void init() {
+        // 이 상태에서는 사용하지 않음
     }
 
     @Override
@@ -37,6 +39,7 @@ public class ItemDrawState implements GameState {
 
     @Override
     public void update(long delta) {
+        // 이 상태에서는 사용하지 않음
     }
 
     @Override
@@ -44,23 +47,23 @@ public class ItemDrawState implements GameState {
         g.setColor(Color.black);
         g.fillRect(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
 
-        g.setFont(new Font("Dialog", Font.BOLD, 32));
+        g.setFont(new Font(FONT_NAME, Font.BOLD, 32));
         g.setColor(Color.white);
         String title = "아이템 뽑기";
         int titleWidth = g.getFontMetrics().stringWidth(title);
         g.drawString(title, (Game.SCREEN_WIDTH - titleWidth) / 2, 150);
 
-        g.setFont(new Font("Dialog", Font.BOLD, 20));
+        g.setFont(new Font(FONT_NAME, Font.BOLD, 20));
         String creditText = "보유 크레딧: " + gameContext.getGameContainer().getPlayerManager().getCurrentPlayer().getCredit();
         g.drawString(creditText, (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(creditText)) / 2, 200);
 
         if (gameContext.getMessage() != null && !gameContext.getMessage().isEmpty()) {
             g.setColor(Color.yellow);
-            g.setFont(new Font("Dialog", Font.BOLD, 16));
+            g.setFont(new Font(FONT_NAME, Font.BOLD, 16));
             g.drawString(gameContext.getMessage(), (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameContext.getMessage())) / 2, 450);
         }
 
-        g.setFont(new Font("Dialog", Font.BOLD, 24));
+        g.setFont(new Font(FONT_NAME, Font.BOLD, 24));
         int itemHeight = 60;
         int startY = 300;
 
@@ -97,5 +100,6 @@ public class ItemDrawState implements GameState {
 
     @Override
     public void onExit() {
+        // 이 상태에서는 사용하지 않음
     }
 }
