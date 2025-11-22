@@ -24,12 +24,15 @@ public class MainMenu implements Menu {
         }
     }
 
-    // Not used in MainMenu, but required by Menu interface
     @Override
-    public void moveUp() {}
+    public void moveUp() {
+        // Not used in MainMenu, but required by Menu interface
+    }
 
     @Override
-    public void moveDown() {}
+    public void moveDown() {
+        // Not used in MainMenu, but required by Menu interface
+    }
 
     @Override
     public String getSelectedItem() {

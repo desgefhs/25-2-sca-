@@ -26,12 +26,15 @@ public class PauseMenu implements Menu {
         }
     }
 
-    // Not used in PauseMenu, but required by Menu interface
     @Override
-    public void moveLeft() {}
+    public void moveLeft() {
+        // Not used in PauseMenu, but required by Menu interface
+    }
 
     @Override
-    public void moveRight() {}
+    public void moveRight() {
+        // Not used in PauseMenu, but required by Menu interface
+    }
 
     @Override
     public String getSelectedItem() {

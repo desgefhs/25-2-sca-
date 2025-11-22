@@ -55,7 +55,9 @@ public class PetMenuState implements GameState {
     }
 
     @Override
-    public void update(long delta) {}
+    public void update(long delta) {
+        // 이 상태에서는 사용하지 않음
+    }
 
     @Override
     public void render(Graphics2D g) {
@@ -72,5 +74,7 @@ public class PetMenuState implements GameState {
     }
 
     @Override
-    public void onExit() {}
+    public void onExit() {
+        // 이 상태에서는 사용하지 않음
+    }
 }
