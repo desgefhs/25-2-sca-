@@ -32,6 +32,7 @@ public class ShopMainMenuState implements GameState {
 
     @Override
     public void init() {
+        // 이 상태에서는 사용하지 않음
     }
 
     @Override
@@ -41,6 +42,7 @@ public class ShopMainMenuState implements GameState {
 
     @Override
     public void update(long delta) {
+        // 이 상태에서는 사용하지 않음
     }
 
     @Override
@@ -87,5 +89,6 @@ public class ShopMainMenuState implements GameState {
 
     @Override
     public void onExit() {
+        // 이 상태에서는 사용하지 않음
     }
 }

@@ -22,12 +22,15 @@ public class ShopMainMenuView implements Menu {
         }
     }
 
-    // Not used in this menu
     @Override
-    public void moveLeft() {}
+    public void moveLeft() {
+        // Not used in this menu
+    }
 
     @Override
-    public void moveRight() {}
+    public void moveRight() {
+        // Not used in this menu
+    }
 
     @Override
     public String getSelectedItem() {

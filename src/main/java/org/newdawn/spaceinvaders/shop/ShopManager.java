@@ -12,6 +12,7 @@ public class ShopManager {
 
     private final Map<String, Upgrade> upgrades;
     private static final int ITEM_DRAW_COST = 500;
+    private final Random random = new Random();
 
     public ShopManager() {
         List<Upgrade> upgradeList = new ArrayList<>();
@@ -78,8 +79,7 @@ public class ShopManager {
         }
         playerData.setCredit(playerData.getCredit() - ITEM_DRAW_COST);
 
-        Random rand = new Random();
-        int roll = rand.nextInt(100);
+        int roll = random.nextInt(100);
 
         // 40% chance for 250 credits
         if (roll < 40) {

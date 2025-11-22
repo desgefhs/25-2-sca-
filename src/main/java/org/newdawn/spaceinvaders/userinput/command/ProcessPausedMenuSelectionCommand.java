@@ -33,6 +33,9 @@ public class ProcessPausedMenuSelectionCommand implements Command {
             case "종료하기":
                 System.exit(0);
                 break;
+            default:
+                // 아무것도 하지 않음
+                break;
         }
     }
 }

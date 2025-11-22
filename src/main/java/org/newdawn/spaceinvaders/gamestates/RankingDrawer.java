@@ -8,9 +8,10 @@ import java.util.List;
 
 public class RankingDrawer {
 
-    private static final Font RANKING_TITLE_FONT = new Font("Dialog", Font.BOLD, 24);
-    private static final Font RANKING_LIST_FONT = new Font("Dialog", Font.BOLD, 18);
-    private static final Font RETURN_PROMPT_FONT = new Font("Dialog", Font.BOLD, 14);
+    private static final String FONT_NAME = "Dialog";
+    private static final Font RANKING_TITLE_FONT = new Font(FONT_NAME, Font.BOLD, 24);
+    private static final Font RANKING_LIST_FONT = new Font(FONT_NAME, Font.BOLD, 18);
+    private static final Font RETURN_PROMPT_FONT = new Font(FONT_NAME, Font.BOLD, 14);
 
     private static final Color BACKGROUND_COLOR = Color.black;
     private static final Color FONT_COLOR = Color.white;
