@@ -5,6 +5,7 @@ import org.newdawn.spaceinvaders.core.InputHandler;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
+import javax.swing.WindowConstants;
 
 public class GameWindow {
 
@@ -13,7 +14,7 @@ public class GameWindow {
 
     public GameWindow(InputHandler inputHandler) {
         container = new JFrame("Space Invaders");
-        container.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        container.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         gameCanvas = new GameCanvas(inputHandler);
         container.getContentPane().add(gameCanvas);
@@ -32,7 +33,7 @@ public class GameWindow {
     }
 
     public static class GameCanvas extends Canvas {
-        private BufferStrategy strategy;
+        private transient BufferStrategy strategy;
 
         public GameCanvas(InputHandler inputHandler) {
             setPreferredSize(new Dimension(800, 600));
