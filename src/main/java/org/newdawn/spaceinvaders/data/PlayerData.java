@@ -17,12 +17,11 @@ public class PlayerData {
     private int credit = 0;
     private Map<String, Integer> upgradeLevels = new HashMap<>();
 
-    // Firestore가 데이터를 객체로 변환할 때 기본 생성자가 필요합니다.
-    public PlayerData() {}
-
-    public String getUsername() {
-        return username;
+    public PlayerData() {
+        // Firestore가 데이터를 객체로 변환할 때 기본 생성자가 필요합니다.
     }
+
+    public String getUsername() { return username; }
 
     public void setUsername(String username) {
         this.username = username;

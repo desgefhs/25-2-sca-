@@ -103,5 +103,7 @@ public class PlayingState implements GameState {
     }
 
     @Override
-    public void onExit() {}
+    public void onExit() {
+        //사용하지 않음
+    }
 }

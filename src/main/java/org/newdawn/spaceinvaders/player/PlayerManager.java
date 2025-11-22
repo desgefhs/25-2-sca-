@@ -58,6 +58,8 @@ public class PlayerManager {
                     case "HEALTH": playerStats.setMaxHealth((int) upgrade.getEffect(level)); break;
                     case "ATK_SPEED": playerStats.setFiringInterval((long) upgrade.getEffect(level)); break;
                     case "PROJECTILE": playerStats.setProjectileCount((int) upgrade.getEffect(level)); break;
+                    default:
+                        throw new IllegalArgumentException("Unknown upgrade ID: " + upgrade.getId());
                 }
             }
         }
