@@ -40,6 +40,8 @@ public class EnemyFactory {
             case BURST_SHOOTER:
                 newEntity = new BurstShooterEntity(context, info.x, info.y);
                 break;
+            default:
+                throw new IllegalArgumentException("Unknown entity type: " + info.entityType);
         }
         return newEntity;
     }
