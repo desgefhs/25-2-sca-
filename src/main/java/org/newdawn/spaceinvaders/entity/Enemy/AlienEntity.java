@@ -164,6 +164,13 @@ public class AlienEntity extends Entity implements Enemy {
             if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
                 if (health.isAlive()) {
                     if (!health.decreaseHealth(shot.getDamage())) {
+                        AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
+                        explosion.setScale(0.1);
+                        int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
+                        int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
+                        explosion.setX(centeredX);
+                        explosion.setY(centeredY);
+                        context.addEntity(explosion);
                         context.removeEntity(this);
                         context.notifyAlienKilled();
                     }

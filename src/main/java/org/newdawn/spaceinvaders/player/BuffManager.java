@@ -26,6 +26,7 @@ public class BuffManager {
 
     private ShipEntity player;
     private List<ActiveBuff> activeBuffs = new ArrayList<>();
+    private float originalMoveSpeed = -1;
 
     public BuffManager(ShipEntity player) {
         this.player = player;
@@ -74,13 +75,19 @@ public class BuffManager {
 
     private void applyBuffEffect(BuffType type) {
         if (type == BuffType.SPEED_BOOST) {
-            player.setMoveSpeed(player.getMoveSpeed() * 1.5f);
+            if (originalMoveSpeed == -1) {
+                originalMoveSpeed = player.getMoveSpeed();
+            }
+            player.setMoveSpeed(originalMoveSpeed * 1.5f);
         }
     }
 
     private void removeBuffEffect(BuffType type) {
         if (type == BuffType.SPEED_BOOST) {
-            player.setMoveSpeed(player.getMoveSpeed() / 1.5f);
+            if (originalMoveSpeed != -1) {
+                player.setMoveSpeed(originalMoveSpeed);
+                originalMoveSpeed = -1;
+            }
         }
     }
 

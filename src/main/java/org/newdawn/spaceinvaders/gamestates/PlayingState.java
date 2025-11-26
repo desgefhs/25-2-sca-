@@ -123,8 +123,8 @@ public class PlayingState implements GameState {
         ship.setHorizontalMovement(0);
         ship.setVerticalMovement(0);
 
-        if (input.isLeftPressed() && !input.isRightPressed()) ship.setHorizontalMovement(-ship.getMoveSpeed());
-        else if (input.isRightPressed() && !input.isLeftPressed()) ship.setHorizontalMovement(ship.getMoveSpeed());
+        if (input.isLeftPressed() && !input.isRightPressed()) ship.setHorizontalMovement(-gameManager.moveSpeed);
+        else if (input.isRightPressed() && !input.isLeftPressed()) ship.setHorizontalMovement(gameManager.moveSpeed);
 
         if (input.isUpPressed() && !input.isDownPressed()) ship.setVerticalMovement(-gameManager.moveSpeed);
         if (input.isDownPressed() && !input.isUpPressed()) ship.setVerticalMovement(gameManager.moveSpeed);
