@@ -1,44 +1,41 @@
 package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.Game;
-import org.newdawn.spaceinvaders.core.GameManager;
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
+import org.newdawn.spaceinvaders.userinput.ExitConfirmationInputHandler;
 
 import java.awt.*;
 
 public class ExitConfirmationState implements GameState {
-    private final GameManager gameManager;
+    private final GameContext gameContext;
+    private final ExitConfirmationInputHandler inputHandler;
 
-    public ExitConfirmationState(GameManager gameManager) {
-        this.gameManager = gameManager;
+    public ExitConfirmationState(GameContext gameContext) {
+        this.gameContext = gameContext;
+        this.inputHandler = new ExitConfirmationInputHandler(gameContext);
     }
 
     @Override
-    public void init() {}
+    public void init() {
+        // 이 상태에서는 사용하지 않음
+    }
 
     @Override
     public void handleInput(InputHandler input) {
-        if (input.isLeftPressedAndConsume()) gameManager.confirmDialog.moveLeft();
-        if (input.isRightPressedAndConsume()) gameManager.confirmDialog.moveRight();
-
-        if (input.isEnterPressedAndConsume()) {
-            gameManager.getSoundManager().playSound("buttonselect");
-            String selected = gameManager.confirmDialog.getSelectedItem();
-            if ("Confirm".equals(selected)) {
-                System.exit(0);
-            } else if ("Cancel".equals(selected)) {
-                gameManager.setCurrentState(Type.MAIN_MENU);
-            }
-        }
+        inputHandler.handle(input);
     }
 
     @Override
-    public void update(long delta) {}
+    public void update(long delta) {
+        // 이 상태에서는 사용하지 않음
+    }
 
     @Override
     public void render(Graphics2D g) {
         // Render the main menu underneath
-        MainMenuState mainMenuState = gameManager.getGsm().getMainMenuState();
+        MainMenuState mainMenuState = gameContext.getGameContainer().getGsm().getMainMenuState();
         if (mainMenuState != null) {
             mainMenuState.render(g);
         }
@@ -55,34 +52,38 @@ public class ExitConfirmationState implements GameState {
 
         // Draw the message
         g.setFont(new Font("Dialog", Font.BOLD, 20));
-        g.drawString(gameManager.confirmDialog.getMessage(), (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameManager.confirmDialog.getMessage())) / 2, 260);
+        g.drawString(gameContext.getGameContainer().getUiManager().getConfirmDialog().getMessage(), (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameContext.getGameContainer().getUiManager().getConfirmDialog().getMessage())) / 2, 260);
 
         // Draw the buttons
         g.setFont(new Font("Dialog", Font.BOLD, 24));
         int totalWidth = 0;
         int spacing = 80;
 
-        for (int i = 0; i < gameManager.confirmDialog.getItemCount(); i++) {
-            totalWidth += g.getFontMetrics().stringWidth(gameManager.confirmDialog.getItem(i));
+        for (int i = 0; i < gameContext.getGameContainer().getUiManager().getConfirmDialog().getItemCount(); i++) {
+            totalWidth += g.getFontMetrics().stringWidth(gameContext.getGameContainer().getUiManager().getConfirmDialog().getItem(i));
         }
-        totalWidth += (gameManager.confirmDialog.getItemCount() - 1) * spacing;
+        totalWidth += (gameContext.getGameContainer().getUiManager().getConfirmDialog().getItemCount() - 1) * spacing;
 
         int currentX = (Game.SCREEN_WIDTH - totalWidth) / 2;
 
-        for (int i = 0; i < gameManager.confirmDialog.getItemCount(); i++) {
-            if (i == gameManager.confirmDialog.getSelectedIndex()) {
+        for (int i = 0; i < gameContext.getGameContainer().getUiManager().getConfirmDialog().getItemCount(); i++) {
+            if (i == gameContext.getGameContainer().getUiManager().getConfirmDialog().getSelectedIndex()) {
                 g.setColor(Color.GREEN);
             } else {
                 g.setColor(Color.WHITE);
             }
-            g.drawString(gameManager.confirmDialog.getItem(i), currentX, 350);
-            currentX += g.getFontMetrics().stringWidth(gameManager.confirmDialog.getItem(i)) + spacing;
+            g.drawString(gameContext.getGameContainer().getUiManager().getConfirmDialog().getItem(i), currentX, 350);
+            currentX += g.getFontMetrics().stringWidth(gameContext.getGameContainer().getUiManager().getConfirmDialog().getItem(i)) + spacing;
         }
     }
 
     @Override
-    public void onEnter() {}
+    public void onEnter() {
+        // 이 상태에서는 사용하지 않음
+    }
 
     @Override
-    public void onExit() {}
+    public void onExit() {
+        // 이 상태에서는 사용하지 않음
+    }
 }

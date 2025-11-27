@@ -1,90 +1,87 @@
 package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.Game;
-import org.newdawn.spaceinvaders.core.GameManager;
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
+import org.newdawn.spaceinvaders.userinput.GameOverInputHandler;
 
 import java.awt.*;
 
 public class GameOverState implements GameState {
-    private final GameManager gameManager;
+    private final GameContext gameContext;
     private final boolean gameWon;
+    private final GameOverInputHandler inputHandler;
 
-    public GameOverState(GameManager gameManager, boolean gameWon) {
-        this.gameManager = gameManager;
+    public GameOverState(GameContext gameContext, boolean gameWon) {
+        this.gameContext = gameContext;
         this.gameWon = gameWon;
+        this.inputHandler = new GameOverInputHandler(gameContext);
     }
 
     @Override
-    public void init() {}
+    public void init() {
+        // 이 상태에서는 사용하지 않음
+    }
 
     @Override
     public void handleInput(InputHandler input) {
-        if (input.isLeftPressedAndConsume()) gameManager.gameOverMenu.moveLeft();
-        if (input.isRightPressedAndConsume()) gameManager.gameOverMenu.moveRight();
-
-        if (input.isEnterPressedAndConsume()) {
-            gameManager.getSoundManager().playSound("buttonselect");
-            String selected = gameManager.gameOverMenu.getSelectedItem();
-            if ("다시하기".equals(selected)) {
-                gameManager.startGameplay();
-            } else if ("메인 메뉴로".equals(selected)) {
-                gameManager.setCurrentState(Type.MAIN_MENU);
-            }
-        }
+        inputHandler.handle(input);
     }
 
     @Override
-    public void update(long delta) {}
+    public void update(long delta) {
+        // 이 상태에서는 사용하지 않음
+    }
 
     @Override
     public void render(Graphics2D g) {
         // Render the playing state underneath
-        PlayingState playingState = gameManager.getGsm().getPlayingState();
+        PlayingState playingState = gameContext.getGameContainer().getGsm().getPlayingState();
         if (playingState != null) {
             playingState.render(g);
         }
 
         // Draw the message and GameOverMenu
-        if (gameManager.message != null && !gameManager.message.isEmpty()) {
+        if (gameContext.getMessage() != null && !gameContext.getMessage().isEmpty()) {
             g.setColor(Color.white);
             g.setFont(new Font("Dialog", Font.BOLD, 20));
-            g.drawString(gameManager.message, (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameManager.message)) / 2, 250);
+            g.drawString(gameContext.getMessage(), (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(gameContext.getMessage())) / 2, 250);
         }
 
         g.setFont(new Font("Dialog", Font.BOLD, 24));
         int totalWidth = 0;
         int spacing = 40;
-        for (int i = 0; i < gameManager.gameOverMenu.getItemCount(); i++) {
-            totalWidth += g.getFontMetrics().stringWidth(gameManager.gameOverMenu.getItem(i));
+        for (int i = 0; i < gameContext.getGameContainer().getUiManager().getGameOverMenu().getItemCount(); i++) {
+            totalWidth += g.getFontMetrics().stringWidth(gameContext.getGameContainer().getUiManager().getGameOverMenu().getItem(i));
         }
-        totalWidth += (gameManager.gameOverMenu.getItemCount() - 1) * spacing;
+        totalWidth += (gameContext.getGameContainer().getUiManager().getGameOverMenu().getItemCount() - 1) * spacing;
         int currentX = (Game.SCREEN_WIDTH - totalWidth) / 2;
 
-        for (int i = 0; i < gameManager.gameOverMenu.getItemCount(); i++) {
-            if (i == gameManager.gameOverMenu.getSelectedIndex()) {
+        for (int i = 0; i < gameContext.getGameContainer().getUiManager().getGameOverMenu().getItemCount(); i++) {
+            if (i == gameContext.getGameContainer().getUiManager().getGameOverMenu().getSelectedIndex()) {
                 g.setColor(Color.GREEN);
             } else {
                 g.setColor(Color.WHITE);
             }
-            g.drawString(gameManager.gameOverMenu.getItem(i), currentX, 350);
-            currentX += g.getFontMetrics().stringWidth(gameManager.gameOverMenu.getItem(i)) + spacing;
+            g.drawString(gameContext.getGameContainer().getUiManager().getGameOverMenu().getItem(i), currentX, 350);
+            currentX += g.getFontMetrics().stringWidth(gameContext.getGameContainer().getUiManager().getGameOverMenu().getItem(i)) + spacing;
         }
     }
 
     @Override
     public void onEnter() {
         if (gameWon) {
-            gameManager.message = "Well done! You Win!";
+            gameContext.setMessage("Well done! You Win!");
         } else {
-            gameManager.saveGameResults();
-            long finalCredit = gameManager.currentPlayer.getCredit();
-            gameManager.message = String.format("이번 라운드 점수: %d / 최종 크레딧: %d", gameManager.score, finalCredit);
+            gameContext.getGameContainer().getPlayerManager().saveGameResults();
+            long finalCredit = gameContext.getGameContainer().getPlayerManager().getCurrentPlayer().getCredit();
+            gameContext.setMessage(String.format("이번 라운드 점수: %d / 최종 크레딧: %d", gameContext.getGameContainer().getPlayerManager().getScore(), finalCredit));
         }
     }
 
     @Override
     public void onExit() {
-        gameManager.message = "";
+        gameContext.setMessage("");
     }
 }

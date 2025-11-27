@@ -1,6 +1,8 @@
 package org.newdawn.spaceinvaders.view;
 
-public class ConfirmDialog {
+import org.newdawn.spaceinvaders.userinput.Menu;
+
+public class ConfirmDialog implements Menu {
     private final String[] items = {"Confirm", "Cancel"};
     private int selectedItemIndex = 0;
     private final String message;
@@ -9,6 +11,7 @@ public class ConfirmDialog {
         this.message = message;
     }
 
+    @Override
     public void moveLeft() {
         selectedItemIndex--;
         if (selectedItemIndex < 0) {
@@ -16,6 +19,7 @@ public class ConfirmDialog {
         }
     }
 
+    @Override
     public void moveRight() {
         selectedItemIndex++;
         if (selectedItemIndex >= items.length) {
@@ -23,10 +27,23 @@ public class ConfirmDialog {
         }
     }
 
+    @Override
+    public void moveUp() {
+        // Not used in ConfirmDialog, but required by Menu interface
+        throw new UnsupportedOperationException("moveUp is not supported in ConfirmDialog");
+    }
+
+    @Override
+    public void moveDown() {
+        // Not used in ConfirmDialog, but required by Menu interface
+        throw new UnsupportedOperationException("moveDown is not supported in ConfirmDialog");
+    }
+
     public String getMessage() {
         return message;
     }
 
+    @Override
     public String getSelectedItem() {
         return items[selectedItemIndex];
     }

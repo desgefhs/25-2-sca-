@@ -3,11 +3,12 @@ package org.newdawn.spaceinvaders.auth;
 
 import javax.swing.*;
 import java.awt.*;
+import javax.swing.WindowConstants;
 
 public class LoginDialog extends JDialog {
 
     private final AuthScreen authScreen;
-    private AuthenticatedUser authenticatedUser = null;
+    private transient AuthenticatedUser authenticatedUser = null;
 
     public LoginDialog(Frame owner, AuthManager authManager) {
         super(owner, "Login", true); //
@@ -53,7 +54,7 @@ public class LoginDialog extends JDialog {
         getRootPane().setDefaultButton(authScreen.getLoginButton());
         pack();
         setLocationRelativeTo(owner);
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
 
     public AuthenticatedUser showDialog() {

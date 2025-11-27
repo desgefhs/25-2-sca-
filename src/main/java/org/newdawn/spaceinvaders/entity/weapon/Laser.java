@@ -34,7 +34,7 @@ public class Laser implements Weapon {
     public void setLevel(int level) {
         this.level = level;
         this.damage = 3 + (level - 1);
-        this.firingInterval = 1500 - ((level - 1) * 250);
+        this.firingInterval = 1500 - ((level - 1) * 250L);
     }
 
     @Override

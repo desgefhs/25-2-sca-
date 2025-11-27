@@ -1,8 +1,6 @@
 package org.newdawn.spaceinvaders.entity;
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
-import org.newdawn.spaceinvaders.entity.Enemy.BombEntity;
-import org.newdawn.spaceinvaders.entity.Enemy.Enemy;
 import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.BombEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.Enemy;
@@ -21,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ShipEntity extends Entity {
-    private GameContext context;
+    private final GameContext context;
     private HpRender hpRender;
     private static final int COLLISION_DAMAGE = 1;
 
@@ -35,8 +33,8 @@ public class ShipEntity extends Entity {
     private boolean isBuffActive = false;
     private long buffTimer = 0;
     private static final long BUFF_DURATION = 3000; // 3 seconds
-    private int buffLevel = 0;
-    private Runnable onBuffEnd = null;
+    private final int buffLevel = 0;
+    private final Runnable onBuffEnd = null;
 
     private Weapon currentWeapon;
     private final Map<PetType, PetEntity> activePets = new HashMap<>();
@@ -96,7 +94,7 @@ public class ShipEntity extends Entity {
             return;
         }
         currentWeapon.fire(context, this);
-        context.getSoundManager().playSound(currentWeapon.getSoundName());
+        context.getGameContainer().getSoundManager().playSound(currentWeapon.getSoundName());
     }
 
     @Override
@@ -142,12 +140,11 @@ public class ShipEntity extends Entity {
             }
 
             // For all other enemies, they are destroyed on collision
-            context.removeEntity(other);
-            context.notifyAlienKilled(); // This is the critical fix to decrement alienCount
+            other.destroy();
 
             // And the ship takes collision damage
             if (!health.decreaseHealth(COLLISION_DAMAGE)) {
-                context.notifyDeath();
+                this.destroy();
             }
             return; // Collision handled
         }
@@ -155,7 +152,7 @@ public class ShipEntity extends Entity {
         if (other instanceof ProjectileEntity) {
             // Projectile damage is handled by HealthComponent, which also grants invincibility
             if (!health.decreaseHealth(((ProjectileEntity) other).getDamage())) {
-                context.notifyDeath();
+                this.destroy();
             }
         }
     }
@@ -164,7 +161,9 @@ public class ShipEntity extends Entity {
         invincibilityTimer = INVINCIBILITY_DURATION;
     }
 
+    @Override
     public void reset() {
+        super.reset();
         health.reset();
         invincible = false;
         invincibilityTimer = 0;

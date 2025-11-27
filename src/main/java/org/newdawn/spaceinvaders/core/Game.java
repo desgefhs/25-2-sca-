@@ -8,7 +8,7 @@ import com.google.firebase.cloud.FirestoreClient;
 import org.newdawn.spaceinvaders.auth.AuthManager;
 import org.newdawn.spaceinvaders.auth.AuthenticatedUser;
 import org.newdawn.spaceinvaders.auth.LoginDialog;
-
+import org.newdawn.spaceinvaders.core.GameState;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +23,7 @@ public class Game {
 
     public static void main(String[] argv) {
         // Firebase 초기 화
+
         Firestore db = initializeFirebase();
         if (db == null) {
             System.err.println("Firebase 초기화 실패. 프로그램을 종료합니다.");
@@ -34,7 +35,7 @@ public class Game {
 
         // 로그인 다이얼로그 생성 및 표시
         LoginDialog loginDialog = new LoginDialog(null, authManager);
-         AuthenticatedUser user = loginDialog.showDialog();
+        AuthenticatedUser user = loginDialog.showDialog();
 
         //   로그인 성공 여부 확인
         if (user == null) {
@@ -45,7 +46,14 @@ public class Game {
 
         // 로그인 성공 시,  게임 시작
         System.out.println(user.getUsername() + "님, 환영합니다!");
-        GameManager gameManager = new GameManager(user, db);
+
+        // Use the factory to create the game instance
+        GameFactory gameFactory = new GameFactory(db, user);
+        GameManager gameManager = gameFactory.createGame();
+
+        // Initialize and Start Game
+        gameManager.init();
+        gameManager.setCurrentState(GameState.Type.MAIN_MENU);
         gameManager.initializePlayer();
         gameManager.startGame();
     }
@@ -62,7 +70,7 @@ public class Game {
                 throw new IOException("serviceAccountKey.json 파일을 resources 폴더에서 찾을 수 없습니다.");
             }
 
-            FirebaseOptions options = new FirebaseOptions.Builder()
+            FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .build();
 
@@ -72,8 +80,7 @@ public class Game {
             }
             return FirestoreClient.getFirestore();
         } catch (IOException e) {
-            System.err.println("Firebase 초기화 오류: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Firebase 초기화 오류: " + e.getMessage() + ". 스택 트레이스를 확인하려면 디버그 모드를 사용하세요.");
             return null;
         }
     }

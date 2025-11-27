@@ -2,6 +2,7 @@ package org.newdawn.spaceinvaders.entity.Enemy;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
+
 import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.LaserBeamEntity;
@@ -13,12 +14,12 @@ import org.newdawn.spaceinvaders.graphics.SpriteStore;
 import java.awt.Graphics;
 
 public class ThreeWayShooter extends Entity implements Enemy {
-    private double moveSpeed = 150; // Adjusted for horizontal movement
-    private GameContext context;
+    private final double moveSpeed = 150; // Adjusted for horizontal movement
+    private final GameContext context;
     private MovementPattern movementPattern;
 
     private long lastFire = 0;
-    private long firingInterval = 2000; // Fires every 2 seconds
+    private final long firingInterval = 2000; // Fires every 2 seconds
 
     // Upgrade state
     private boolean isUpgraded = false;
@@ -135,10 +136,9 @@ public class ThreeWayShooter extends Entity implements Enemy {
             specialShotPending = false; // Reset the flag
         }
 
-        // if we have gone off the bottom of the screen, remove ourselves
+        // if we have gone off the bottom of the screen, destroy self
         if (y > 600) {
-            context.notifyAlienEscaped(this);
-            context.removeEntity(this);
+            this.destroy();
         }
     }
 
@@ -163,44 +163,30 @@ public class ThreeWayShooter extends Entity implements Enemy {
 
     @Override
     public void collidedWith(Entity other) {
-        // if it's a shot from the player, take damage
         if (other instanceof ProjectileEntity) {
             ProjectileEntity shot = (ProjectileEntity) other;
             if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
-                if (health.isAlive()) {
-                    if (!health.decreaseHealth(shot.getDamage())) {
-                        // Create, scale, and position the explosion to be centered on the shooter
-                        AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
-                        explosion.setScale(0.1);
-                        int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
-                        int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
-                        explosion.setX(centeredX);
-                        explosion.setY(centeredY);
-                        context.addEntity(explosion);
-
-                        // Remove the shooter from the game
-                        context.removeEntity(this);
-                        context.notifyAlienKilled();
-                    }
-                }
+                handleDamage(shot.getDamage());
             }
         } else if (other instanceof LaserBeamEntity) {
             LaserBeamEntity laser = (LaserBeamEntity) other;
-            if (health.isAlive()) {
-                if (!health.decreaseHealth(laser.getDamage())) {
-                    // Create, scale, and position the explosion to be centered on the shooter
-                    AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
-                    explosion.setScale(0.1);
-                    int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
-                    int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
-                    explosion.setX(centeredX);
-                    explosion.setY(centeredY);
-                    context.addEntity(explosion);
+            handleDamage(laser.getDamage());
+        }
+    }
 
-                    // Remove the shooter from the game
-                    context.removeEntity(this);
-                    context.notifyAlienKilled();
-                }
+    private void handleDamage(int damage) {
+        if (health.isAlive()) {
+            if (!health.decreaseHealth(damage)) {
+                // Create, scale, and position the explosion to be centered on the shooter
+                AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
+                explosion.setScale(0.1);
+                int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
+                int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
+                explosion.setX(centeredX);
+                explosion.setY(centeredY);
+                context.addEntity(explosion);
+
+                this.destroy();
             }
         }
     }

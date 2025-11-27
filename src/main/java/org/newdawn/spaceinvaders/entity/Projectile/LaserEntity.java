@@ -3,6 +3,7 @@ package org.newdawn.spaceinvaders.entity.Projectile;
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
 
+
 import org.newdawn.spaceinvaders.entity.Entity;
 
 public class LaserEntity extends Entity {
@@ -20,18 +21,10 @@ public class LaserEntity extends Entity {
 
     @Override
     public void move(long delta) {
-        // Perform the death check only once, right after the laser is created.
-        if (!fired) {
-            if (!context.hasCollectedAllItems()) {
-                context.notifyDeath();
-            }
-            fired = true;
-        }
-
         // Countdown the firing duration to remove the entity
         fireDuration -= delta;
         if (fireDuration <= 0) {
-            context.removeEntity(this);
+            this.destroy();
         }
     }
 

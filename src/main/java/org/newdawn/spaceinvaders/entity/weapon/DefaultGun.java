@@ -14,14 +14,14 @@ public class DefaultGun implements Weapon {
     @Override
     public void fire(GameContext context, ShipEntity owner) {
         GameManager gm = (GameManager) context;
-        PlayerStats stats = gm.playerStats;
+        PlayerStats stats = gm.getPlayerStats();
 
         long firingInterval = stats.getFiringInterval();
         int bulletDamage = stats.getBulletDamage();
         int projectileCount = stats.getProjectileCount();
 
         if (owner.getBuffManager().hasBuff(org.newdawn.spaceinvaders.player.BuffType.DAMAGE_BOOST)) {
-            double buffMultiplier = 1.20 + (owner.getBuffManager().getBuffLevel(org.newdawn.spaceinvaders.player.BuffType.DAMAGE_BOOST) * 0.01);
+            double buffMultiplier = 1.2;
             firingInterval /= buffMultiplier; // Faster fire rate
             bulletDamage *= buffMultiplier;   // More damage
         }

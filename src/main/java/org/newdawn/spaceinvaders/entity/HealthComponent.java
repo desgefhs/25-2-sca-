@@ -7,7 +7,7 @@ package org.newdawn.spaceinvaders.entity;
 public class HealthComponent {
 
     private final Entity owner;
-    private HP hp;
+    private final HP hp;
 
     public HealthComponent(Entity owner, int maxHp) {
         this.owner = owner;
