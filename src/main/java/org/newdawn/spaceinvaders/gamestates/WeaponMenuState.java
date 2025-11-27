@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 무기 선택 및 강화를 위한 메뉴 화면을 담당하는 게임 상태.
+ * 플레이어가 소유한 무기 목록, 장착 상태, 강화 옵션 등을 표시하고, 관련 입력을 처리합니다.
+ */
 public class WeaponMenuState implements GameState {
 
     private static final String WEAPON_DEFAULT_GUN = "DefaultGun";
@@ -22,15 +26,23 @@ public class WeaponMenuState implements GameState {
     private static final String FONT_NAME = "Dialog";
 
     private final GameContext gameContext;
-    private WeaponMenu weaponMenu;
-    private final WeaponMenuInputHandler inputHandler;
-    private final Map<String, Sprite> weaponSprites = new HashMap<>();
+    private WeaponMenu weaponMenu; // 무기 메뉴 뷰
+    private final WeaponMenuInputHandler inputHandler; // 무기 메뉴 입력 핸들러
+    private final Map<String, Sprite> weaponSprites = new HashMap<>(); // 무기 타입별 스프라이트
 
+    /**
+     * WeaponMenuState 생성자.
+     * @param gameContext 게임 컨텍스트
+     */
     public WeaponMenuState(GameContext gameContext) {
         this.gameContext = gameContext;
         this.inputHandler = new WeaponMenuInputHandler(gameContext, () -> this.weaponMenu);
     }
 
+    /**
+     * 무기 메뉴 상태를 초기화합니다.
+     * 사용 가능한 무기 목록을 설정하고, 무기 스프라이트를 미리 로드합니다.
+     */
     @Override
     public void init() {
         ArrayList<String> weaponNames = new ArrayList<>();
@@ -44,16 +56,29 @@ public class WeaponMenuState implements GameState {
         weaponSprites.put(WEAPON_LASER, SpriteStore.get().getSprite("sprites/weapon/lasergun.png"));
     }
 
+    /**
+     * 무기 메뉴에 대한 사용자 입력을 처리합니다.
+     * @param input 현재 키 상태를 제공하는 입력 핸들러
+     */
     @Override
     public void handleInput(InputHandler input) {
         inputHandler.handle(input);
     }
 
+    /**
+     * 이 상태에서는 특별한 업데이트 로직이 필요하지 않습니다.
+     * @param delta 마지막 업데이트 이후 경과 시간
+     */
     @Override
     public void update(long delta) {
         // 이 상태에서는 사용하지 않음
     }
 
+    /**
+     * 무기 메뉴 화면을 렌더링합니다.
+     * 배경, 무기 목록, 선택된 무기 정보, 업그레이드 버튼 및 메시지 등을 그립니다.
+     * @param g 그리기를 수행할 그래픽 컨텍스트
+     */
     @Override
     public void render(Graphics2D g) {
         drawBackground(g);
@@ -62,6 +87,7 @@ public class WeaponMenuState implements GameState {
         drawMessages(g);
     }
 
+    /** 배경과 제목을 그립니다. */
     private void drawBackground(Graphics2D g) {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
@@ -70,6 +96,7 @@ public class WeaponMenuState implements GameState {
         g.drawString("Weapon Locker", 50, 50);
     }
 
+    /** 좌측에 무기 목록을 그립니다. */
     private void drawWeaponList(Graphics2D g) {
         g.setFont(new Font(FONT_NAME, Font.PLAIN, 18));
         int yPos = 100;
@@ -93,6 +120,7 @@ public class WeaponMenuState implements GameState {
         }
     }
 
+    /** 선택된 무기의 상세 정보 (스프라이트, 설명, 업그레이드 버튼)를 우측에 그립니다. */
     private void drawSelectedWeaponInfo(Graphics2D g) {
         String selectedWeapon = weaponMenu.getSelectedItem();
         if (selectedWeapon == null) return;
@@ -108,6 +136,7 @@ public class WeaponMenuState implements GameState {
         }
     }
 
+    /** 선택된 무기의 스프라이트를 그립니다. */
     private void drawWeaponSprite(Graphics2D g, String selectedWeapon) {
         Sprite sprite = weaponSprites.get(selectedWeapon);
         if (sprite == null) return;
@@ -121,6 +150,7 @@ public class WeaponMenuState implements GameState {
         sprite.draw(g, boxX, boxY, boxWidth, boxHeight);
     }
 
+    /** 선택된 무기의 업그레이드 버튼을 그립니다. */
     private void drawUpgradeButton(Graphics2D g, String selectedWeapon, int level) {
         int buttonX = 550;
         int buttonY = 270;
@@ -149,6 +179,7 @@ public class WeaponMenuState implements GameState {
         }
     }
 
+    /** 선택된 무기의 설명을 그립니다. */
     private void drawWeaponDescription(Graphics2D g, String selectedWeapon, int level) {
         g.setFont(new Font(FONT_NAME, Font.PLAIN, 14));
         g.setColor(Color.LIGHT_GRAY);
@@ -167,11 +198,12 @@ public class WeaponMenuState implements GameState {
             if (level < 5) description2 = "다음 레벨: 데미지 " + (damage + 1);
         }
 
-        int descriptionY = 270 + 50 + 25; // Below the button
+        int descriptionY = 270 + 50 + 25; // 버튼 아래 위치
         g.drawString(description1, 550, descriptionY);
         if (level < 5) g.drawString(description2, 550, descriptionY + 20);
     }
 
+    /** 화면 하단에 메시지 및 안내 문구를 그립니다. */
     private void drawMessages(Graphics2D g) {
         if (gameContext.getMessage() != null && !gameContext.getMessage().isEmpty()) {
             g.setColor(Color.YELLOW);
@@ -181,6 +213,7 @@ public class WeaponMenuState implements GameState {
         g.drawString("Go to the Shop to unlock new weapons.", 50, 450);
     }
 
+    /** 무기 업그레이드 비용을 가져옵니다. */
     private int getUpgradeCost(String weapon, int level) {
         if (weapon.equals(WEAPON_SHOTGUN)) {
             switch (level) {
@@ -204,12 +237,19 @@ public class WeaponMenuState implements GameState {
         return 999999;
     }
 
+    /**
+     * 이 상태에 진입할 때 호출됩니다.
+     * 무기 메뉴를 초기화하고 메시지를 지웁니다.
+     */
     @Override
     public void onEnter() {
-        init();
+        init(); // init()을 호출하여 무기 목록과 스프라이트를 재초기화
         gameContext.setMessage("");
     }
 
+    /**
+     * 이 상태를 벗어날 때 특별한 로직이 필요하지 않습니다.
+     */
     @Override
     public void onExit() {
         gameContext.setMessage("");

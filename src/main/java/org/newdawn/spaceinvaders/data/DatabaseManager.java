@@ -11,9 +11,11 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Firebase Firestore 데이터베이스와의 모든 상호작용(데이터 저장, 불러오기)을 처리하는 클래스.
+ * 플레이어 데이터, 랭킹 등 게임의 영구 데이터를 관리합니다.
  */
 public class DatabaseManager {
 
+    // Firestore 컬렉션 및 필드 이름을 상수로 정의
     private static final String USERS_COLLECTION = "users";
     private static final String HIGH_SCORE_FIELD = "highScore";
     private static final String CREDIT_FIELD = "credit";
@@ -23,6 +25,7 @@ public class DatabaseManager {
     private static final String WEAPON_LEVELS_FIELD = "weaponLevels";
     private static final String USERNAME_FIELD = "username";
 
+    // 로그 메시지를 상수로 정의
     private static final String LOG_UPDATE_SUCCESS = "PlayerData 업데이트 완료: ";
     private static final String LOG_UPDATE_ERROR = "PlayerData 업데이트 중 오류 발생: ";
     private static final String LOG_LOAD_SUCCESS_PREFIX = " 사용자의 데이터 불러오기 성공. 최고 점수: ";
@@ -30,30 +33,35 @@ public class DatabaseManager {
     private static final String LOG_CREATE_NEW_USER_DATA = " 사용자의 데이터가 존재하지 않아 새로 생성합니다.";
     private static final String LOG_LOAD_ERROR = "데이터 불러오기 중 오류 발생: ";
 
+    /** Firestore 데이터베이스 인스턴스. */
     private final Firestore db;
 
+    /**
+     * DatabaseManager 생성자.
+     * @param db Firestore 데이터베이스 인스턴스
+     */
     public DatabaseManager(Firestore db) {
         this.db = db;
     }
 
     /**
-     * 전체 PlayerData 객체를 Firestore에 저장하며, 기존 데이터를 덮어씁니다.
-     * @param uid 업데이트할 사용자의 고유 ID.
-     * @param playerData 저장할 데이터가 포함된 PlayerData 객체.
+     * 특정 사용자의 PlayerData를 Firestore에 업데이트합니다.
+     * 기존 데이터를 덮어쓰지 않고 주어진 필드만 갱신합니다.
+     *
+     * @param uid 업데이트할 사용자의 고유 ID (UID)
+     * @param playerData 저장할 데이터가 포함된 PlayerData 객체
      */
     public void updatePlayerData(String uid, PlayerData playerData) {
         if (uid == null || uid.trim().isEmpty()) return;
         DocumentReference docRef = db.collection(USERS_COLLECTION).document(uid);
 
-        // PlayerData를 Map으로 변환하여 update() 메소드를 사용합니다.
-        // 이렇게 하면 전체 문서를 덮어쓰는 것을 방지할 수 있습니다.
         Map<String, Object> updates = new HashMap<>();
         updates.put(HIGH_SCORE_FIELD, playerData.getHighScore());
         updates.put(CREDIT_FIELD, playerData.getCredit());
         updates.put(UPGRADE_LEVELS_FIELD, playerData.getUpgradeLevels());
         updates.put(PET_INVENTORY_FIELD, playerData.getPetInventory());
-        updates.put(PET_LEVELS_FIELD, playerData.getPetLevels()); // 펫 레벨 저장
-        updates.put(WEAPON_LEVELS_FIELD, playerData.getWeaponLevels()); // 무기 레벨 저장
+        updates.put(PET_LEVELS_FIELD, playerData.getPetLevels());
+        updates.put(WEAPON_LEVELS_FIELD, playerData.getWeaponLevels());
 
         ApiFuture<WriteResult> result = docRef.update(updates);
         try {
@@ -65,8 +73,11 @@ public class DatabaseManager {
 
     /**
      * Firestore에서 특정 사용자의 플레이어 데이터를 불러옵니다.
-     * @param uid 불러올 사용자의 고유 ID
-     * @return 불러온 PlayerData 객체. 만약 데이터가 없으면 기본값(highScore=0, credit=0)을 가진 새 객체를 반환합니다.
+     * 데이터가 없는 경우, 새로운 기본 PlayerData 객체를 생성하여 반환합니다.
+     *
+     * @param uid 불러올 사용자의 고유 ID (UID)
+     * @param username 불러올 사용자의 이름 (로그 출력용)
+     * @return 불러온 PlayerData 객체. 데이터가 없으면 기본값을 가진 새 객체를 반환합니다.
      */
     public PlayerData loadPlayerData(String uid, String username) {
         if (uid == null || uid.trim().isEmpty()) return new PlayerData();
@@ -91,6 +102,13 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Firestore DocumentSnapshot에서 무기 레벨 정보를 추출합니다.
+     * Firestore는 숫자를 Long으로 저장하므로, 이를 Integer로 변환하는 과정을 거칩니다.
+     *
+     * @param document Firestore 문서 스냅샷
+     * @return 무기 타입과 레벨을 매핑한 맵
+     */
     private Map<String, Integer> extractWeaponLevels(DocumentSnapshot document) {
         Map<String, Integer> weaponLevels = new HashMap<>();
         if (document.contains(WEAPON_LEVELS_FIELD)) {
@@ -109,8 +127,9 @@ public class DatabaseManager {
     }
 
     /**
-     * 데이터베이스에서 상위 10개의 최고 점수 기록을 가져옵니다.
-     * @return 랭킹 문자열 목록
+     * 데이터베이스에서 상위 10명의 최고 점수 기록을 가져와 랭킹 목록을 생성합니다.
+     *
+     * @return 랭킹 정보가 담긴 {@link org.newdawn.spaceinvaders.ranking.Ranking} 객체의 리스트
      */
     public List<org.newdawn.spaceinvaders.ranking.Ranking> getHighScores() {
         List<org.newdawn.spaceinvaders.ranking.Ranking> highScores = new ArrayList<>();

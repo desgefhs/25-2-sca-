@@ -8,15 +8,29 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 
+/**
+ * 사용자 인증(로그인 및 회원가입)을 위한 UI를 제공하는 Swing JPanel.
+ * 사용자 이름, 비밀번호 필드, 로그인/회원가입 버튼, 메시지 레이블로 구성됩니다.
+ */
 public class AuthScreen extends JPanel {
 
+    /** 사용자 이름 입력을 위한 텍스트 필드. */
     private final JTextField usernameField;
+    /** 비밀번호 입력을 위한 패스워드 필드. */
     private final JPasswordField passwordField;
+    /** 로그인 실행 버튼. */
     private JButton loginButton;
+    /** 회원가입 실행 버튼. */
     private JButton signupButton;
+    /** 오류나 상태 메시지를 표시하기 위한 레이블. */
     private final JLabel messageLabel;
+    /** 패널의 배경 이미지. `transient`로 직렬화에서 제외됩니다. */
     private transient Image backgroundImage;
 
+    /**
+     * AuthScreen 생성자.
+     * UI 컴포넌트를 초기화하고 레이아웃을 설정합니다.
+     */
     public AuthScreen() {
         setPreferredSize(new Dimension(Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT));
         try {
@@ -136,6 +150,10 @@ public class AuthScreen extends JPanel {
         add(messageLabel, gbc);
     }
 
+    /**
+     * 컴포넌트의 배경을 그립니다. 배경 이미지가 있으면 이미지를 먼저 그립니다.
+     * @param g the <code>Graphics</code> object to protect
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -144,34 +162,65 @@ public class AuthScreen extends JPanel {
         }
     }
 
+    /**
+     * 사용자가 입력한 사용자 이름을 반환합니다.
+     * @return 공백이 제거된 사용자 이름
+     */
     public String getUsername() {
         return usernameField.getText().trim();
     }
 
+    /**
+     * 사용자가 입력한 비밀번호를 반환합니다.
+     * @return 공백이 제거된 비밀번호
+     */
     public String getPassword() {
         return new String(passwordField.getPassword()).trim();
     }
 
+    /**
+     * 로그인 버튼 객체를 반환합니다.
+     * @return 로그인 버튼
+     */
     public JButton getLoginButton() {
         return loginButton;
     }
 
+    /**
+     * 회원가입 버튼 객체를 반환합니다.
+     * @return 회원가입 버튼
+     */
     public JButton getSignupButton() {
         return signupButton;
     }
 
+    /**
+     * 메시지 레이블에 표시할 텍스트를 설정합니다.
+     * @param message 표시할 메시지
+     */
     public void setMessage(String message) {
         messageLabel.setText(message);
     }
 
+    /**
+     * 사용자 이름 필드 객체를 반환합니다.
+     * @return 사용자 이름 텍스트 필드
+     */
     public JTextField getUsernameField() {
         return usernameField;
     }
 
-    // 배경 이미지가 있는 패널을 위한 내부 클래스
+    /**
+     * 배경 이미지를 그릴 수 있는 커스텀 JPanel.
+     */
     private class ImagePanel extends JPanel {
+        /** 패널의 배경 이미지. */
         private final transient Image backgroundImage;
 
+        /**
+         * ImagePanel 생성자.
+         * @param backgroundImage 패널의 배경으로 사용할 이미지
+         */
         public ImagePanel(Image backgroundImage) {
             this.backgroundImage = backgroundImage;
             setLayout(new BorderLayout());

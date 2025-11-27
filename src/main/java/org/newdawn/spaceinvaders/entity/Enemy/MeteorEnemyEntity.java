@@ -7,18 +7,33 @@ import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 
+/**
+ * 발사체를 발사하는 운석 형태의 적 엔티티.
+ * 일정한 이동 속도로 움직이며 주기적으로 발사체를 발사하고, 플레이어의 발사체와 충돌을 처리합니다.
+ */
 public class MeteorEnemyEntity extends Entity implements Enemy {
-    private static final long FIRING_INTERVAL = 400L; // 0.4초
+    /** 발사 간격 (밀리초). */
+    private static final long FIRING_INTERVAL = 400L;
+    /** 마지막 발사 이후 시간. */
     private long lastFire = 0;
+    /** 게임 컨텍스트. */
     private final GameContext context;
+    /** 운석의 이동 속도. */
     private final double moveSpeed = 75;
 
+    /** 발사 상태를 정의하는 열거형 (현재 사용되지 않음). */
     private enum FiringState { FIRING, COOLDOWN }
     private final FiringState currentState = FiringState.FIRING;
     private final long stateTimer = 2000L; // FIRING 상태에서 시작
     private static final long FIRING_DURATION = 2000L;
     private static final long COOLDOWN_DURATION = 1000L;
 
+    /**
+     * MeteorEnemyEntity 생성자.
+     * @param context 게임 컨텍스트
+     * @param x 초기 x 좌표
+     * @param y 초기 y 좌표
+     */
     public MeteorEnemyEntity(GameContext context, int x, int y) {
         super("sprites/enemy/meteorEnemy.gif", x, y);
         this.context = context;
@@ -27,6 +42,9 @@ public class MeteorEnemyEntity extends Entity implements Enemy {
         setScale(1.5);
     }
 
+    /**
+     * 발사 간격에 따라 발사체를 발사하려고 시도합니다.
+     */
     private void tryToFire() {
         if (System.currentTimeMillis() - lastFire < FIRING_INTERVAL) {
             return;
@@ -38,12 +56,22 @@ public class MeteorEnemyEntity extends Entity implements Enemy {
         context.addEntity(shot);
     }
 
+    /**
+     * 엔티티를 이동시키고 발사를 시도합니다.
+     * @param delta 마지막 업데이트 이후 경과 시간
+     */
     @Override
     public void move(long delta) {
         super.move(delta);
         tryToFire();
     }
 
+    /**
+     * 다른 엔티티와의 충돌을 처리합니다.
+     * 플레이어의 발사체와 충돌하면 피해를 입고, 체력이 0이 되면 파괴됩니다.
+     * @param other 충돌한 다른 엔티티
+     */
+    @Override
     public void collidedWith(Entity other) {
         // 플레이어의 발사체와 충돌하면 피해를 입습니다.
         if (other instanceof ProjectileEntity) {
@@ -70,6 +98,9 @@ public class MeteorEnemyEntity extends Entity implements Enemy {
         }
     }
 
+    /**
+     * 이 엔티티는 업그레이드할 수 없습니다.
+     */
     @Override
     public void upgrade() {
         // 이 엔티티는 업그레이드할 수 없습니다.

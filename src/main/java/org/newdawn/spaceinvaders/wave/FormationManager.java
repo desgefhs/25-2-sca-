@@ -9,11 +9,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 적의 공격 편대(Formation)를 생성하고 관리하는 클래스.
+ * 각 스테이지별로 사용될 수 있는 다양한 포메이션들을 미리 정의하고,
+ * 요청 시 무작위 포메이션을 제공하는 팩토리 역할을 합니다.
+ */
 public class FormationManager {
 
+    /** 스테이지별 포메이션 목록을 저장하는 리스트. 바깥 리스트의 인덱스가 스테이지를 의미합니다. */
     private final List<List<Formation>> stages = new ArrayList<>();
+    /** 무작위 포메이션 선택에 사용될 난수 생성기. */
     private final Random random = new Random();
 
+    /**
+     * FormationManager 생성자.
+     * 모든 스테이지에 대한 포메이션을 생성하고 초기화합니다.
+     */
     public FormationManager() {
         for (int i = 0; i < 5; i++) {
             stages.add(new ArrayList<>());
@@ -21,6 +32,12 @@ public class FormationManager {
         createAllFormations();
     }
 
+    /**
+     * 지정된 스테이지에 맞는 무작위 포메이션을 반환합니다.
+     *
+     * @param stage 포메이션을 가져올 스테이지 번호 (1부터 시작)
+     * @return 무작위로 선택된 {@link Formation} 객체. 해당 스테이지에 포메이션이 없으면 빈 포메이션을 반환.
+     */
     public Formation getRandomFormationForStage(int stage) {
         List<Formation> stageFormations = stages.get(stage - 1);
         if (stageFormations.isEmpty()) {
@@ -29,6 +46,9 @@ public class FormationManager {
         return stageFormations.get(random.nextInt(stageFormations.size()));
     }
 
+    /**
+     * 게임에 사용될 모든 포메이션을 생성하여 각 스테이지에 할당합니다.
+     */
     private void createAllFormations() {
         // Stage 1
         stages.get(0).add(createLineFormation());
@@ -61,6 +81,7 @@ public class FormationManager {
 
     // Formation Definitions
 
+    /** 물결 모양으로 움직이는 일자 라인 포메이션을 생성합니다. */
     private Formation createLineFormation() {
         Formation formation = new Formation("Wavy Line");
         for (int i = 0; i < 10; i++) {
@@ -69,6 +90,7 @@ public class FormationManager {
         return formation;
     }
 
+    /** V자 형태로 내려오는 포메이션을 생성합니다. */
     private Formation createVFormation() {
         Formation formation = new Formation("V-Shape");
         for (int i = 0; i < 5; i++) {
@@ -78,6 +100,7 @@ public class FormationManager {
         return formation;
     }
 
+    /** 대각선으로 내려오는 포메이션을 생성합니다. */
     private Formation createDiagonalFormation(String name, boolean startFromLeft) {
         Formation formation = new Formation(name);
         for (int i = 0; i < 5; i++) {
@@ -87,6 +110,7 @@ public class FormationManager {
         return formation;
     }
 
+    /** 화면 양쪽에서 나타나 중앙으로 수렴하는 3-way 슈터 포메이션을 생성합니다. */
     private Formation createConvergingShootersFormation(boolean forceUpgrade) {
         Formation formation = new Formation("Converging Shooters" + (forceUpgrade ? "+" : ""));
         int yPos = Game.GAME_HEIGHT / 5;
@@ -96,6 +120,7 @@ public class FormationManager {
         return formation;
     }
 
+    /** 화면 위아래에서 교차하며 나타나는 포메이션을 생성합니다. */
     private Formation createCrossFireFormation() {
         Formation formation = new Formation("Cross Fire");
         int w = Game.GAME_WIDTH;
@@ -110,6 +135,7 @@ public class FormationManager {
         return formation;
     }
 
+    /** 점사(burst) 공격을 하는 슈터들로 구성된 포메이션을 생성합니다. */
     private Formation createBurstShooterFormation(boolean forceUpgrade) {
         Formation formation = new Formation("Burst Shooters" + (forceUpgrade ? "+" : ""));
         for (int i = 0; i < 3; i++) {
@@ -119,6 +145,7 @@ public class FormationManager {
         return formation;
     }
 
+    /** 화면을 뒤덮으며 폭탄을 떨어뜨리는 포메이션을 생성합니다. */
     private Formation createBombCarpetFormation() {
         Formation formation = new Formation("Bomb Carpet");
         int explosionRadius = 120;

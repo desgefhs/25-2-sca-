@@ -24,20 +24,36 @@ import org.newdawn.spaceinvaders.entity.weapon.DefaultGun;
 import org.newdawn.spaceinvaders.entity.weapon.Shotgun;
 import org.newdawn.spaceinvaders.entity.weapon.Laser;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 게임에 필요한 모든 객체를 생성하고 의존성을 주입하여 조립하는 팩토리 클래스.
+ * 게임의 전체 객체 그래프를 구성하는 책임을 가집니다.
+ */
 public class GameFactory {
 
+    /** Firestore 데이터베이스 인스턴스. */
     private final Firestore db;
+    /** 현재 인증된 사용자 정보. */
     private final AuthenticatedUser user;
 
+    /**
+     * GameFactory 생성자.
+     * @param db Firestore 데이터베이스 인스턴스
+     * @param user 인증된 사용자 객체
+     */
     public GameFactory(Firestore db, AuthenticatedUser user) {
         this.db = db;
         this.user = user;
     }
 
+    /**
+     * 모든 관리자 및 구성 요소를 생성하고 의존성을 주입하여
+     * 완전히 구성된 {@link GameManager} 인스턴스를 생성합니다.
+     *
+     * @return 의존성 주입이 완료된 GameManager 인스턴스
+     */
     public GameManager createGame() {
         // 1. 관리자 및 핵심 구성 요소 생성
         GameManager gameManager = new GameManager();
@@ -51,7 +67,7 @@ public class GameFactory {
         EntityManager entityManager = new EntityManager(gameManager);
         GameStateManager gsm = new GameStateManager();
         GameStateFactory gameStateFactory = new GameStateFactory();
-        EntityLifecycleManager entityLifecycleManager = new EntityLifecycleManager(); // 추가
+        EntityLifecycleManager entityLifecycleManager = new EntityLifecycleManager();
 
         // 2. UI 구성 요소 생성
         GameWindow gameWindow = new GameWindow(inputHandler);
@@ -66,7 +82,7 @@ public class GameFactory {
         GameContainer gameContainer = new GameContainer(databaseManager, playerManager, shopManager, soundManager,
                 formationManager, waveManager, entityManager, uiManager, gsm, inputHandler);
         Background background = new Background("sprites/gamebackground.png");
-        GameWorld gameWorld = new GameWorld(entityManager, background, waveManager, gameManager, entityLifecycleManager); // entityLifecycleManager 추가
+        GameWorld gameWorld = new GameWorld(entityManager, background, waveManager, gameManager, entityLifecycleManager);
 
         // 4. 무기 생성
         Map<String, Weapon> weapons = new HashMap<>();

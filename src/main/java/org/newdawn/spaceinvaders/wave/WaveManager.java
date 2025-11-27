@@ -9,40 +9,51 @@ import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.events.GameWonEvent;
 
 /**
- * Manages the progression of enemy waves in the game.
- * This class has been refactored to act as a "Wave Executor". It uses a WaveLoader
- * to get the definition for a wave and then executes the spawn events described
- * in the WaveDefinition. This separates the data (what a wave is) from the logic
-
- * (how to spawn the entities).
+ * 게임 내 적 웨이브의 진행을 관리하는 클래스.
+ * 이 클래스는 "Wave Executor" 역할을 하도록 리팩토링되었습니다. {@link WaveLoader}를 사용하여
+ * 웨이브 정의를 가져오고, {@link WaveDefinition}에 기술된 스폰 이벤트를 실행합니다.
+ * 이를 통해 웨이브 데이터(무엇을)와 실행 로직(어떻게)이 분리됩니다.
  */
 public class WaveManager {
 
+    /** 보스전 배경 음악 이름. */
     private static final String BOSS_MUSIC = "boss1";
+    /** 게임의 중앙 관리자. */
     private final GameManager gameManager;
+    /** 포메이션 데이터를 관리하는 매니저. */
     private final FormationManager formationManager;
-    private final WaveLoader waveLoader; // New dependency
+    /** 웨이브 정의 파일을 로드하는 로더. */
+    private final WaveLoader waveLoader;
 
+    /** 현재 웨이브 번호. */
     private int wave = 0;
+    /** 현재 웨이브에서 힐링 영역이 스폰되었는지 여부. */
     private boolean healingAreaSpawnedForWave = false;
 
-    // New state fields for wave execution
+    /** 현재 실행 중인 웨이브의 정의. */
     private WaveDefinition currentWaveDefinition;
+    /** 현재 웨이브 정의에서 실행할 스폰 이벤트의 인덱스. */
     private int currentSpawnIndex;
+    /** 다음 스폰 이벤트가 실행될 시간 (타임스탬프). */
     private long nextSpawnTime;
 
-    // Meteor spawning fields
+    // Meteor spawning fields - These seem to be part of a separate logic not fully handled here.
     private long lastMeteorSpawnTime;
     private long nextMeteorSpawnInterval;
 
+    /**
+     * WaveManager 생성자.
+     * @param gameManager 게임 중앙 관리자
+     * @param formationManager 포메이션 매니저
+     */
     public WaveManager(GameManager gameManager, FormationManager formationManager) {
         this.gameManager = gameManager;
         this.formationManager = formationManager;
-        this.waveLoader = new WaveLoader(); // Instantiate the loader directly
+        this.waveLoader = new WaveLoader(); // 로더를 직접 인스턴스화
     }
 
     /**
-     * Initializes timers. Called when entering a playing state.
+     * 타이머를 초기화합니다. 게임 플레이 상태에 진입할 때 호출됩니다.
      */
     public void init() {
         lastMeteorSpawnTime = System.currentTimeMillis();
@@ -50,13 +61,13 @@ public class WaveManager {
     }
 
     /**
-     * The main update loop for the wave manager.
-     * Checks if it's time to spawn the next event in the current wave definition.
-     * @param delta Time since the last frame.
+     * WaveManager의 메인 업데이트 루프.
+     * 현재 웨이브 정의에 따라 다음 스폰 이벤트를 실행할 시간인지 확인합니다.
+     * @param delta 마지막 프레임 이후 경과 시간
      */
     public void update(long delta) {
         if (currentWaveDefinition == null || currentSpawnIndex >= currentWaveDefinition.getSpawns().size()) {
-            // Wave is not active or all spawn events are complete.
+            // 웨이브가 비활성화되었거나 모든 스폰 이벤트가 완료됨.
             return;
         }
 
@@ -66,12 +77,12 @@ public class WaveManager {
     }
 
     /**
-     * Executes the spawn event at the current index in the wave definition's spawn list.
+     * 현재 인덱스에 해당하는 스폰 이벤트를 실행합니다.
      */
     private void executeCurrentSpawn() {
         SpawnInfo spawn = currentWaveDefinition.getSpawns().get(currentSpawnIndex);
 
-        // Execute the spawn based on its type
+        // 타입에 따라 스폰 실행
         if ("FORMATION".equals(spawn.getType())) {
             spawnFormation(spawn);
         } else if ("BOSS".equals(spawn.getType())) {
@@ -80,19 +91,19 @@ public class WaveManager {
 
         currentSpawnIndex++;
 
-        // Schedule the next spawn event
+        // 다음 스폰 이벤트 예약
         if (currentSpawnIndex < currentWaveDefinition.getSpawns().size()) {
             SpawnInfo nextSpawn = currentWaveDefinition.getSpawns().get(currentSpawnIndex);
             nextSpawnTime = System.currentTimeMillis() + nextSpawn.getDelay();
         } else {
-            // All spawns for this wave are done. Mark definition as null to stop updates.
+            // 이 웨이브의 모든 스폰이 끝남. 업데이트를 멈추기 위해 정의를 null로 설정.
             currentWaveDefinition = null;
         }
     }
 
     /**
-     * Spawns a formation based on the given SpawnInfo.
-     * @param spawn The spawn information for the formation.
+     * 주어진 SpawnInfo에 따라 포메이션을 스폰합니다.
+     * @param spawn 포메이션에 대한 스폰 정보
      */
     private void spawnFormation(SpawnInfo spawn) {
         Formation formation = formationManager.getRandomFormationForStage(spawn.getStage());
@@ -100,14 +111,14 @@ public class WaveManager {
     }
 
     /**
-     * Spawns a boss based on the given SpawnInfo.
-     * @param spawn The spawn information for the boss.
+     * 주어진 SpawnInfo에 따라 보스를 스폰합니다.
+     * @param spawn 보스에 대한 스폰 정보
      */
     private void spawnBoss(SpawnInfo spawn) {
-        // Clear all entities except the player ship before a boss fight.
+        // 보스전 전에 플레이어 함선을 제외한 모든 엔티티 제거.
         gameManager.getGameContainer().getEntityManager().getEntities().removeIf(entity -> !(entity instanceof ShipEntity));
 
-        int waveNumberForBoss = spawn.getStage(); // Re-using stage field for boss wave number
+        int waveNumberForBoss = spawn.getStage(); // 스테이지 필드를 보스 웨이브 번호로 재사용
         int cycle = (waveNumberForBoss - 1) / 5;
         double cycleMultiplier = Math.pow(1.5, cycle);
         int bossHealth = (int) (50 * cycleMultiplier);
@@ -116,20 +127,24 @@ public class WaveManager {
         gameManager.getGameContainer().getEntityManager().setAlienCount(1);
     }
 
+    /**
+     * 첫 번째 웨이브를 시작합니다.
+     */
     public void startFirstWave() {
         wave = 0;
         startNextWave();
     }
 
-
-
+    /**
+     * 디버깅용 메소드로, 다음 보스 웨이브 직전으로 건너뜁니다.
+     */
     public void skipToNextBossWave() {
-        this.wave = ((this.wave / 5) * 5) + 4; // Set to the wave before the next boss
+        this.wave = ((this.wave / 5) * 5) + 4; // 다음 보스 웨이브 바로 전 웨이브로 설정
         startNextWave();
     }
 
     /**
-     * Starts the next wave by loading its definition and scheduling the first spawn.
+     * 다음 웨이브를 시작합니다. 웨이브 정의를 로드하고 첫 스폰을 예약합니다.
      */
     public void startNextWave() {
         wave++;
@@ -138,7 +153,7 @@ public class WaveManager {
         this.currentWaveDefinition = waveLoader.loadWave(wave);
 
         if (currentWaveDefinition == null) {
-            if (wave > 25) { // Win condition
+            if (wave > 25) { // 승리 조건
                 gameManager.getEventBus().publish(new GameWonEvent());
             }
             return;
@@ -147,7 +162,7 @@ public class WaveManager {
         gameManager.setMessage("Wave " + wave);
         gameManager.setMessageEndTime(System.currentTimeMillis() + 1000);
 
-        // Set music if defined for the wave
+        // 웨이브에 정의된 음악 설정
         if (currentWaveDefinition.getMusic() != null) {
             if (currentWaveDefinition.getMusic().equals(BOSS_MUSIC)) {
                 gameManager.getSoundManager().stopSound("gamebackground");
@@ -158,7 +173,7 @@ public class WaveManager {
             }
         }
 
-        // Reset spawn state and schedule the first spawn
+        // 스폰 상태 리셋 및 첫 스폰 예약
         this.currentSpawnIndex = 0;
         if (!currentWaveDefinition.getSpawns().isEmpty()) {
             this.nextSpawnTime = System.currentTimeMillis() + currentWaveDefinition.getSpawns().get(0).getDelay();
@@ -167,12 +182,16 @@ public class WaveManager {
         gameManager.setCurrentState(GameState.Type.PLAYING);
     }
 
+    /**
+     * 현재 웨이브의 모든 적 스폰이 완료되었는지 확인합니다.
+     * @return 모든 스폰이 완료되었으면 true, 그렇지 않으면 false
+     */
     public boolean hasFinishedSpawning() {
-        // If there is no active wave definition, spawning is considered finished.
+        // 활성화된 웨이브 정의가 없으면 스폰이 끝난 것으로 간주.
         if (currentWaveDefinition == null) {
             return true;
         }
-        // Otherwise, check if all spawn events have been executed.
+        // 그렇지 않으면 모든 스폰 이벤트가 실행되었는지 확인.
         return currentSpawnIndex >= currentWaveDefinition.getSpawns().size();
     }
 

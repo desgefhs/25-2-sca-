@@ -6,37 +6,65 @@ import org.newdawn.spaceinvaders.core.GameContext;
 
 import org.newdawn.spaceinvaders.entity.Enemy.Enemy;
 import org.newdawn.spaceinvaders.entity.Enemy.TentacleAttackEntity;
-import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
-import org.newdawn.spaceinvaders.entity.Enemy.SweepingLaserEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.LaserBeamEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.LaserEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 import org.newdawn.spaceinvaders.graphics.HpRender;
 
+/**
+ * 게임에 등장하는 보스 엔티티의 추상 기본 클래스.
+ * 다양한 공격 패턴, 이동, 체력 관리, 충돌 처리 등 보스 엔티티의 공통적인 특성을 정의합니다.
+ */
 public abstract class BossEntity extends Entity implements Enemy {
+    /**
+     * 보스의 공격 패턴을 정의하는 함수형 인터페이스.
+     * 이 인터페이스를 구현하는 람다식 또는 메소드는 보스의 특정 공격을 실행합니다.
+     */
     @FunctionalInterface
     protected interface BossPattern {
+        /** 보스의 공격 패턴을 실행합니다. */
         void execute();
     }
 
+    /** 이 보스가 사용할 수 있는 공격 패턴 목록. */
     protected final java.util.List<BossPattern> availablePatterns = new java.util.ArrayList<>();
+    /** 마지막으로 사용된 공격 패턴. */
     protected BossPattern lastUsedPattern = null;
 
+    /** 게임 컨텍스트. */
     protected GameContext context;
+    /** 마지막 발사 이후 시간. */
     private long lastFire = 0;
-    private final long firingInterval; // 2.5초마다 발사
+    /** 발사 간격 (밀리초). */
+    private final long firingInterval;
+    /** 보스의 HP 바를 그리는 렌더러. */
     private final HpRender hpRender;
+    /** 깃털 스트림 공격 활성화 여부. */
     private boolean isFiringFeatherStream = false;
+    /** 깃털 스트림 공격 시 발사된 횟수. */
     private int featherStreamCount = 0;
+    /** 마지막 깃털 발사 시간. */
     private long lastFeatherShotTime = 0;
+    /** 보스가 순간이동 중인지 여부. */
     private boolean isTeleporting = false;
+    /** 순간이동 시작 시간 (타임스탬프). */
     private final long teleportStartTime = 0;
-    private final long teleportDisappearTime = 500; // 보스가 보이지 않는 시간(ms)
+    /** 순간이동 시 보스가 보이지 않는 시간 (밀리초). */
+    private final long teleportDisappearTime = 500;
+    /** 레이저 기믹 시작 시간. */
     private long laserGimmickStartTime = 0;
+    /** 무작위 패턴 선택 및 기타 무작위 로직에 사용될 난수 생성기. */
     private final java.util.Random random;
 
-
+    /**
+     * BossEntity 생성자.
+     * @param context 게임 컨텍스트
+     * @param sprite 보스 스프라이트 리소스 경로
+     * @param x 초기 x 좌표
+     * @param y 초기 y 좌표
+     * @param health 보스의 초기 체력
+     */
     public BossEntity(GameContext context, String sprite, int x, int y, int health) {
         super(sprite, x, y);
         final double moveSpeed = 50;
@@ -53,6 +81,10 @@ public abstract class BossEntity extends Entity implements Enemy {
         setupPatterns();
     }
 
+    /**
+     * 보스의 공격 패턴을 설정하는 추상 메소드.
+     * 구체적인 보스 클래스에서 이를 구현하여 {@link #availablePatterns}를 채워야 합니다.
+     */
     protected abstract void setupPatterns();
 
     @Override
@@ -65,11 +97,8 @@ public abstract class BossEntity extends Entity implements Enemy {
         hpRender.hpRender((java.awt.Graphics2D) g, this);
     }
 
+    @Override
     public void move(long delta) {
-        final long teleportTotalTime = 1000; // 보스가 다시 나타나 발사할 때까지의 시간(ms)
-        final int featherStreamSize = 5;
-        final long featherShotDelay = 100;
-
         // 특수 상태를 먼저 처리하고, 일반적인 움직임을 막기 위해 반환
         if (isTeleporting) {
             handleTeleportation();
@@ -77,18 +106,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         }
 
         if (isFiringFeatherStream) {
-            if (System.currentTimeMillis() - lastFeatherShotTime > featherShotDelay) {
-                if (featherStreamCount < featherStreamSize) {
-                    ProjectileType type = ProjectileType.FEATHER_SHOT;
-                    int damage = 1;
-                    double shotMoveSpeed = type.moveSpeed;
-                    context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width / 2), getY() + (height / 2), 0, shotMoveSpeed));
-                    lastFeatherShotTime = System.currentTimeMillis();
-                    featherStreamCount++;
-                } else {
-                    isFiringFeatherStream = false;
-                }
-            }
+            handleFeatherStreamAttack();
         }
 
         // 표준 이동 및 공격
@@ -100,9 +118,9 @@ public abstract class BossEntity extends Entity implements Enemy {
             dx = -dx;
         }
 
+        // 레이저 기믹 타이머 처리
         if (laserGimmickStartTime != 0 && System.currentTimeMillis() - laserGimmickStartTime > 3000) {
-            LaserEntity laser = new LaserEntity(context, 0, Game.GAME_WIDTH);
-            context.addEntity(laser);
+            context.addEntity(new LaserEntity(context, 0, Game.GAME_WIDTH));
             laserGimmickStartTime = 0;
         }
 
@@ -110,16 +128,40 @@ public abstract class BossEntity extends Entity implements Enemy {
         super.move(delta);
     }
 
+    /** 순간이동 로직을 처리합니다. */
     private void handleTeleportation() {
         final long teleportTotalTime = 1000; // 보스가 다시 나타나 발사할 때까지의 시간(ms)
         if (System.currentTimeMillis() - teleportStartTime >= teleportTotalTime) {
             isTeleporting = false;
             int newX = random.nextInt(Game.GAME_WIDTH - getWidth());
             setX(newX);
-            fireCirclePattern();
+            fireCirclePattern(); // 순간이동 후 특정 패턴 실행
         }
     }
 
+    /** 깃털 스트림 공격 로직을 처리합니다. */
+    private void handleFeatherStreamAttack() {
+        final long featherShotDelay = 100;
+        final int featherStreamSize = 5;
+
+        if (System.currentTimeMillis() - lastFeatherShotTime > featherShotDelay) {
+            if (featherStreamCount < featherStreamSize) {
+                ProjectileType type = ProjectileType.FEATHER_SHOT;
+                int damage = 1;
+                double shotMoveSpeed = type.moveSpeed;
+                context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width / 2), getY() + (height / 2), 0, shotMoveSpeed));
+                lastFeatherShotTime = System.currentTimeMillis();
+                featherStreamCount++;
+            } else {
+                isFiringFeatherStream = false;
+            }
+        }
+    }
+
+    /**
+     * 발사 간격에 따라 공격 패턴을 시도합니다.
+     * 사용 가능한 패턴 중에서 무작위로 선택하여 실행하며, 마지막에 사용한 패턴은 가급적 피합니다.
+     */
     private void tryToFire() {
         if (System.currentTimeMillis() - lastFire < firingInterval) {
             return;
@@ -144,6 +186,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         this.lastUsedPattern = selectedPattern;
     }
 
+    /** 커튼 패턴 공격: 화면 상단에서 안전 지대를 제외하고 발사체를 발사합니다. */
     protected void fireCurtainPattern() {
         ProjectileType type = ProjectileType.HYDRA_CURTAIN;
         int damage = 1;
@@ -160,6 +203,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         }
     }
 
+    /** 3방향으로 발사체를 발사하는 패턴. */
     protected void fireThreeWayPattern() {
         ProjectileType type = ProjectileType.NORMAL_SHOT;
         int damage = 1;
@@ -180,6 +224,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, dxRight, dyRight));
     }
 
+    /** 원형으로 발사체를 퍼뜨리는 패턴. */
     protected void fireCirclePattern() {
         ProjectileType type = ProjectileType.NORMAL_SHOT;
         int damage = 1;
@@ -194,6 +239,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         }
     }
 
+    /** 플레이어를 추적하는 발사체를 발사하는 패턴. */
     protected void fireFollowingShotPattern() {
         ProjectileType type = ProjectileType.FOLLOWING_SHOT;
         int damage = 2;
@@ -204,6 +250,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + 80, getY() + 50));
     }
 
+    /** 화면 전체에 걸쳐 레이저를 발사하는 기믹을 시작하고, 아이템을 스폰합니다. */
     protected void fireGlobalLaserPattern() {
         context.resetItemCollection();
         laserGimmickStartTime = System.currentTimeMillis();
@@ -213,6 +260,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         context.addEntity(new ItemEntity(context, random.nextInt(Game.GAME_WIDTH), 50));
     }
 
+    /** 부채꼴 모양으로 깃털 발사체를 발사하는 패턴. */
     protected void fireFeatherPattern() {
         ProjectileType type = ProjectileType.FEATHER_SHOT;
         int damage = 1;
@@ -231,12 +279,14 @@ public abstract class BossEntity extends Entity implements Enemy {
         }
     }
 
+    /** 깃털 스트림 공격을 활성화합니다. */
     protected void fireFeatherStreamPattern() {
         isFiringFeatherStream = true;
         featherStreamCount = 0;
         lastFeatherShotTime = 0;
     }
 
+    /** 촉수 공격 패턴을 실행합니다. */
     protected void fireTentacleAttackPattern() {
         int numberOfAttacks = 6;
         for (int i = 0; i < numberOfAttacks; i++) {
@@ -248,6 +298,10 @@ public abstract class BossEntity extends Entity implements Enemy {
         }
     }
 
+    /**
+     * 다른 엔티티와의 충돌을 처리합니다.
+     * @param other 충돌한 다른 엔티티
+     */
     public void collidedWith(Entity other) {
         if (other instanceof ProjectileEntity) {
             handleProjectileCollision((ProjectileEntity) other);
@@ -256,6 +310,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         }
     }
 
+    /** 발사체와의 충돌을 처리합니다. */
     private void handleProjectileCollision(ProjectileEntity shot) {
         if (shot.getType().targetType == ProjectileType.TargetType.ENEMY && health.isAlive()) {
             if (!health.decreaseHealth(shot.getDamage())) {
@@ -264,6 +319,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         }
     }
 
+    /** 레이저 빔과의 충돌을 처리합니다. */
     private void handleLaserCollision(LaserBeamEntity laser) {
         if (health.isAlive()) {
             if (!health.decreaseHealth(laser.getDamage())) {

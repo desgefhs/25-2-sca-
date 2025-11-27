@@ -7,13 +7,23 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-
+/**
+ * 게임 내 상점 시스템을 관리하는 클래스.
+ * 모든 업그레이드 정보를 정의하고, 아이템 뽑기(Gacha) 로직을 처리합니다.
+ */
 public class ShopManager {
 
+    /** 업그레이드 정보를 ID를 키로 하여 저장하는 맵. */
     private final Map<String, Upgrade> upgrades;
+    /** 아이템 뽑기에 필요한 비용. */
     private static final int ITEM_DRAW_COST = 500;
+    /** 아이템 뽑기 확률 계산에 사용될 난수 생성기. */
     private final Random random = new Random();
 
+    /**
+     * ShopManager 생성자.
+     * 게임에서 사용 가능한 모든 업그레이드를 초기화합니다.
+     */
     public ShopManager() {
         List<Upgrade> upgradeList = new ArrayList<>();
 
@@ -61,18 +71,47 @@ public class ShopManager {
                 .collect(Collectors.toMap(Upgrade::getId, Function.identity()));
     }
 
+    /**
+     * ID를 이용해 특정 업그레이드 정보를 가져옵니다.
+     * @param id 조회할 업그레이드의 ID
+     * @return 해당 ID의 Upgrade 객체
+     */
     public Upgrade getUpgrade(String id) {
         return upgrades.get(id);
     }
 
+    /**
+     * 상점에서 판매하는 모든 업그레이드 목록을 반환합니다.
+     * @return 모든 Upgrade 객체를 담은 리스트
+     */
     public List<Upgrade> getAllUpgrades() {
         return new ArrayList<>(upgrades.values());
     }
 
+    /**
+     * 아이템 뽑기에 필요한 비용을 반환합니다.
+     * @return 아이템 뽑기 비용
+     */
     public int getItemDrawCost() {
         return ITEM_DRAW_COST;
     }
 
+    /**
+     * 크레딧을 소모하여 무작위 아이템(재화, 펫, 무기)을 뽑습니다.
+     * <p>
+     * 확률:
+     * <ul>
+     *     <li>40%: 250 크레딧</li>
+     *     <li>10%: 공격형 펫</li>
+     *     <li>10%: 방어형 펫</li>
+     *     <li>10%: 치유형 펫</li>
+     *     <li>10%: 버프형 펫</li>
+     *     <li>10%: 샷건 (중복 시 300 크레딧)</li>
+     *     <li>10%: 레이저 (중복 시 300 크레딧)</li>
+     * </ul>
+     * @param playerData 현재 플레이어의 데이터
+     * @return 뽑기 결과를 담은 DrawResult 객체
+     */
     public DrawResult drawItem(PlayerData playerData) {
         if (playerData.getCredit() < ITEM_DRAW_COST) {
             return new DrawResult("크레딧이 부족합니다!", false);

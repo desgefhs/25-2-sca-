@@ -4,32 +4,53 @@ import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.entity.Enemy.MeteorEntity;
 import org.newdawn.spaceinvaders.entity.HealingAreaEntity;
 
+/**
+ * 플레이어가 적과 싸우는 '전투 중' 상태를 구현한 클래스.
+ * 이 상태에서는 메테오와 힐링 영역 스폰을 처리하고, 모든 적이 처치되었는지 확인하여 웨이브 종료를 감지합니다.
+ */
 public class FightingState implements WaveState {
 
+    /**
+     * 전투 상태에 진입할 때 호출됩니다.
+     * @param waveManager 컨텍스트 역할을 하는 WaveManager
+     */
     @Override
     public void onEnter(WaveManager waveManager) {
-        // The regular fighting phase begins.
+        // 일반적인 전투 단계가 시작됩니다.
     }
 
+    /**
+     * 전투 상태의 로직을 매 프레임 업데이트합니다.
+     * 메테오 및 힐링 영역 스폰을 처리하고, 웨이브 클리어 조건을 확인합니다.
+     * @param waveManager 컨텍스트 역할을 하는 WaveManager
+     * @param delta 마지막 프레임 이후 경과된 시간
+     */
     @Override
     public void update(WaveManager waveManager, long delta) {
-        // This state now handles this logic directly.
+        // 이 상태는 이제 이 로직을 직접 처리합니다.
         handleMeteorSpawning(waveManager);
         handleHealingAreaSpawning(waveManager);
 
-        // Check if all aliens are defeated to end the wave.
+        // 모든 외계인이 처치되었는지 확인하여 웨이브를 종료합니다.
         if (waveManager.getGameManager().getGameContainer().getEntityManager().getAlienCount() <= 0) {
-            // Instead of changing to a new state, directly trigger the next wave logic.
+            // 새로운 상태로 변경하는 대신, 다음 웨이브 로직을 직접 트리거합니다.
             waveManager.getGameManager().onWaveCleared();
         }
     }
 
+    /**
+     * 전투 상태를 벗어날 때 호출됩니다. (예: 새로운 웨이브 시작 시)
+     * @param waveManager 컨텍스트 역할을 하는 WaveManager
+     */
     @Override
     public void onExit(WaveManager waveManager) {
-        // Called when a new wave starts.
+        // 새로운 웨이브가 시작될 때 호출됩니다.
     }
 
-    // Logic moved from WaveManager
+    /**
+     * 무작위 메테오 스폰 로직을 처리합니다.
+     * @param waveManager 컨텍스트 역할을 하는 WaveManager
+     */
     private void handleMeteorSpawning(WaveManager waveManager) {
         long currentTime = System.currentTimeMillis();
         if (currentTime > waveManager.getLastMeteorSpawnTime() + waveManager.getNextMeteorSpawnInterval()) {
@@ -51,7 +72,10 @@ public class FightingState implements WaveState {
         }
     }
 
-    // Logic moved from WaveManager
+    /**
+     * 특정 조건에 따라 힐링 영역 스폰 로직을 처리합니다.
+     * @param waveManager 컨텍스트 역할을 하는 WaveManager
+     */
     private void handleHealingAreaSpawning(WaveManager waveManager) {
         if (waveManager.getWave() > 0 && waveManager.getWave() % 8 == 0 && !waveManager.isHealingAreaSpawnedForWave()) {
             int xPos = (int) (Math.random() * (Game.GAME_WIDTH - 50));

@@ -9,14 +9,22 @@ import org.newdawn.spaceinvaders.view.ItemDrawView;
 
 import java.awt.*;
 
+/**
+ * 아이템 뽑기(가챠) 화면을 담당하는 게임 상태.
+ * 플레이어에게 아이템 뽑기 옵션을 제공하고, 결과 메시지를 표시하며, 관련 입력을 처리합니다.
+ */
 public class ItemDrawState implements GameState {
 
     private static final String FONT_NAME = "Dialog";
     private final GameContext gameContext;
     private final ItemDrawView itemView;
     private final ItemDrawInputHandler inputHandler;
-    private final Rectangle[] menuBounds;
+    private final Rectangle[] menuBounds; // 메뉴 항목의 시각적 경계를 저장
 
+    /**
+     * ItemDrawState 생성자.
+     * @param gameContext 게임 컨텍스트
+     */
     public ItemDrawState(GameContext gameContext) {
         this.gameContext = gameContext;
         this.itemView = new ItemDrawView();
@@ -27,21 +35,37 @@ public class ItemDrawState implements GameState {
         }
     }
 
+    /**
+     * 이 상태에서는 특별한 초기화가 필요하지 않습니다.
+     */
     @Override
     public void init() {
         // 이 상태에서는 사용하지 않음
     }
 
+    /**
+     * 아이템 뽑기 화면에 대한 사용자 입력을 처리합니다.
+     * @param input 현재 키 상태를 제공하는 입력 핸들러
+     */
     @Override
     public void handleInput(InputHandler input) {
         inputHandler.handle(input);
     }
 
+    /**
+     * 이 상태에서는 특별한 업데이트 로직이 필요하지 않습니다.
+     * @param delta 마지막 업데이트 이후 경과 시간
+     */
     @Override
     public void update(long delta) {
         // 이 상태에서는 사용하지 않음
     }
 
+    /**
+     * 아이템 뽑기 화면을 렌더링합니다.
+     * 배경, 제목, 보유 크레딧, 메시지, 그리고 선택 가능한 메뉴 항목들을 그립니다.
+     * @param g 그리기를 수행할 그래픽 컨텍스트
+     */
     @Override
     public void render(Graphics2D g) {
         g.setColor(Color.black);
@@ -69,7 +93,7 @@ public class ItemDrawState implements GameState {
 
         for (int i = 0; i < itemView.getItemCount(); i++) {
             String menuItemText = itemView.getItem(i);
-            if (i == 0) { // "아이템 뽑기" button
+            if (i == 0) { // "아이템 뽑기" 버튼
                 String costText = " (비용: " + gameContext.getGameContainer().getShopManager().getItemDrawCost() + ")";
                 menuItemText += costText;
             }
@@ -92,12 +116,19 @@ public class ItemDrawState implements GameState {
         }
     }
 
+    /**
+     * 이 상태에 진입할 때 호출됩니다.
+     * 메시지를 초기화하고 메뉴 선택 인덱스를 0으로 설정합니다.
+     */
     @Override
     public void onEnter() {
         gameContext.setMessage("");
         itemView.setSelectedIndex(0);
     }
 
+    /**
+     * 이 상태를 벗어날 때 특별한 로직이 필요하지 않습니다.
+     */
     @Override
     public void onExit() {
         // 이 상태에서는 사용하지 않음
