@@ -39,7 +39,7 @@ public class GameFactory {
     }
 
     public GameManager createGame() {
-        // 1. Create Managers and Core Components
+        // 1. 관리자 및 핵심 구성 요소 생성
         GameManager gameManager = new GameManager();
         InputHandler inputHandler = new InputHandler();
         DatabaseManager databaseManager = new DatabaseManager(db);
@@ -51,9 +51,9 @@ public class GameFactory {
         EntityManager entityManager = new EntityManager(gameManager);
         GameStateManager gsm = new GameStateManager();
         GameStateFactory gameStateFactory = new GameStateFactory();
-        EntityLifecycleManager entityLifecycleManager = new EntityLifecycleManager(); // ADD THIS
+        EntityLifecycleManager entityLifecycleManager = new EntityLifecycleManager(); // 추가
 
-        // 2. Create UI Components
+        // 2. UI 구성 요소 생성
         GameWindow gameWindow = new GameWindow(inputHandler);
         MainMenu mainMenu = new MainMenu();
         PauseMenu pauseMenu = new PauseMenu();
@@ -62,19 +62,19 @@ public class GameFactory {
         Sprite staticBackgroundSprite = SpriteStore.get().getSprite("sprites/background.jpg");
         UIManager uiManager = new UIManager(gameWindow, mainMenu, pauseMenu, gameOverMenu, confirmDialog, staticBackgroundSprite);
 
-        // 3. Create Game World and Container
+        // 3. 게임 세계 및 컨테이너 생성
         GameContainer gameContainer = new GameContainer(databaseManager, playerManager, shopManager, soundManager,
                 formationManager, waveManager, entityManager, uiManager, gsm, inputHandler);
         Background background = new Background("sprites/gamebackground.png");
-        GameWorld gameWorld = new GameWorld(entityManager, background, waveManager, gameManager, entityLifecycleManager); // ADD entityLifecycleManager
+        GameWorld gameWorld = new GameWorld(entityManager, background, waveManager, gameManager, entityLifecycleManager); // entityLifecycleManager 추가
 
-        // 4. Create Weapons
+        // 4. 무기 생성
         Map<String, Weapon> weapons = new HashMap<>();
         weapons.put("DefaultGun", new DefaultGun());
         weapons.put("Shotgun", new Shotgun());
         weapons.put("Laser", new Laser());
 
-        // 5. Inject Dependencies into GameManager
+        // 5. GameManager에 의존성 주입
         gameManager.setGameWorld(gameWorld);
         gameManager.setGameContainer(gameContainer);
         gameManager.setGameStateFactory(gameStateFactory);

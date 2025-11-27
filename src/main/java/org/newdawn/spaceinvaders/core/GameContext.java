@@ -21,7 +21,7 @@ public interface GameContext {
 
     
 
-        // --- Gameplay Actions ---
+        // --- 게임플레이 액션 ---
 
         void startGameplay();
 
@@ -31,11 +31,11 @@ public interface GameContext {
 
         void onWaveCleared();
 
-        void updatePlayingLogic(long delta); // ADDED
+        void updatePlayingLogic(long delta); // 추가됨
 
     
 
-        // --- Entity Management ---
+        // --- 엔티티 관리 ---
 
         void addEntity(Entity entity);
 
@@ -47,13 +47,13 @@ public interface GameContext {
 
     
 
-        // --- Player Status ---
+        // --- 플레이어 상태 ---
 
         boolean canPlayerAttack();
 
     
 
-        // --- UI & Rendering ---
+        // --- UI 및 렌더링 ---
 
         Background getBackground();
 
@@ -69,7 +69,7 @@ public interface GameContext {
 
     
 
-        // --- Notifications & Messages ---
+        // --- 알림 및 메시지 ---
 
         String getMessage();
 
@@ -79,7 +79,7 @@ public interface GameContext {
 
     
 
-        // --- Misc ---
+        // --- 기타 ---
 
         boolean hasCollectedAllItems();
 
@@ -92,5 +92,3 @@ public interface GameContext {
                 EventBus getEventBus();
 
             }
-
-    

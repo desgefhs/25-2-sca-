@@ -15,10 +15,10 @@ public class SweepingLaserEntity extends Entity {
         this.dx = dx;
         this.dy = dy;
 
-        // Make the laser span the screen
-        if (dx != 0) { // Horizontal sweep
+        // 레이저가 화면을 가로지르도록 만듭니다.
+        if (dx != 0) { // 수평 스윕
             this.height = Game.GAME_HEIGHT;
-        } else { // Vertical sweep
+        } else { // 수직 스윕
             this.width = Game.GAME_WIDTH;
         }
     }
@@ -27,7 +27,7 @@ public class SweepingLaserEntity extends Entity {
     public void move(long delta) {
         super.move(delta);
 
-        // Remove the entity when it's off-screen
+        // 화면 밖으로 나가면 엔티티를 제거합니다.
         if (x < -width || x > Game.GAME_WIDTH || y < -height || y > Game.GAME_HEIGHT) {
             context.removeEntity(this);
         }

@@ -42,7 +42,7 @@ public class EntityManager {
         ship.setWeapon(weapon);
         ship.reset();
 
-        // Remove all entities except the ship
+        // 함선을 제외한 모든 엔티티 제거
         entities.removeIf(entity -> !(entity instanceof ShipEntity));
 
         addList.clear();
@@ -52,14 +52,14 @@ public class EntityManager {
 
     public void spawnFormation(Formation formation, int wave, boolean forceUpgrade) {
         int cycle = (wave - 1) / 5;
-        double cycleMultiplier = Math.pow(1.2, cycle); // Slower scaling for normal aliens
+        double cycleMultiplier = Math.pow(1.2, cycle); // 일반 외계인에 대한 느린 스케일링
 
         for (SpawnInfo info : formation.getSpawnList()) {
             Entity newEntity = enemyFactory.createEnemy(info, wave, cycleMultiplier);
 
             if (newEntity != null) {
                 if (newEntity instanceof Enemy) {
-                    // Upgrade if forced by the game manager, by the spawn info, or by random chance
+                    // 게임 관리자, 스폰 정보 또는 무작위 확률에 의해 강제로 업그레이드
                     if (forceUpgrade || info.forceUpgrade || (info.upgradeChance > 0 && Math.random() < info.upgradeChance)) {
                         ((Enemy) newEntity).upgrade();
                     }
@@ -85,7 +85,7 @@ public class EntityManager {
      * 이번 프레임에서 제거하기로 표시된 모든 엔티티를 실제로 제거합니다.
      */
     public void cleanup() {
-        // Find off-screen entities that need to be reported as escaped
+        // 탈출한 것으로 보고해야 하는 화면 밖 엔티티 찾기
         List<Entity> escapedEnemies = new ArrayList<>();
         for (Entity entity : entities) {
             if (entity.getX() < -50 || entity.getX() > 550 || entity.getY() < -300 || entity.getY() > 650) {
@@ -95,19 +95,19 @@ public class EntityManager {
             }
         }
 
-        // Notify the game manager about escaped enemies
+        // 게임 관리자에게 탈출한 적에 대해 알림
         for (Entity entity : escapedEnemies) {
-            // This call will also add the entity to the removeList via the entity manager
+            // 이 호출은 엔티티 관리자를 통해 엔티티를 removeList에 추가합니다.
             context.getEventBus().publish(new AlienEscapedEvent(entity));
         }
 
-        // Create a copy to iterate over, to avoid ConcurrentModificationException
+        // ConcurrentModificationException을 피하기 위해 복사본을 순회합니다.
         List<Entity> toDestroy = new ArrayList<>(removeList);
         for (Entity entity : toDestroy) {
             entity.onDestroy();
         }
 
-        // Now the removeList may contain children (like fire effects), remove them all
+        // 이제 removeList에 자식(예: 화염 효과)이 포함될 수 있으므로 모두 제거합니다.
         entities.removeAll(removeList);
         entities.addAll(addList);
         removeList.clear();

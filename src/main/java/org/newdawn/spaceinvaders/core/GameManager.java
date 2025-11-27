@@ -46,7 +46,7 @@ public class GameManager implements GameContext {
     public GameManager() {
         this.gameSession = new GameSession();
         this.eventBus = new EventBus();
-        // Dependencies will be injected via setters
+        // 의존성은 setter를 통해 주입됩니다.
     }
 
     public void init() {

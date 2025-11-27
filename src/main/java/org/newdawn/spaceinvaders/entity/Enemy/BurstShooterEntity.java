@@ -12,24 +12,24 @@ public class BurstShooterEntity extends Entity implements Enemy {
     private final GameContext context;
 
     private long lastBurstTime = 0;
-    private final long burstInterval = 2000; // Time between bursts
+    private final long burstInterval = 2000; // 버스트 간 시간
 
-    // Firing state
+    // 발사 상태
     private enum FiringState {IDLE, NORMAL_BURST, UPGRADED_BURST}
 
     private FiringState firingState = FiringState.IDLE;
     private int shotsFiredInBurst = 0;
     private long lastShotInBurstTime = 0;
 
-    // Normal Burst
+    // 일반 버스트
     private static final int NORMAL_BURST_COUNT = 5;
-    private static final long NORMAL_BURST_INTERVAL = 400; // 5 shots over 2 seconds
+    private static final long NORMAL_BURST_INTERVAL = 400; // 2초 동안 5발
 
-    // Upgraded Burst
+    // 업그레이드된 버스트
     private static final int UPGRADED_BURST_COUNT = 6;
-    private static final long UPGRADED_BURST_INTERVAL = 250; // 6 bursts over 3 seconds
+    private static final long UPGRADED_BURST_INTERVAL = 250; // 3초 동안 6발
 
-    // Upgrade state
+    // 업그레이드 상태
     private boolean isUpgraded = false;
 
     public BurstShooterEntity(GameContext context, int x, int y) {
@@ -99,17 +99,17 @@ public class BurstShooterEntity extends Entity implements Enemy {
                 lastShotInBurstTime = currentTime;
                 shotsFiredInBurst++;
 
-                // Fire a 3-way burst
+                // 3방향 버스트 발사
                 ProjectileType type = ProjectileType.FAST_NORMAL_SHOT;
                 int damage = 1;
                 double shotMoveSpeed = type.moveSpeed;
                 double angle = Math.toRadians(30);
 
-                // Center shot (straight down)
+                // 중앙 발사 (직진)
                 context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, 0, shotMoveSpeed));
-                // Left shot (angled)
+                // 왼쪽 발사 (각도)
                 context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, -Math.sin(angle) * shotMoveSpeed, Math.cos(angle) * shotMoveSpeed));
-                // Right shot (angled)
+                // 오른쪽 발사 (각도)
                 context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, Math.sin(angle) * shotMoveSpeed, Math.cos(angle) * shotMoveSpeed));
 
                 if (shotsFiredInBurst >= UPGRADED_BURST_COUNT) {

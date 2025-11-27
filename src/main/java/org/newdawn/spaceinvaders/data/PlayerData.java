@@ -77,7 +77,7 @@ public class PlayerData {
         petLevels.put(petType, getPetLevel(petType) + 1);
     }
 
-    // Pet-related data: Map<PetTypeString, Count>
+    // 펫 관련 데이터: Map<펫타입문자열, 개수>
     private Map<String, Integer> petInventory = new HashMap<>();
 
     public Map<String, Integer> getPetInventory() {

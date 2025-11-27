@@ -14,7 +14,7 @@ import org.newdawn.spaceinvaders.graphics.SpriteStore;
 import java.awt.Graphics;
 
 /**
- * An entity which represents one of our space invader aliens.
+ * 우주 침략자 외계인 중 하나를 나타내는 엔티티입니다.
  * 
  * @author Kevin Glass
  */
@@ -30,7 +30,7 @@ public class AlienEntity extends Entity implements Enemy {
     private final MovementPattern movementPattern;
     private final double initialX;
 
-    // Integrated engine fire effect
+    // 통합된 엔진 화염 효과
     private final Sprite[] fireFrames = new Sprite[3];
     private final long FIRE_FRAME_DURATION = 100; // ms
     private long fireLastFrameChange;
@@ -44,9 +44,9 @@ public class AlienEntity extends Entity implements Enemy {
 		this.context = context;
 		this.movementPattern = movementPattern;
 		this.initialX = x;
-		this.dy = MOVE_SPEED; // Default downward movement
+		this.dy = MOVE_SPEED; // 기본 하향 이동
 
-        // Pre-load all fire frames
+        // 모든 화염 프레임을 미리 로드합니다.
         fireFrames[0] = SpriteStore.get().getSprite("sprites/fire effect/18 Ion.png");
         fireFrames[1] = SpriteStore.get().getSprite("sprites/fire effect/19 Ion.png");
         fireFrames[2] = SpriteStore.get().getSprite("sprites/fire effect/20 Ion.png");
@@ -68,7 +68,7 @@ public class AlienEntity extends Entity implements Enemy {
         int damage = 1;
 
         if (isUpgraded) {
-            type = ProjectileType.FOLLOWING_SHOT; // Upgraded shot
+            type = ProjectileType.FOLLOWING_SHOT; // 업그레이드된 발사체
             damage = 1;
             ProjectileEntity shot = new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height);
             context.addEntity(shot);
@@ -82,27 +82,27 @@ public class AlienEntity extends Entity implements Enemy {
 			tryToFire();
 		}
 
-        // Update fire animation
+        // 화염 애니메이션 업데이트
         fireLastFrameChange += delta;
         if (fireLastFrameChange > FIRE_FRAME_DURATION) {
             fireLastFrameChange = 0;
             fireFrameNumber = (fireFrameNumber + 1) % fireFrames.length;
         }
 
-        // Movement pattern logic
+        // 이동 패턴 로직
         switch (movementPattern) {
             case STRAIGHT_DOWN:
                 dx = 0;
                 break;
             case SINUSOIDAL:
-                // This pattern now calculates X directly based on Y for a smooth wave.
-                // The entity will oscillate around its initial drop path.
+                // 이 패턴은 이제 부드러운 파도를 위해 Y를 기반으로 X를 직접 계산합니다.
+                // 엔티티는 초기 낙하 경로 주위에서 진동합니다.
                 double waveAmplitude = 50;
                 double waveFrequency = 0.02;
-                // We calculate the desired X and let super.move() handle the Y movement.
+                // 원하는 X를 계산하고 super.move()가 Y 이동을 처리하도록 합니다.
                 double newX = initialX + (Math.sin(y * waveFrequency) * waveAmplitude);
                 setX((int)newX);
-                dx = 0; // dx is not used for this pattern's horizontal movement
+                dx = 0; // dx는 이 패턴의 수평 이동에 사용되지 않습니다.
                 break;
             case STATIC:
                 dx = 0;
@@ -114,7 +114,7 @@ public class AlienEntity extends Entity implements Enemy {
 
 		super.move(delta);
 
-        // Screen boundary bouncing logic
+        // 화면 경계 튕김 로직
         if ((dx < 0 && x < 10) || (dx > 0 && x > 490 - width)) {
             dx = -dx;
         }
@@ -125,21 +125,21 @@ public class AlienEntity extends Entity implements Enemy {
 
     @Override
     public void draw(Graphics g) {
-        // Draw the fire effect first, so it's behind the alien
+        // 화염 효과를 먼저 그려서 외계인 뒤에 있도록 합니다.
         Sprite fireSprite = fireFrames[fireFrameNumber];
         int fireWidth = (int) (fireSprite.getWidth() * FIRE_SPRITE_SCALE);
         int fireHeight = (int) (fireSprite.getHeight() * FIRE_SPRITE_SCALE);
         double fireX = this.x + (this.width / 2.0) - (fireWidth / 2.0);
-        double fireY = this.y - fireHeight + 20; // Position it at the top-rear
+        double fireY = this.y - fireHeight + 20; // 위쪽 후방에 위치시킵니다.
         g.drawImage(fireSprite.getImage(), (int) fireX, (int) fireY, fireWidth, fireHeight-30, null);
 
-        // Now draw the alien itself
+        // 이제 외계인 자체를 그립니다.
         super.draw(g);
     }
 
     @Override
     public void onDestroy() {
-        // No special cleanup needed for the integrated fire effect
+        // 통합된 화염 효과에 대한 특별한 정리가 필요하지 않습니다.
     }
 
     public double getMoveSpeed() {

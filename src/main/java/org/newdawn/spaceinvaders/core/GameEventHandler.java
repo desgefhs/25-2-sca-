@@ -60,13 +60,13 @@ public class GameEventHandler implements EventListener {
         playerManager.increaseScore(ALIEN_SCORE);
         entityManager.decreaseAlienCount();
 
-        // Buff drop logic
+        // 버프 드롭 로직
         double roll = Math.random();
-        if (roll < 0.05) { // 5% chance for invincibility
+        if (roll < 0.05) { // 5% 확률로 무적
             gameContext.getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.INVINCIBILITY);
-        } else if (roll < 0.10) { // 5% chance for speed boost
+        } else if (roll < 0.10) { // 5% 확률로 속도 증가
             gameContext.getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.SPEED_BOOST);
-        } else if (roll < 0.15) { // 5% chance for heal
+        } else if (roll < 0.15) { // 5% 확률로 회복
             gameContext.getShip().getBuffManager().addBuff(org.newdawn.spaceinvaders.player.BuffType.HEAL);
         }
     }

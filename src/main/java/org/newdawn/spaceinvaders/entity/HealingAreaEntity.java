@@ -9,15 +9,15 @@ public class HealingAreaEntity extends Entity {
     public HealingAreaEntity(GameContext context, int x, int y) {
         super("sprites/HealingArea.png", x, y);
         this.context = context;
-        this.dy = 100; // Move downwards
+        this.dy = 100; // 아래로 이동
     }
 
     @Override
     public void collidedWith(Entity other) {
         if (other instanceof ShipEntity) {
-            // Heal the player
+            // 플레이어 치유
             context.getShip().heal(context.getShip().getMaxHealth() / 2);
-            // Remove the healing area from the game
+            // 게임에서 치유 영역 제거
             context.removeEntity(this);
         }
     }

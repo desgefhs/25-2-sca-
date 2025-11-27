@@ -16,23 +16,23 @@ public class HealthComponent {
 
     // 데미지 처리
     public boolean decreaseHealth(double amount) {
-        // If the owner is an invincible ship, ignore damage
+        // 소유자가 무적 함선인 경우 피해를 무시합니다.
         if (owner instanceof ShipEntity && ((ShipEntity) owner).isInvincible()) {
-            return true; // Still alive, no damage taken
+            return true; // 아직 살아있고 피해를 입지 않았습니다.
         }
 
         hp.setCurrentHp(hp.getCurrentHp() - amount);
 
         if (hp.getCurrentHp() <= 0) {
-            return false; // Dead
+            return false; // 죽음
         }
 
-        // If alive and it's the player, grant temporary invincibility
+        // 살아있고 플레이어인 경우 일시적인 무적 상태를 부여합니다.
         if (owner instanceof ShipEntity) {
             ((ShipEntity) owner).activateInvincibility();
         }
 
-        return true; // Alive
+        return true; // 살아있음
     }
 
     //체력 초기화

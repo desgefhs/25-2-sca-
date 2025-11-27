@@ -5,7 +5,7 @@ import org.newdawn.spaceinvaders.core.InputHandler;
 import java.awt.Graphics2D;
 
 /**
- * An interface for a single game state.
+ * 단일 게임 상태에 대한 인터페이스입니다.
  */
 public interface GameState {
 
@@ -22,42 +22,42 @@ public interface GameState {
         PET_MENU,
         WEAPON_MENU,
         EXIT_CONFIRMATION,
-        WAVE_CLEARED // This is a transient state
+        WAVE_CLEARED // 이것은 일시적인 상태입니다
     }
 
     /**
-     * Initialise the game state
+     * 게임 상태를 초기화합니다.
      */
     void init();
 
     /**
-     * Handle user input for this state.
+     * 이 상태에 대한 사용자 입력을 처리합니다.
      *
-     * @param input The input handler providing the current key states.
+     * @param input 현재 키 상태를 제공하는 입력 핸들러.
      */
     void handleInput(InputHandler input);
 
     /**
-     * Update the game logic for this state.
+     * 이 상태에 대한 게임 로직을 업데이트합니다.
      *
-     * @param delta The time that has passed since the last update.
+     * @param delta 마지막 업데이트 이후 경과된 시간.
      */
     void update(long delta);
 
     /**
-     * Render the visual representation of this state.
+     * 이 상태의 시각적 표현을 렌더링합니다.
      *
-     * @param g The graphics context on which to draw.
+     * @param g 그리기를 수행할 그래픽 컨텍스트.
      */
     void render(Graphics2D g);
 
     /**
-     * Called when this state is entered.
+     * 이 상태에 들어갈 때 호출됩니다.
      */
     void onEnter();
 
     /**
-     * Called when this state is exited.
+     * 이 상태에서 나갈 때 호출됩니다.
      */
     void onExit();
 }

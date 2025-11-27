@@ -25,14 +25,14 @@ public abstract class BossEntity extends Entity implements Enemy {
 
     protected GameContext context;
     private long lastFire = 0;
-    private final long firingInterval; // Fires every 2.5 seconds
+    private final long firingInterval; // 2.5초마다 발사
     private final HpRender hpRender;
     private boolean isFiringFeatherStream = false;
     private int featherStreamCount = 0;
     private long lastFeatherShotTime = 0;
     private boolean isTeleporting = false;
     private final long teleportStartTime = 0;
-    private final long teleportDisappearTime = 500; // ms boss is invisible
+    private final long teleportDisappearTime = 500; // 보스가 보이지 않는 시간(ms)
     private long laserGimmickStartTime = 0;
     private final java.util.Random random;
 
@@ -48,7 +48,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         dy = 0;
 
         setScale(2.5);
-        this.random = new java.util.Random(); // Initialize the random instance
+        this.random = new java.util.Random(); // 무작위 인스턴스 초기화
 
         setupPatterns();
     }
@@ -58,7 +58,7 @@ public abstract class BossEntity extends Entity implements Enemy {
     @Override
     public void draw(java.awt.Graphics g) {
         if (isTeleporting && System.currentTimeMillis() - teleportStartTime < teleportDisappearTime) {
-            // Don't draw while invisible
+            // 보이지 않는 동안 그리지 않음
             return;
         }
         super.draw(g);
@@ -66,14 +66,14 @@ public abstract class BossEntity extends Entity implements Enemy {
     }
 
     public void move(long delta) {
-        final long teleportTotalTime = 1000; // ms until boss reappears and fires
+        final long teleportTotalTime = 1000; // 보스가 다시 나타나 발사할 때까지의 시간(ms)
         final int featherStreamSize = 5;
         final long featherShotDelay = 100;
 
-        // Handle special states first, and return to prevent normal movement
+        // 특수 상태를 먼저 처리하고, 일반적인 움직임을 막기 위해 반환
         if (isTeleporting) {
             handleTeleportation();
-            return; // Boss is invisible and immobile
+            return; // 보스는 보이지 않고 움직이지 않음
         }
 
         if (isFiringFeatherStream) {
@@ -91,8 +91,8 @@ public abstract class BossEntity extends Entity implements Enemy {
             }
         }
 
-        // Standard movement and attacks
-        // Horizontal bouncing
+        // 표준 이동 및 공격
+        // 수평으로 튕김
         if ((dx < 0) && (x < 0)) {
             dx = -dx;
         }
@@ -111,7 +111,7 @@ public abstract class BossEntity extends Entity implements Enemy {
     }
 
     private void handleTeleportation() {
-        final long teleportTotalTime = 1000; // ms until boss reappears and fires
+        final long teleportTotalTime = 1000; // 보스가 다시 나타나 발사할 때까지의 시간(ms)
         if (System.currentTimeMillis() - teleportStartTime >= teleportTotalTime) {
             isTeleporting = false;
             int newX = random.nextInt(Game.GAME_WIDTH - getWidth());
@@ -132,7 +132,7 @@ public abstract class BossEntity extends Entity implements Enemy {
             return;
         }
 
-        // Select a random pattern from the list for the current phase
+        // 현재 단계에 대한 목록에서 무작위 패턴 선택
         java.util.List<BossPattern> selectablePatterns = new java.util.ArrayList<>(patternsToUse);
         if (lastUsedPattern != null && selectablePatterns.size() > 1) {
             selectablePatterns.remove(lastUsedPattern);
@@ -148,13 +148,13 @@ public abstract class BossEntity extends Entity implements Enemy {
         ProjectileType type = ProjectileType.HYDRA_CURTAIN;
         int damage = 1;
         double shotMoveSpeed = type.moveSpeed;
-        int gapWidth = 100; // Width of the safe zone
+        int gapWidth = 100; // 안전 지대의 너비
         int gapPosition = random.nextInt(Game.GAME_WIDTH - gapWidth);
-        int projectileWidth = 10; // Approximate width of the projectile sprite
+        int projectileWidth = 10; // 발사체 스프라이트의 대략적인 너비
 
         for (int x = 0; x < Game.GAME_WIDTH; x += projectileWidth) {
             if (x > gapPosition && x < gapPosition + gapWidth) {
-                continue; // Skip creating a projectile in the gap
+                continue; // 간격에 발사체 생성을 건너뜀
             }
             context.addEntity(new ProjectileEntity(context, type, damage, x, 0, 0, shotMoveSpeed));
         }
@@ -166,15 +166,15 @@ public abstract class BossEntity extends Entity implements Enemy {
         double shotMoveSpeed = type.moveSpeed;
         double angle = Math.toRadians(30);
 
-        // Center shot (0 degrees)
+        // 중앙 발사 (0도)
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, 0, shotMoveSpeed));
 
-        // Left shot (-30 degrees)
+        // 왼쪽 발사 (-30도)
         double dxLeft = -Math.sin(angle) * shotMoveSpeed;
         double dyLeft = Math.cos(angle) * shotMoveSpeed;
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, dxLeft, dyLeft));
 
-        // Right shot (+30 degrees)
+        // 오른쪽 발사 (+30도)
         double dxRight = Math.sin(angle) * shotMoveSpeed;
         double dyRight = Math.cos(angle) * shotMoveSpeed;
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + (width/2), getY() + height, dxRight, dyRight));
@@ -183,7 +183,7 @@ public abstract class BossEntity extends Entity implements Enemy {
     protected void fireCirclePattern() {
         ProjectileType type = ProjectileType.NORMAL_SHOT;
         int damage = 1;
-        int numShots = 12; // Number of shots in the circle
+        int numShots = 12; // 원형 발사의 발사체 수
         double shotMoveSpeed = type.moveSpeed;
 
         for (int i = 0; i < numShots; i++) {
@@ -198,7 +198,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         ProjectileType type = ProjectileType.FOLLOWING_SHOT;
         int damage = 2;
 
-        // Fire a spread of 3 shots
+        // 3발의 확산탄 발사
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + 20, getY() + 50));
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + 50, getY() + 50));
         context.addEntity(new ProjectileEntity(context, type, damage, getX() + 80, getY() + 50));
@@ -208,7 +208,7 @@ public abstract class BossEntity extends Entity implements Enemy {
         context.resetItemCollection();
         laserGimmickStartTime = System.currentTimeMillis();
 
-        // Spawn two item entities at random x positions
+        // 무작위 x 위치에 2개의 아이템 엔티티 생성
         context.addEntity(new ItemEntity(context, random.nextInt(Game.GAME_WIDTH), 50));
         context.addEntity(new ItemEntity(context, random.nextInt(Game.GAME_WIDTH), 50));
     }
@@ -217,8 +217,8 @@ public abstract class BossEntity extends Entity implements Enemy {
         ProjectileType type = ProjectileType.FEATHER_SHOT;
         int damage = 1;
         double shotMoveSpeed = type.moveSpeed;
-        int numShots = 5; // 5 shots in the fan
-        double fanAngle = Math.toRadians(90); // 90-degree fan
+        int numShots = 5; // 부채꼴 모양으로 5발 발사
+        double fanAngle = Math.toRadians(90); // 90도 부채꼴
 
         double startAngle = -fanAngle / 2;
         double angleStep = fanAngle / (numShots - 1);
@@ -240,10 +240,10 @@ public abstract class BossEntity extends Entity implements Enemy {
     protected void fireTentacleAttackPattern() {
         int numberOfAttacks = 6;
         for (int i = 0; i < numberOfAttacks; i++) {
-            // Spawn at a random location on the screen.
-            // The area should be restricted to the game area.
-            int randomX = (int) (random.nextDouble() * (Game.GAME_WIDTH - 100)) + 50; // Avoid edges
-            int randomY = (int) (Math.random() * (Game.GAME_HEIGHT - 200)) + 100; // Avoid top/bottom edges
+            // 화면의 무작위 위치에 생성합니다.
+            // 영역은 게임 영역으로 제한되어야 합니다.
+            int randomX = (int) (random.nextDouble() * (Game.GAME_WIDTH - 100)) + 50; // 가장자리 피하기
+            int randomY = (int) (Math.random() * (Game.GAME_HEIGHT - 200)) + 100; // 위/아래 가장자리 피하기
             context.addEntity(new TentacleAttackEntity(context, randomX, randomY));
         }
     }
@@ -274,6 +274,6 @@ public abstract class BossEntity extends Entity implements Enemy {
     }
     @Override
     public void upgrade() {
-        // This entity cannot be upgraded.
+        // 이 엔티티는 업그레이드할 수 없습니다.
     }
 }

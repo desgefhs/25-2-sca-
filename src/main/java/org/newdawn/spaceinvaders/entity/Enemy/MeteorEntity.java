@@ -35,27 +35,27 @@ public class MeteorEntity extends Entity {
         super(type.spritePath, x, y);
         this.context = context;
         this.health = new HealthComponent(this, type.maxHealth);
-        this.scoreValue = type.maxHealth * 5; // Score is proportional to health
-        this.dy = (Math.random() * 50) + 50; // Random downward speed between 50 and 100
+        this.scoreValue = type.maxHealth * 5; // 점수는 체력에 비례합니다.
+        this.dy = (Math.random() * 50) + 50; // 50에서 100 사이의 무작위 하강 속도
     }
 
     @Override
     public void collidedWith(Entity other) {
-        // Check for collision with player projectiles
+        // 플레이어 발사체와의 충돌 확인
         if (other instanceof ProjectileEntity) {
             ProjectileEntity shot = (ProjectileEntity) other;
 
-            // Ensure it's a player's shot
+            // 플레이어의 발사체인지 확인
             if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
-                // Remove the projectile on impact
+                // 충돌 시 발사체 제거
                 context.removeEntity(shot);
 
-                // Decrease health by a fixed amount of 1, regardless of shot damage
+                // 발사체 손상과 관계없이 체력을 1씩 고정적으로 감소
                 if (!health.decreaseHealth(1)) {
-                    // This meteor is destroyed
+                    // 이 운석은 파괴됩니다.
                     this.destroy();
 
-                    // Create a scaled and centered explosion effect
+                    // 크기가 조절되고 중앙에 위치한 폭발 효과 생성
                     AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
                     explosion.setScale(0.1);
                     int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
@@ -67,21 +67,21 @@ public class MeteorEntity extends Entity {
             }
         }
 
-        // Optional: Handle collision with the player's ship
+        // 선택 사항: 플레이어 함선과의 충돌 처리
         if (other instanceof ShipEntity) {
-            // Damage the player equal to the meteor's remaining health
+            // 운석의 남은 체력만큼 플레이어에게 피해를 줍니다.
             ShipEntity ship = (ShipEntity) other;
             if (!ship.getHealth().decreaseHealth(this.health.getCurrentHealth())) {
                 ship.destroy();
             }
 
-            // Destroy the meteor on impact
+            // 충돌 시 운석 파괴
             this.destroy();
         } else if (other instanceof LaserBeamEntity) {
-            // Meteors are instantly destroyed by lasers for now.
+            // 운석은 현재 레이저에 의해 즉시 파괴됩니다.
             this.destroy();
 
-            // Create a scaled and centered explosion effect
+            // 크기가 조절되고 중앙에 위치한 폭발 효과 생성
             AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
             explosion.setScale(0.1);
             int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);

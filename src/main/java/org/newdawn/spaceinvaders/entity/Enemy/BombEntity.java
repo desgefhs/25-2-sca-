@@ -18,17 +18,17 @@ public class BombEntity extends Entity implements Enemy {
     private State currentState = State.APPROACHING;
 
     private final GameContext context;
-    private final double moveSpeed = 75; // Halved the speed
+    private final double moveSpeed = 75; // 속도 절반으로 줄임
 
-    // Warning & Explosion Stats
-    private static final long WARNING_DURATION = 1000L; // 1 second
-    private static final int WARNING_RANGE = 100; // 1/5 of screen height (600)
+    // 경고 및 폭발 통계
+    private static final long WARNING_DURATION = 1000L; // 1초
+    private static final int WARNING_RANGE = 100; // 화면 높이(600)의 1/5
     private static final int EXPLOSION_RADIUS = 100;
     private static final int EXPLOSION_DAMAGE = 1;
 
     private long stateTimer = 0;
 
-    // Warning Animation
+    // 경고 애니메이션
     private final Sprite[] warningFrames = new Sprite[13];
     private int currentWarningFrame = 0;
     private static final long WARNING_FRAME_DURATION = WARNING_DURATION / 13;
@@ -38,7 +38,7 @@ public class BombEntity extends Entity implements Enemy {
         this.context = context;
         this.dy = moveSpeed;
 
-        // Pre-load warning animation frames
+        // 경고 애니메이션 프레임 미리 로드
         for (int i = 0; i < 13; i++) {
             String frame = (i < 10) ? "0" + i : String.valueOf(i);
             warningFrames[i] = SpriteStore.get().getSprite("sprites/radar/" + frame + ".png");
@@ -64,7 +64,7 @@ public class BombEntity extends Entity implements Enemy {
 
             case WARNING:
                 stateTimer -= delta;
-                // Update which animation frame to show
+                // 표시할 애니메이션 프레임 업데이트
                 currentWarningFrame = (int) (((WARNING_DURATION - stateTimer) / (float) WARNING_DURATION) * 12);
 
                 if (stateTimer <= 0) {
@@ -73,14 +73,14 @@ public class BombEntity extends Entity implements Enemy {
                 break;
 
             case EXPLODING:
-                // Check distance again in case ship moved
+                // 함선이 움직였을 경우를 대비해 거리 다시 확인
                 if (distanceToShip <= EXPLOSION_RADIUS) {
                     if (!ship.getHealth().decreaseHealth(EXPLOSION_DAMAGE)) {
                         ship.destroy();
                     }
                 }
-                // Create visual explosion
-                // Destroy self
+                // 시각적 폭발 생성
+                // 자신 파괴
                 this.destroy();
                 break;
         }
@@ -92,25 +92,25 @@ public class BombEntity extends Entity implements Enemy {
         if (currentState == State.WARNING) {
             Sprite frame = warningFrames[currentWarningFrame];
             int diameter = EXPLOSION_RADIUS * 2;
-            // Draw the warning sprite scaled to the explosion diameter
+            // 폭발 직경에 맞게 조정된 경고 스프라이트 그리기
             g.drawImage(frame.getImage(), (int) (x + (width/2) - (diameter/2)), (int) (y + (height/2) - (diameter/2)), diameter, diameter, null);
         }
     }
 
     @Override
     public void collidedWith(Entity other) {
-        // This entity cannot be destroyed by projectiles
+        // 이 엔티티는 발사체에 의해 파괴될 수 없습니다.
         if (other instanceof ProjectileEntity) {
             return;
         }
 
-        // Does no damage on direct collision with the ship
+        // 함선과 직접 충돌 시 피해를 주지 않습니다.
         if (other instanceof ShipEntity) {
         }
     }
 
     @Override
     public void upgrade() {
-        // This entity cannot be upgraded.
+        // 이 엔티티는 업그레이드할 수 없습니다.
     }
 }

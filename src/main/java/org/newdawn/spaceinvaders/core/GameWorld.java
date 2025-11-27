@@ -31,7 +31,7 @@ public class GameWorld {
         entityManager.moveAll(delta);
         new CollisionDetector().checkCollisions(entityManager.getEntities());
 
-        // Process entities that are marked for destruction and publish events
+        // 파괴되도록 표시된 엔티티를 처리하고 이벤트를 발행합니다.
         entityLifecycleManager.processStateChanges(entityManager.getEntities(), gameContext.getEventBus(), entityManager);
 
         entityManager.cleanup();

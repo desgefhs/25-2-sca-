@@ -44,7 +44,7 @@ public class LoginDialog extends JDialog {
             String docId = authManager.signIn(username, password);
             if (docId != null) {
                 this.authenticatedUser = new AuthenticatedUser(docId, username);
-                dispose(); // Close the dialog on successful login
+                dispose(); // 로그인 성공 시 다이얼로그 닫기
             } else {
                 authScreen.setMessage("Login failed. Check username/password.");
             }

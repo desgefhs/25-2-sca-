@@ -47,11 +47,11 @@ public class Game {
         // 로그인 성공 시,  게임 시작
         System.out.println(user.getUsername() + "님, 환영합니다!");
 
-        // Use the factory to create the game instance
+        // 팩토리를 사용하여 게임 인스턴스 생성
         GameFactory gameFactory = new GameFactory(db, user);
         GameManager gameManager = gameFactory.createGame();
 
-        // Initialize and Start Game
+        // 게임 초기화 및 시작
         gameManager.init();
         gameManager.setCurrentState(GameState.Type.MAIN_MENU);
         gameManager.initializePlayer();

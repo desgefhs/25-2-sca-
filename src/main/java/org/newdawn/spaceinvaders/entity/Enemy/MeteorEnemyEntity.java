@@ -8,22 +8,22 @@ import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 
 public class MeteorEnemyEntity extends Entity implements Enemy {
-    private static final long FIRING_INTERVAL = 400L; // 0.4 seconds
+    private static final long FIRING_INTERVAL = 400L; // 0.4초
     private long lastFire = 0;
     private final GameContext context;
     private final double moveSpeed = 75;
 
     private enum FiringState { FIRING, COOLDOWN }
     private final FiringState currentState = FiringState.FIRING;
-    private final long stateTimer = 2000L; // Start in FIRING state
+    private final long stateTimer = 2000L; // FIRING 상태에서 시작
     private static final long FIRING_DURATION = 2000L;
     private static final long COOLDOWN_DURATION = 1000L;
 
     public MeteorEnemyEntity(GameContext context, int x, int y) {
         super("sprites/enemy/meteorEnemy.gif", x, y);
         this.context = context;
-        this.health = new HealthComponent(this, 3); // Set initial health to 3
-        this.dy = moveSpeed; // Move downwards
+        this.health = new HealthComponent(this, 3); // 초기 체력을 3으로 설정
+        this.dy = moveSpeed; // 아래로 이동
         setScale(1.5);
     }
 
@@ -45,14 +45,14 @@ public class MeteorEnemyEntity extends Entity implements Enemy {
     }
 
     public void collidedWith(Entity other) {
-        // If it collides with a player's shot, take damage
+        // 플레이어의 발사체와 충돌하면 피해를 입습니다.
         if (other instanceof ProjectileEntity) {
             ProjectileEntity shot = (ProjectileEntity) other;
             if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
                 if (health.isAlive()) {
-                    // Decrease health and check if it's destroyed
+                    // 체력을 감소시키고 파괴되었는지 확인합니다.
                     if (!health.decreaseHealth(shot.getDamage())) {
-                        // Create an explosion on death
+                        // 죽을 때 폭발을 생성합니다.
                         AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
                         explosion.setScale(0.1);
                         int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
@@ -64,7 +64,7 @@ public class MeteorEnemyEntity extends Entity implements Enemy {
                         this.destroy();
                     }
                 }
-                // Remove the player's projectile upon impact
+                // 충돌 시 플레이어의 발사체를 제거합니다.
                 context.removeEntity(shot);
             }
         }
@@ -72,6 +72,6 @@ public class MeteorEnemyEntity extends Entity implements Enemy {
 
     @Override
     public void upgrade() {
-        // This entity cannot be upgraded.
+        // 이 엔티티는 업그레이드할 수 없습니다.
     }
 }

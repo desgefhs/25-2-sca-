@@ -37,23 +37,23 @@ public class DatabaseManager {
     }
 
     /**
-     * Saves the entire PlayerData object to Firestore, overwriting existing data.
-     * @param uid The unique ID of the user to update.
-     * @param playerData The PlayerData object containing the data to save.
+     * 전체 PlayerData 객체를 Firestore에 저장하며, 기존 데이터를 덮어씁니다.
+     * @param uid 업데이트할 사용자의 고유 ID.
+     * @param playerData 저장할 데이터가 포함된 PlayerData 객체.
      */
     public void updatePlayerData(String uid, PlayerData playerData) {
         if (uid == null || uid.trim().isEmpty()) return;
         DocumentReference docRef = db.collection(USERS_COLLECTION).document(uid);
 
-        // Convert PlayerData to a Map to use the update() method,
-        // which prevents overwriting the whole document.
+        // PlayerData를 Map으로 변환하여 update() 메소드를 사용합니다.
+        // 이렇게 하면 전체 문서를 덮어쓰는 것을 방지할 수 있습니다.
         Map<String, Object> updates = new HashMap<>();
         updates.put(HIGH_SCORE_FIELD, playerData.getHighScore());
         updates.put(CREDIT_FIELD, playerData.getCredit());
         updates.put(UPGRADE_LEVELS_FIELD, playerData.getUpgradeLevels());
         updates.put(PET_INVENTORY_FIELD, playerData.getPetInventory());
-        updates.put(PET_LEVELS_FIELD, playerData.getPetLevels()); // Save pet levels
-        updates.put(WEAPON_LEVELS_FIELD, playerData.getWeaponLevels()); // Save weapon levels
+        updates.put(PET_LEVELS_FIELD, playerData.getPetLevels()); // 펫 레벨 저장
+        updates.put(WEAPON_LEVELS_FIELD, playerData.getWeaponLevels()); // 무기 레벨 저장
 
         ApiFuture<WriteResult> result = docRef.update(updates);
         try {

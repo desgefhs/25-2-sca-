@@ -41,7 +41,7 @@ public class AuthScreen extends JPanel {
         usernameField.setOpaque(false);
         usernameField.setForeground(Color.WHITE);
         usernameField.setCaretColor(Color.WHITE);
-        usernameField.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 90, 5, 10)); // Add some padding
+        usernameField.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 90, 5, 10)); // 약간의 패딩 추가
 
         try {
             URL idBoxUrl = this.getClass().getClassLoader().getResource("sprites/Login/IdBox.PNG");
@@ -52,11 +52,11 @@ public class AuthScreen extends JPanel {
                 usernamePanel.add(usernameField, BorderLayout.CENTER);
                 add(usernamePanel, gbc);
             } else {
-                add(usernameField, gbc); // Fallback to just the text field
+                add(usernameField, gbc); // 텍스트 필드로 대체
             }
         } catch (IOException e) {
             e.printStackTrace();
-            add(usernameField, gbc); // Fallback on error
+            add(usernameField, gbc); // 오류 발생 시 대체
         }
 
         // 비밀번호 필드
@@ -65,7 +65,7 @@ public class AuthScreen extends JPanel {
         passwordField.setOpaque(false);
         passwordField.setForeground(Color.WHITE);
         passwordField.setCaretColor(Color.WHITE);
-        passwordField.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 90, 5, 10)); // Add some padding
+        passwordField.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 90, 5, 10)); // 약간의 패딩 추가
 
         try {
             URL idBoxUrl = this.getClass().getClassLoader().getResource("sprites/Login/PwBox.PNG");
@@ -76,11 +76,11 @@ public class AuthScreen extends JPanel {
                 passwordPanel.add(passwordField, BorderLayout.CENTER);
                 add(passwordPanel, gbc);
             } else {
-                add(passwordField, gbc); // Fallback to just the text field
+                add(passwordField, gbc); // 텍스트 필드로 대체
             }
         } catch (IOException e) {
             e.printStackTrace();
-            add(passwordField, gbc); // Fallback on error
+            add(passwordField, gbc); // 오류 발생 시 대체
         }
 
         // 로그인/회원가입 버튼
@@ -168,7 +168,7 @@ public class AuthScreen extends JPanel {
         return usernameField;
     }
 
-    // Inner class for a panel with a background image
+    // 배경 이미지가 있는 패널을 위한 내부 클래스
     private class ImagePanel extends JPanel {
         private final transient Image backgroundImage;
 
