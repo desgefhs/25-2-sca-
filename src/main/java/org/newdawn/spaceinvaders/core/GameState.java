@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders.gamestates;
+package org.newdawn.spaceinvaders.core;
 
 import org.newdawn.spaceinvaders.core.InputHandler;
 

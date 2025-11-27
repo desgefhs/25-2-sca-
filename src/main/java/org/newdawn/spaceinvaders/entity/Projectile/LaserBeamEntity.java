@@ -8,8 +8,8 @@ import java.awt.Graphics2D;
 public class LaserBeamEntity extends Entity {
     private final int duration;
     private final int damage;
-    private long startTime;
-    private Entity owner;
+    private final long startTime;
+    private final Entity owner;
 
     public LaserBeamEntity(GameContext context, Entity owner, int duration, int damage) {
         super("sprites/texture_laser.PNG", owner.getX(), owner.getY());

@@ -14,6 +14,22 @@ import java.util.concurrent.ExecutionException;
  */
 public class DatabaseManager {
 
+    private static final String USERS_COLLECTION = "users";
+    private static final String HIGH_SCORE_FIELD = "highScore";
+    private static final String CREDIT_FIELD = "credit";
+    private static final String UPGRADE_LEVELS_FIELD = "upgradeLevels";
+    private static final String PET_INVENTORY_FIELD = "petInventory";
+    private static final String PET_LEVELS_FIELD = "petLevels";
+    private static final String WEAPON_LEVELS_FIELD = "weaponLevels";
+    private static final String USERNAME_FIELD = "username";
+
+    private static final String LOG_UPDATE_SUCCESS = "PlayerData 업데이트 완료: ";
+    private static final String LOG_UPDATE_ERROR = "PlayerData 업데이트 중 오류 발생: ";
+    private static final String LOG_LOAD_SUCCESS_PREFIX = " 사용자의 데이터 불러오기 성공. 최고 점수: ";
+    private static final String LOG_LOAD_SUCCESS_SUFFIX = ", 크레딧: ";
+    private static final String LOG_CREATE_NEW_USER_DATA = " 사용자의 데이터가 존재하지 않아 새로 생성합니다.";
+    private static final String LOG_LOAD_ERROR = "데이터 불러오기 중 오류 발생: ";
+
     private final Firestore db;
 
     public DatabaseManager(Firestore db) {
@@ -27,23 +43,23 @@ public class DatabaseManager {
      */
     public void updatePlayerData(String uid, PlayerData playerData) {
         if (uid == null || uid.trim().isEmpty()) return;
-        DocumentReference docRef = db.collection("users").document(uid);
+        DocumentReference docRef = db.collection(USERS_COLLECTION).document(uid);
 
         // Convert PlayerData to a Map to use the update() method,
         // which prevents overwriting the whole document.
         Map<String, Object> updates = new HashMap<>();
-        updates.put("highScore", playerData.getHighScore());
-        updates.put("credit", playerData.getCredit());
-        updates.put("upgradeLevels", playerData.getUpgradeLevels());
-        updates.put("petInventory", playerData.getPetInventory());
-        updates.put("petLevels", playerData.getPetLevels()); // Save pet levels
-        updates.put("weaponLevels", playerData.getWeaponLevels()); // Save weapon levels
+        updates.put(HIGH_SCORE_FIELD, playerData.getHighScore());
+        updates.put(CREDIT_FIELD, playerData.getCredit());
+        updates.put(UPGRADE_LEVELS_FIELD, playerData.getUpgradeLevels());
+        updates.put(PET_INVENTORY_FIELD, playerData.getPetInventory());
+        updates.put(PET_LEVELS_FIELD, playerData.getPetLevels()); // Save pet levels
+        updates.put(WEAPON_LEVELS_FIELD, playerData.getWeaponLevels()); // Save weapon levels
 
         ApiFuture<WriteResult> result = docRef.update(updates);
         try {
-            System.out.println("PlayerData 업데이트 완료: " + result.get().getUpdateTime());
+            System.out.println(LOG_UPDATE_SUCCESS + result.get().getUpdateTime());
         } catch (Exception e) {
-            System.err.println("PlayerData 업데이트 중 오류 발생: " + e.getMessage());
+            System.err.println(LOG_UPDATE_ERROR + e.getMessage());
         }
     }
 
@@ -54,51 +70,59 @@ public class DatabaseManager {
      */
     public PlayerData loadPlayerData(String uid, String username) {
         if (uid == null || uid.trim().isEmpty()) return new PlayerData();
-        DocumentReference docRef = db.collection("users").document(uid);
+        DocumentReference docRef = db.collection(USERS_COLLECTION).document(uid);
         ApiFuture<DocumentSnapshot> future = docRef.get();
         try {
             DocumentSnapshot document = future.get();
             if (document.exists()) {
                 PlayerData playerData = document.toObject(PlayerData.class);
-
-                if (playerData != null && document.contains("weaponLevels")) {
-                    // Safely handle number types (e.g., Long from Firestore) by converting to Integer
-                    Map<String, Object> rawWeaponLevels = (Map<String, Object>) document.get("weaponLevels");
-                    Map<String, Integer> weaponLevels = new HashMap<>();
-                    if (rawWeaponLevels != null) {
-                        for (Map.Entry<String, Object> entry : rawWeaponLevels.entrySet()) {
-                            if (entry.getValue() instanceof Number) {
-                                weaponLevels.put(entry.getKey(), ((Number) entry.getValue()).intValue());
-                            }
-                        }
-                    }
-                    playerData.setWeaponLevels(weaponLevels);
+                if (playerData != null) {
+                    playerData.setWeaponLevels(extractWeaponLevels(document));
+                    System.out.println(username + LOG_LOAD_SUCCESS_PREFIX + playerData.getHighScore() + LOG_LOAD_SUCCESS_SUFFIX + playerData.getCredit());
                 }
-                System.out.println(username + " 사용자의 데이터 불러오기 성공. 최고 점수: " + playerData.getHighScore() + ", 크레딧: " + playerData.getCredit());
                 return playerData;
             } else {
-                System.out.println(username + " 사용자의 데이터가 존재하지 않아 새로 생성합니다.");
+                System.out.println(username + LOG_CREATE_NEW_USER_DATA);
                 return new PlayerData();
             }
         } catch (Exception e) {
-            System.err.println("데이터 불러오기 중 오류 발생: " + e.getMessage());
+            System.err.println(LOG_LOAD_ERROR + e.getMessage());
             return new PlayerData();
         }
+    }
+
+    private Map<String, Integer> extractWeaponLevels(DocumentSnapshot document) {
+        Map<String, Integer> weaponLevels = new HashMap<>();
+        if (document.contains(WEAPON_LEVELS_FIELD)) {
+            Object rawWeaponLevelsObject = document.get(WEAPON_LEVELS_FIELD);
+            if (rawWeaponLevelsObject instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> rawWeaponLevels = (Map<String, Object>) rawWeaponLevelsObject;
+                for (Map.Entry<String, Object> entry : rawWeaponLevels.entrySet()) {
+                    if (entry.getValue() instanceof Number) {
+                        weaponLevels.put(entry.getKey(), ((Number) entry.getValue()).intValue());
+                    }
+                }
+            }
+        }
+        return weaponLevels;
     }
 
     /**
      * 데이터베이스에서 상위 10개의 최고 점수 기록을 가져옵니다.
      * @return 랭킹 문자열 목록
      */
-    public List<String> getHighScores() {
-        List<String> highScores = new ArrayList<>();
+    public List<org.newdawn.spaceinvaders.ranking.Ranking> getHighScores() {
+        List<org.newdawn.spaceinvaders.ranking.Ranking> highScores = new ArrayList<>();
         if (db == null) return highScores;
 
-        ApiFuture<QuerySnapshot> query = db.collection("users").orderBy("highScore", Query.Direction.DESCENDING).limit(10).get();
+        ApiFuture<QuerySnapshot> query = db.collection(USERS_COLLECTION).orderBy(HIGH_SCORE_FIELD, Query.Direction.DESCENDING).limit(10).get();
         try {
             QuerySnapshot querySnapshot = query.get();
             for (QueryDocumentSnapshot document : querySnapshot.getDocuments()) {
-                highScores.add(document.getString("username") + ": " + document.getLong("highScore"));
+                String username = document.getString(USERNAME_FIELD);
+                int score = document.getLong(HIGH_SCORE_FIELD).intValue();
+                highScores.add(new org.newdawn.spaceinvaders.ranking.Ranking(username, score));
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();

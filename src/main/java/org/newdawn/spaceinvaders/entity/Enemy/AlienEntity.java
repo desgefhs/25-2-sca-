@@ -2,6 +2,7 @@ package org.newdawn.spaceinvaders.entity.Enemy;
 
 
 import org.newdawn.spaceinvaders.core.GameContext;
+
 import org.newdawn.spaceinvaders.entity.*;
 import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Projectile.LaserBeamEntity;
@@ -18,13 +19,11 @@ import java.awt.Graphics;
  * @author Kevin Glass
  */
 public class AlienEntity extends Entity implements Enemy {
-	private double moveSpeed = 100;
-	private GameContext context;
-	private static final int MAX_HEALTH = 2;
-	private static final int SHOT_DAMAGE = 1;
+	private final double MOVE_SPEED = 100;
+	private final GameContext context;
 
 	private long lastFire = 0;
-	private static final long firingInterval = 1000;
+	private static final long FIRING_INTERVAL = 1000;
 
     private boolean isUpgraded = false;
 
@@ -33,10 +32,10 @@ public class AlienEntity extends Entity implements Enemy {
 
     // Integrated engine fire effect
     private final Sprite[] fireFrames = new Sprite[3];
-    private final long fireFrameDuration = 100; // ms
+    private final long FIRE_FRAME_DURATION = 100; // ms
     private long fireLastFrameChange;
     private int fireFrameNumber;
-    private final double fireSpriteScale = 0.8;
+    private final double FIRE_SPRITE_SCALE = 0.8;
 
 
 	public AlienEntity(GameContext context, int x, int y, int health, MovementPattern movementPattern) {
@@ -45,7 +44,7 @@ public class AlienEntity extends Entity implements Enemy {
 		this.context = context;
 		this.movementPattern = movementPattern;
 		this.initialX = x;
-		this.dy = moveSpeed; // Default downward movement
+		this.dy = MOVE_SPEED; // Default downward movement
 
         // Pre-load all fire frames
         fireFrames[0] = SpriteStore.get().getSprite("sprites/fire effect/18 Ion.png");
@@ -53,24 +52,13 @@ public class AlienEntity extends Entity implements Enemy {
         fireFrames[2] = SpriteStore.get().getSprite("sprites/fire effect/20 Ion.png");
 	}
 
-	public AlienEntity(GameContext context, int x, int y, int health, int cycle) {
-		this(context, x, y, health, MovementPattern.STRAIGHT_DOWN);
-	}
-
-	public AlienEntity(GameContext context, int x, int y, int health) {
-		this(context, x, y, health, MovementPattern.STRAIGHT_DOWN);
-	}
-
-	public AlienEntity(GameContext context, int x, int y) {
-		this(context, x, y, MAX_HEALTH, MovementPattern.STRAIGHT_DOWN);
-	}
 
     public void upgrade() {
         this.isUpgraded = true;
     }
 
 	private void tryToFire() {
-		if (System.currentTimeMillis() - lastFire < firingInterval) {
+		if (System.currentTimeMillis() - lastFire < FIRING_INTERVAL) {
 			return;
 		}
 
@@ -96,7 +84,7 @@ public class AlienEntity extends Entity implements Enemy {
 
         // Update fire animation
         fireLastFrameChange += delta;
-        if (fireLastFrameChange > fireFrameDuration) {
+        if (fireLastFrameChange > FIRE_FRAME_DURATION) {
             fireLastFrameChange = 0;
             fireFrameNumber = (fireFrameNumber + 1) % fireFrames.length;
         }
@@ -139,8 +127,8 @@ public class AlienEntity extends Entity implements Enemy {
     public void draw(Graphics g) {
         // Draw the fire effect first, so it's behind the alien
         Sprite fireSprite = fireFrames[fireFrameNumber];
-        int fireWidth = (int) (fireSprite.getWidth() * fireSpriteScale);
-        int fireHeight = (int) (fireSprite.getHeight() * fireSpriteScale);
+        int fireWidth = (int) (fireSprite.getWidth() * FIRE_SPRITE_SCALE);
+        int fireHeight = (int) (fireSprite.getHeight() * FIRE_SPRITE_SCALE);
         double fireX = this.x + (this.width / 2.0) - (fireWidth / 2.0);
         double fireY = this.y - fireHeight + 20; // Position it at the top-rear
         g.drawImage(fireSprite.getImage(), (int) fireX, (int) fireY, fireWidth, fireHeight-30, null);
@@ -155,36 +143,45 @@ public class AlienEntity extends Entity implements Enemy {
     }
 
     public double getMoveSpeed() {
-        return moveSpeed;
+        return MOVE_SPEED;
     }
 
     public void collidedWith(Entity other) {
         if (other instanceof ProjectileEntity) {
-            ProjectileEntity shot = (ProjectileEntity) other;
-            if (shot.getType().targetType == ProjectileType.TargetType.ENEMY) {
-                if (health.isAlive()) {
-                    if (!health.decreaseHealth(shot.getDamage())) {
-                        context.removeEntity(this);
-                        context.notifyAlienKilled();
-                    }
-                }
-            }
+            handleProjectileCollision((ProjectileEntity) other);
         } else if (other instanceof LaserBeamEntity) {
-            LaserBeamEntity laser = (LaserBeamEntity) other;
-            if (health.isAlive()) {
-                if (!health.decreaseHealth(laser.getDamage())) {
-                    AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
-                    explosion.setScale(0.1);
-                    int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
-                    int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
-                    explosion.setX(centeredX);
-                    explosion.setY(centeredY);
-                    context.addEntity(explosion);
-
-                    context.removeEntity(this);
-                    context.notifyAlienKilled();
-                }
-            }
+            handleLaserBeamCollision((LaserBeamEntity) other);
         }
+    }
+
+    private void handleProjectileCollision(ProjectileEntity shot) {
+        if (shot.getType().targetType != ProjectileType.TargetType.ENEMY || !health.isAlive()) {
+            return;
+        }
+
+        if (!health.decreaseHealth(shot.getDamage())) {
+            this.destroy();
+        }
+    }
+
+    private void handleLaserBeamCollision(LaserBeamEntity laser) {
+        if (!health.isAlive()) {
+            return;
+        }
+
+        if (!health.decreaseHealth(laser.getDamage())) {
+            createExplosion();
+            this.destroy();
+        }
+    }
+
+    private void createExplosion() {
+        AnimatedExplosionEntity explosion = new AnimatedExplosionEntity(context, 0, 0);
+        explosion.setScale(0.1);
+        int centeredX = this.getX() + (this.getWidth() / 2) - (explosion.getWidth() / 2);
+        int centeredY = (this.getY() + this.getHeight()) - (explosion.getHeight() / 2);
+        explosion.setX(centeredX);
+        explosion.setY(centeredY);
+        context.addEntity(explosion);
     }
 }

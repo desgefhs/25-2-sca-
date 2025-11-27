@@ -2,6 +2,7 @@ package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.core.GameContext;
 
+
 public class ItemEntity extends Entity {
 
     private final GameContext context;
@@ -16,10 +17,8 @@ public class ItemEntity extends Entity {
     @Override
     public void collidedWith(Entity other) {
         if (other instanceof ShipEntity) {
-            // Notify the game manager that an item has been collected
-            context.notifyItemCollected();
-            // Remove the item from the game
-            context.removeEntity(this);
+            // The lifecycle manager will handle publishing the event and removing the entity
+            this.destroy();
         }
     }
 }

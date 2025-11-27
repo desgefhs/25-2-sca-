@@ -2,6 +2,7 @@ package org.newdawn.spaceinvaders.entity.Enemy;
 
 import org.newdawn.spaceinvaders.core.Game;
 import org.newdawn.spaceinvaders.core.GameContext;
+
 import org.newdawn.spaceinvaders.entity.Effect.AnimatedExplosionEntity;
 import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.entity.Projectile.ProjectileEntity;
@@ -16,8 +17,8 @@ public class BombEntity extends Entity implements Enemy {
     private enum State { APPROACHING, WARNING, EXPLODING }
     private State currentState = State.APPROACHING;
 
-    private GameContext context;
-    private double moveSpeed = 75; // Halved the speed
+    private final GameContext context;
+    private final double moveSpeed = 75; // Halved the speed
 
     // Warning & Explosion Stats
     private static final long WARNING_DURATION = 1000L; // 1 second
@@ -28,7 +29,7 @@ public class BombEntity extends Entity implements Enemy {
     private long stateTimer = 0;
 
     // Warning Animation
-    private Sprite[] warningFrames = new Sprite[13];
+    private final Sprite[] warningFrames = new Sprite[13];
     private int currentWarningFrame = 0;
     private static final long WARNING_FRAME_DURATION = WARNING_DURATION / 13;
 
@@ -75,13 +76,12 @@ public class BombEntity extends Entity implements Enemy {
                 // Check distance again in case ship moved
                 if (distanceToShip <= EXPLOSION_RADIUS) {
                     if (!ship.getHealth().decreaseHealth(EXPLOSION_DAMAGE)) {
-                        context.notifyDeath();
+                        ship.destroy();
                     }
                 }
                 // Create visual explosion
-                // Remove self
-                context.notifyAlienKilled();
-                context.removeEntity(this);
+                // Destroy self
+                this.destroy();
                 break;
         }
     }
@@ -106,7 +106,6 @@ public class BombEntity extends Entity implements Enemy {
 
         // Does no damage on direct collision with the ship
         if (other instanceof ShipEntity) {
-            return;
         }
     }
 

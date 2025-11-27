@@ -10,11 +10,11 @@ import java.awt.*;
 
 public class FlameParticleEntity extends Entity {
     private float lifeTime = 400; // ms, total lifetime
-    private int damage = 1;
+    private final int damage = 1;
 
-    private Sprite[] frames = new Sprite[4];
+    private final Sprite[] frames = new Sprite[4];
     private int currentFrame = 0;
-    private long frameDuration = 100; // 100ms per frame
+    private final long frameDuration = 100; // 100ms per frame
     private long frameTimer = 0;
 
     public FlameParticleEntity(GameContext context, int x, int y, double dx, double dy) {

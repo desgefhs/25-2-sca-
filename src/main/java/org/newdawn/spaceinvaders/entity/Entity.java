@@ -34,9 +34,9 @@ public abstract class Entity {
 	/** The current speed of this entity vertically (pixels/sec) */
 	protected double dy;
 	/** The rectangle used for this entity during collisions  resolution */
-	private Rectangle me = new Rectangle();
+	private final Rectangle me = new Rectangle();
 	/** The rectangle used for other entities during collision resolution */
-	private Rectangle him = new Rectangle();
+	private final Rectangle him = new Rectangle();
 
 	protected int width;
 	protected int height;
@@ -69,6 +69,10 @@ public abstract class Entity {
 
 	public HealthComponent getHealth() {
 		return health;
+	}
+
+	public void reset() {
+		this.destroyed = false;
 	}
 	
 	/**
@@ -209,4 +213,15 @@ public abstract class Entity {
 	     * Subclasses can override this to perform cleanup.
 	     */
 	    public void onDestroy() {
-	    }}
+	    }
+
+	    private boolean destroyed = false;
+
+	    public void destroy() {
+	        this.destroyed = true;
+	    }
+
+	    public boolean isDestroyed() {
+	        return destroyed;
+	    }
+	}

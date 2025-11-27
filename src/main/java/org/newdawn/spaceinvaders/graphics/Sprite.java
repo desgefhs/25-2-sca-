@@ -5,7 +5,7 @@ import java.awt.Image;
 
 public class Sprite {
 
-	private Image image;
+	private final Image image;
 	
 
 	public Sprite(Image image) {

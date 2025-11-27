@@ -1,49 +1,96 @@
 package org.newdawn.spaceinvaders.core;
 
+import org.newdawn.spaceinvaders.data.DatabaseManager;
 import org.newdawn.spaceinvaders.entity.Entity;
+import org.newdawn.spaceinvaders.entity.EntityManager;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
+import org.newdawn.spaceinvaders.core.GameStateManager;
+import org.newdawn.spaceinvaders.graphics.Sprite;
+import org.newdawn.spaceinvaders.player.PlayerManager;
+import org.newdawn.spaceinvaders.shop.ShopManager;
 import org.newdawn.spaceinvaders.sound.SoundManager;
+import org.newdawn.spaceinvaders.view.*;
+import org.newdawn.spaceinvaders.wave.WaveManager;
+import org.newdawn.spaceinvaders.entity.weapon.Weapon;
 
-// gamemanager 인터페이스.
+import java.util.Map;
 
 public interface GameContext {
 
-    SoundManager getSoundManager();
+        GameContainer getGameContainer();
 
-    // 새로운 엔티티를 추가
+    
 
-    void addEntity(Entity entity);
+        // --- Gameplay Actions ---
 
-    // 특정 엔티티 제거
-    void removeEntity(Entity entity);
+        void startGameplay();
 
-    // 플레이어 사망
-    void notifyDeath();
+        void setCurrentState(GameState.Type stateType);
 
-    // 플레이어 승리
-    void notifyWin();
+        void setNextState(GameState.Type stateType);
 
-    // 엔티티가 화면 밖으로 나감
-    void notifyAlienEscaped(Entity entity);
+        void onWaveCleared();
 
-    // 적 엔티티 처리함
-    void notifyAlienKilled();
+        void updatePlayingLogic(long delta); // ADDED
 
-    void notifyMeteorDestroyed(int scoreValue);
+    
 
-    //게임에 존재하는 모든 엔티티를 가져옴
-    java.util.List<Entity> getEntities();
+        // --- Entity Management ---
 
-    ShipEntity getShip();
+        void addEntity(Entity entity);
 
-    void notifyItemCollected();
+        void removeEntity(Entity entity);
 
-    boolean hasCollectedAllItems();
+        java.util.List<Entity> getEntities();
 
-    void resetItemCollection();
+        ShipEntity getShip();
 
-    void stunPlayer(long duration);
+    
 
+        // --- Player Status ---
 
-    boolean canPlayerAttack();
-}
+        boolean canPlayerAttack();
+
+    
+
+        // --- UI & Rendering ---
+
+        Background getBackground();
+
+        Sprite getStaticBackgroundSprite();
+
+        Map<String, Weapon> getWeapons();
+
+        double getMoveSpeed();
+
+        boolean getShowHitboxes();
+
+        void setShowHitboxes(boolean show);
+
+    
+
+        // --- Notifications & Messages ---
+
+        String getMessage();
+
+        void setMessage(String message);
+
+        void setMessageEndTime(long time);
+
+    
+
+        // --- Misc ---
+
+        boolean hasCollectedAllItems();
+
+        void resetItemCollection();
+
+                void setLogicRequiredThisLoop(boolean required);
+
+        
+
+                EventBus getEventBus();
+
+            }
+
+    

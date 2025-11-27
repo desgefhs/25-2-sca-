@@ -1,9 +1,11 @@
 package org.newdawn.spaceinvaders.view;
 
+import org.newdawn.spaceinvaders.userinput.Menu;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class WeaponMenu {
+public class WeaponMenu implements Menu {
     private List<String> weaponItems = new ArrayList<>();
     private int selectedItemIndex = 0;
 
@@ -11,6 +13,7 @@ public class WeaponMenu {
         this.weaponItems = availableWeapons;
     }
 
+    @Override
     public void moveUp() {
         selectedItemIndex--;
         if (selectedItemIndex < 0) {
@@ -18,6 +21,7 @@ public class WeaponMenu {
         }
     }
 
+    @Override
     public void moveDown() {
         selectedItemIndex++;
         if (selectedItemIndex >= weaponItems.size()) {
@@ -25,6 +29,17 @@ public class WeaponMenu {
         }
     }
 
+    @Override
+    public void moveLeft() {
+        // 이 상태에서는 사용하지 않음
+    }
+
+    @Override
+    public void moveRight() {
+        // 이 상태에서는 사용하지 않음
+    }
+
+    @Override
     public String getSelectedItem() {
         if (weaponItems.isEmpty()) {
             return null;

@@ -1,10 +1,13 @@
 package org.newdawn.spaceinvaders.view;
 
+import org.newdawn.spaceinvaders.userinput.Menu;
+
 //게임 오버 시 메뉴창
-public class GameOverMenu {
-    private String[] items = {"다시하기", "메인 메뉴로"};
+public class GameOverMenu implements Menu {
+    private final String[] items = {"다시하기", "메인 메뉴로"};
     private int selectedItemIndex = 0;
 
+    @Override
     public void moveLeft() {
         selectedItemIndex--;
         if (selectedItemIndex < 0) {
@@ -12,6 +15,7 @@ public class GameOverMenu {
         }
     }
 
+    @Override
     public void moveRight() {
         selectedItemIndex++;
         if (selectedItemIndex >= items.length) {
@@ -19,6 +23,16 @@ public class GameOverMenu {
         }
     }
 
+    @Override
+    public void moveUp() {
+        // Not used in GameOverMenu, but required by Menu interface
+    }
+    @Override
+    public void moveDown() {
+        // Not used in GameOverMenu, but required by Menu interface
+    }
+
+    @Override
     public String getSelectedItem() {
         return items[selectedItemIndex];
     }

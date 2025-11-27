@@ -14,13 +14,13 @@ import javax.imageio.ImageIO;
 
 public class SpriteStore {
 
-	private static SpriteStore single = new SpriteStore();
+	private static final SpriteStore single = new SpriteStore();
 
 	public static SpriteStore get() {
 		return single;
 	}
 
-	private HashMap sprites = new HashMap();
+	private final HashMap sprites = new HashMap();
 	
 
 	public Sprite getSprite(String ref) {

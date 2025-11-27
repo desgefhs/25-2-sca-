@@ -1,60 +1,53 @@
 package org.newdawn.spaceinvaders.gamestates;
 
-import org.newdawn.spaceinvaders.core.Game;
-import org.newdawn.spaceinvaders.core.GameManager;
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
+import org.newdawn.spaceinvaders.ranking.Ranking;
+import org.newdawn.spaceinvaders.userinput.RankingInputHandler;
 
 import java.awt.*;
+import java.util.List;
 
 public class RankingState implements GameState {
-    private final GameManager gameManager;
-    private java.util.List<String> highScores;
+    private final GameContext gameContext;
+    private List<Ranking> highScores;
+    private final RankingInputHandler inputHandler;
+    private final RankingDrawer rankingDrawer;
 
-    public RankingState(GameManager gameManager) {
-        this.gameManager = gameManager;
+    public RankingState(GameContext gameContext) {
+        this.gameContext = gameContext;
+        this.inputHandler = new RankingInputHandler(gameContext);
+        this.rankingDrawer = new RankingDrawer();
     }
 
     @Override
-    public void init() {}
+    public void init() {
+        // 이 상태에서는 사용하지 않음
+    }
 
     @Override
     public void handleInput(InputHandler input) {
-        if (input.isEnterPressedAndConsume()) {
-            gameManager.getSoundManager().playSound("buttonselect");
-            gameManager.setCurrentState(Type.MAIN_MENU);
-        }
+        inputHandler.handle(input);
     }
 
     @Override
-    public void update(long delta) {}
+    public void update(long delta) {
+        // 이 상태에서는 사용하지 않음
+    }
 
     @Override
     public void render(Graphics2D g) {
-        g.setColor(Color.black);
-        g.fillRect(0, 0, Game.SCREEN_WIDTH, Game.SCREEN_HEIGHT);
-
-        g.setColor(Color.white);
-        g.setFont(new Font("Dialog", Font.BOLD, 24));
-        g.drawString("Ranking", (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth("Ranking")) / 2, 100);
-
-        g.setFont(new Font("Dialog", Font.BOLD, 18));
-        int y = 150;
-        if (highScores != null) {
-            for (String score : highScores) {
-                g.drawString(score, (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth(score)) / 2, y);
-                y += 30;
-            }
-        }
-
-        g.setFont(new Font("Dialog", Font.BOLD, 14));
-        g.drawString("Press Enter to return to Main Menu", (Game.SCREEN_WIDTH - g.getFontMetrics().stringWidth("Press Enter to return to Main Menu")) / 2, 500);
+        rankingDrawer.draw(g, highScores);
     }
 
     @Override
     public void onEnter() {
-        highScores = gameManager.getDatabaseManager().getHighScores();
+        highScores = gameContext.getGameContainer().getDatabaseManager().getHighScores();
     }
 
     @Override
-    public void onExit() {}
+    public void onExit() {
+        // 이 상태에서는 사용하지 않음
+    }
 }

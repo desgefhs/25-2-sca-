@@ -10,7 +10,7 @@ public class PlayerStats {
     private int bulletDamage;
     private long firingInterval;
     private int projectileCount; // 다중발사
-    private Map<String, Integer> weaponLevels;
+    private final Map<String, Integer> weaponLevels;
 
     //기본값( 생성자)
     public PlayerStats() {

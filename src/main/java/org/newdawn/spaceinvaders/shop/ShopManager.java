@@ -12,6 +12,7 @@ public class ShopManager {
 
     private final Map<String, Upgrade> upgrades;
     private static final int ITEM_DRAW_COST = 500;
+    private final Random random = new Random();
 
     public ShopManager() {
         List<Upgrade> upgradeList = new ArrayList<>();
@@ -72,58 +73,57 @@ public class ShopManager {
         return ITEM_DRAW_COST;
     }
 
-    public String drawItem(PlayerData playerData) {
+    public DrawResult drawItem(PlayerData playerData) {
         if (playerData.getCredit() < ITEM_DRAW_COST) {
-            return "INSUFFICIENT_FUNDS";
+            return new DrawResult("크레딧이 부족합니다!", false);
         }
         playerData.setCredit(playerData.getCredit() - ITEM_DRAW_COST);
 
-        Random rand = new Random();
-        int roll = rand.nextInt(100);
+        int roll = random.nextInt(100);
 
         // 40% chance for 250 credits
         if (roll < 40) {
             playerData.setCredit(playerData.getCredit() + 250);
-            return "CREDIT_250";
+            return new DrawResult("250 크레딧에 당첨되었습니다!", true);
         }
         // 10% chance for Attack Pet
         else if (roll < 50) {
             playerData.getPetInventory().put(PetType.ATTACK.name(), playerData.getPetInventory().getOrDefault(PetType.ATTACK.name(), 0) + 1);
-            return "PET_ATTACK";
+            return new DrawResult("'공격형 펫'을 획득했습니다!", true);
         }
         // 10% chance for Defense Pet
         else if (roll < 60) {
             playerData.getPetInventory().put(PetType.DEFENSE.name(), playerData.getPetInventory().getOrDefault(PetType.DEFENSE.name(), 0) + 1);
-            return "PET_DEFENSE";
+            return new DrawResult("'방어형 펫'을 획득했습니다!", true);
         }
         // 10% chance for Heal Pet
         else if (roll < 70) {
             playerData.getPetInventory().put(PetType.HEAL.name(), playerData.getPetInventory().getOrDefault(PetType.HEAL.name(), 0) + 1);
-            return "PET_HEAL";
+            return new DrawResult("'치유형 펫'을 획득했습니다!", true);
         }
         // 10% chance for Buff Pet
         else if (roll < 80) {
             playerData.getPetInventory().put(PetType.BUFF.name(), playerData.getPetInventory().getOrDefault(PetType.BUFF.name(), 0) + 1);
-            return "PET_BUFF";
+            return new DrawResult("'버프형 펫'을 획득했습니다!", true);
         }
         // 10% chance for Shotgun
         else if (roll < 90) {
             if (playerData.getWeaponLevels().getOrDefault("Shotgun", 0) > 0) {
                 playerData.setCredit(playerData.getCredit() + 300);
-                return "DUPLICATE_WEAPON";
+                return new DrawResult("이미 보유한 무기입니다! 300 크레딧을 돌려받습니다.", true);
             } else {
                 playerData.getWeaponLevels().put("Shotgun", 1);
-                return "WEAPON_SHOTGUN";
+                return new DrawResult("새로운 무기 '샷건'을 잠금 해제했습니다!", true);
             }
         }
         // 10% chance for Laser
         else {
             if (playerData.getWeaponLevels().getOrDefault("Laser", 0) > 0) {
                 playerData.setCredit(playerData.getCredit() + 300);
-                return "DUPLICATE_WEAPON";
+                return new DrawResult("이미 보유한 무기입니다! 300 크레딧을 돌려받습니다.", true);
             } else {
                 playerData.getWeaponLevels().put("Laser", 1);
-                return "WEAPON_LASER";
+                return new DrawResult("새로운 무기 '레이저'를 잠금 해제했습니다!", true);
             }
         }
     }

@@ -1,8 +1,11 @@
 package org.newdawn.spaceinvaders.gamestates;
 
 import org.newdawn.spaceinvaders.core.Game;
-import org.newdawn.spaceinvaders.core.GameManager;
+import org.newdawn.spaceinvaders.core.GameContext;
+import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.InputHandler;
+import org.newdawn.spaceinvaders.userinput.ShopMainMenuInputHandler;
+import org.newdawn.spaceinvaders.view.ShopMainMenuView;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -11,58 +14,35 @@ import java.awt.Rectangle;
 
 public class ShopMainMenuState implements GameState {
 
-    private final GameManager gameManager;
-    private int selectedIndex = 0;
-    private final String[] menuItems = {"캐릭터 강화", "아이템 뽑기", "뒤로가기"};
+    private final GameContext gameContext;
+    private final ShopMainMenuView shopMainMenuView;
+    private final ShopMainMenuInputHandler inputHandler;
 
-    private final Rectangle[] menuBounds = new Rectangle[menuItems.length];
+    private final Rectangle[] menuBounds;
 
-    public ShopMainMenuState(GameManager gameManager) {
-        this.gameManager = gameManager;
-        for (int i = 0; i < menuItems.length; i++) {
+    public ShopMainMenuState(GameContext gameContext) {
+        this.gameContext = gameContext;
+        this.shopMainMenuView = new ShopMainMenuView();
+        this.inputHandler = new ShopMainMenuInputHandler(gameContext, this.shopMainMenuView);
+        this.menuBounds = new Rectangle[shopMainMenuView.getItemCount()];
+        for (int i = 0; i < shopMainMenuView.getItemCount(); i++) {
             menuBounds[i] = new Rectangle();
         }
     }
 
     @Override
     public void init() {
+        // 이 상태에서는 사용하지 않음
     }
 
     @Override
     public void handleInput(InputHandler input) {
-        if (input.isUpPressedAndConsume()) {
-            selectedIndex--;
-            if (selectedIndex < 0) {
-                selectedIndex = menuItems.length - 1;
-            }
-        }
-        if (input.isDownPressedAndConsume()) {
-            selectedIndex++;
-            if (selectedIndex >= menuItems.length) {
-                selectedIndex = 0;
-            }
-        }
-        if (input.isEnterPressedAndConsume()) {
-            gameManager.getSoundManager().playSound("buttonselect");
-            switch (selectedIndex) {
-                case 0: // 캐릭터 강화
-                    gameManager.setCurrentState(Type.SHOP);
-                    break;
-                case 1: // 아이템 뽑기
-                    gameManager.setCurrentState(Type.ITEM_DRAW);
-                    break;
-                case 2: // 뒤로가기
-                    gameManager.setCurrentState(Type.MAIN_MENU);
-                    break;
-            }
-        }
-        if (input.isEscPressedAndConsume()) {
-            gameManager.setCurrentState(Type.MAIN_MENU);
-        }
+        inputHandler.handle(input);
     }
 
     @Override
     public void update(long delta) {
+        // 이 상태에서는 사용하지 않음
     }
 
     @Override
@@ -80,15 +60,15 @@ public class ShopMainMenuState implements GameState {
         int itemHeight = 60;
         int startY = 250;
 
-        for (int i = 0; i < menuItems.length; i++) {
-            String menuItem = menuItems[i];
+        for (int i = 0; i < shopMainMenuView.getItemCount(); i++) {
+            String menuItem = shopMainMenuView.getItem(i);
             int itemWidth = g.getFontMetrics().stringWidth(menuItem);
             int x = (Game.SCREEN_WIDTH - itemWidth) / 2;
             int y = startY + (i * itemHeight);
 
             menuBounds[i].setBounds(x - 20, y - 40, itemWidth + 40, itemHeight);
 
-            if (i == selectedIndex) {
+            if (i == shopMainMenuView.getSelectedIndex()) {
                 g.setColor(Color.GREEN);
                 g.fillRect(menuBounds[i].x, menuBounds[i].y, menuBounds[i].width, menuBounds[i].height);
                 g.setColor(Color.BLACK);
@@ -102,10 +82,13 @@ public class ShopMainMenuState implements GameState {
 
     @Override
     public void onEnter() {
-        selectedIndex = 0;
+        // The selected index is now managed by the ShopMainMenuView itself,
+        // but we can reset it if needed when entering the state.
+        // For now, the view's own default is sufficient.
     }
 
     @Override
     public void onExit() {
+        // 이 상태에서는 사용하지 않음
     }
 }

@@ -1,6 +1,5 @@
 package org.newdawn.spaceinvaders.core;
 
-import org.newdawn.spaceinvaders.gamestates.GameState;
 import org.newdawn.spaceinvaders.gamestates.MainMenuState;
 import org.newdawn.spaceinvaders.gamestates.PlayingState;
 
