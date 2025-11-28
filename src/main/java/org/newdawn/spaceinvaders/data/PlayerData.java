@@ -33,7 +33,7 @@ public class PlayerData {
      * Firestore가 데이터를 객체로 변환할 때 필요합니다.
      */
     public PlayerData() {
-        // Firestore Deserialization
+        // Firestore 역직렬화를 위해 필요
     }
 
     public String getUsername() { return username; }

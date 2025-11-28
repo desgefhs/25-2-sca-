@@ -32,7 +32,7 @@ public class ShipEntity extends Entity {
     /** 기본 무적 상태의 남은 시간. */
     private long invincibilityTimer = 0;
     /** 기본 무적 상태의 지속 시간 (밀리초). */
-    private static final long INVINCIBILITY_DURATION = 500; // 0.5 seconds
+    private static final long INVINCIBILITY_DURATION = 500; // 0.5초
 
     /** 방어막(쉴드) 활성화 여부. */
     private boolean hasShield = false;
@@ -44,7 +44,7 @@ public class ShipEntity extends Entity {
     /** 버프 타이머 (레거시 코드). */
     private long buffTimer = 0;
     /** 버프 지속 시간 (레거시 코드). */
-    private static final long BUFF_DURATION = 3000; // 3 seconds
+    private static final long BUFF_DURATION = 3000; // 3초
     /** 버프 레벨 (레거시 코드). */
     private final int buffLevel = 0;
     /** 버프 종료 콜백 (레거시 코드). */

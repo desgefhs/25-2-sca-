@@ -40,7 +40,7 @@ public class BuffUI {
         }
 
         List<BuffType> activeBuffs = buffManager.getActiveBuffs();
-        int xOffset = Game.GAME_WIDTH + 20; // This seems to be off-screen, might be intended for a sidebar
+        int xOffset = Game.GAME_WIDTH + 20; // 화면 밖에 위치하는 것으로 보이며, 사이드바용으로 의도된 것일 수 있음
         int yOffset = Game.GAME_HEIGHT - 50;
         int iconSize = 32;
 

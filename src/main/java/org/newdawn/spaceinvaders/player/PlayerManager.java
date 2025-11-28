@@ -69,12 +69,12 @@ public class PlayerManager {
     public void calculatePlayerStats() {
         playerStats = new PlayerStats();
 
-        // First, set the defaults for weapon levels
+        // 먼저, 무기 레벨의 기본값을 설정합니다.
         playerStats.getWeaponLevels().put("DefaultGun", 1);
         playerStats.getWeaponLevels().put("Shotgun", 0);
         playerStats.getWeaponLevels().put("Laser", 0);
 
-        // Then, overwrite with saved data if it exists
+        // 그 다음, 저장된 데이터가 있으면 덮어씁니다.
         if (currentPlayer.getWeaponLevels() != null && !currentPlayer.getWeaponLevels().isEmpty()) {
             playerStats.getWeaponLevels().putAll(currentPlayer.getWeaponLevels());
         }

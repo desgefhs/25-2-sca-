@@ -33,7 +33,7 @@ public class HpRender {
     public void hpRender(Graphics2D g, Entity entity) {
         // HP 바를 엔티티의 상단 중앙에 위치시킴
         double hpY = entity.getY() - 10;
-        double hpX = entity.getX() + (entity.getWidth() / 2) - (Hprendersize / 2); // Reverted 2.0 to 2
+        double hpX = entity.getX() + (entity.getWidth() / 2) - (Hprendersize / 2); // 2.0을 2로 되돌림
 
         // HP 바 배경 그리기
         g.setColor(new Color(70, 70, 70));

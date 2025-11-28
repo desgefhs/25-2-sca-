@@ -52,7 +52,7 @@ public class ConfirmDialog implements Menu {
      */
     @Override
     public void moveUp() {
-        // Not used in ConfirmDialog, but required by Menu interface
+        // ConfirmDialog에서는 사용되지 않지만 Menu 인터페이스에 의해 요구됨
         throw new UnsupportedOperationException("moveUp is not supported in ConfirmDialog");
     }
 
@@ -62,7 +62,7 @@ public class ConfirmDialog implements Menu {
      */
     @Override
     public void moveDown() {
-        // Not used in ConfirmDialog, but required by Menu interface
+        // ConfirmDialog에서는 사용되지 않지만 Menu 인터페이스에 의해 요구됨
         throw new UnsupportedOperationException("moveDown is not supported in ConfirmDialog");
     }
 

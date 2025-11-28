@@ -50,36 +50,36 @@ public class FormationManager {
      * 게임에 사용될 모든 포메이션을 생성하여 각 스테이지에 할당합니다.
      */
     private void createAllFormations() {
-        // Stage 1
+        // 1 스테이지
         stages.get(0).add(createLineFormation());
         stages.get(0).add(createVFormation());
 
-        // Stage 2
+        // 2 스테이지
         stages.get(1).add(createDiagonalFormation("Diagonal Left", true));
         stages.get(1).add(createDiagonalFormation("Diagonal Right", false));
         stages.get(1).add(createConvergingShootersFormation(false));
         stages.get(1).add(createLineFormation());
 
-        // Stage 3
+        // 3 스테이지
         stages.get(2).add(createConvergingShootersFormation(false));
         stages.get(2).add(createDiagonalFormation("Diagonal Left", true));
         stages.get(2).add(createDiagonalFormation("Diagonal Right", false));
         stages.get(2).add(createCrossFireFormation());
 
-        // Stage 4
+        // 4 스테이지
         stages.get(3).add(createBurstShooterFormation(false));
         stages.get(3).add(createCrossFireFormation());
         stages.get(3).add(createBombCarpetFormation());
-        stages.get(3).add(createConvergingShootersFormation(true)); // Upgraded
+        stages.get(3).add(createConvergingShootersFormation(true)); // 업그레이드됨
 
-        // Stage 5
+        // 5 스테이지
         stages.get(4).add(createCrossFireFormation());
-        stages.get(4).add(createBurstShooterFormation(true)); // Upgraded
+        stages.get(4).add(createBurstShooterFormation(true)); // 업그레이드됨
         stages.get(4).add(createBombCarpetFormation());
-        stages.get(4).add(createConvergingShootersFormation(true)); // Upgraded
+        stages.get(4).add(createConvergingShootersFormation(true)); // 업그레이드됨
     }
 
-    // Formation Definitions
+    // 포메이션 정의
 
     /** 물결 모양으로 움직이는 일자 라인 포메이션을 생성합니다. */
     private Formation createLineFormation() {

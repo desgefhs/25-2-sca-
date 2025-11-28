@@ -61,7 +61,7 @@ public class PlayerStats {
         return weaponLevels;
     }
 
-    // Getters
+    // Getter 메소드
     public int getMaxHealth() {
         return maxHealth;
     }
@@ -78,7 +78,7 @@ public class PlayerStats {
         return projectileCount;
     }
 
-    // Setters
+    // Setter 메소드
     public void setMaxHealth(int maxHealth) {
         this.maxHealth = maxHealth;
     }

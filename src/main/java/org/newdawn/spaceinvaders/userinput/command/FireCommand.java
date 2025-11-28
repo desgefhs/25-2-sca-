@@ -24,7 +24,7 @@ public class FireCommand implements Command {
      */
     @Override
     public void execute() {
-        // Fetch the ship at execution time
+        // 실행 시점에 함선 객체 가져오기
         ShipEntity ship = gameContext.getShip();
         if (ship != null) {
             ship.tryToFire();

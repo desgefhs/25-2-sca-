@@ -49,8 +49,8 @@ public class PlayingInputHandler {
 
         // 키를 한 번 눌렀을 때 한 번만 실행되는 커맨드
         singlePressCommands.put(KeyEvent.VK_ESCAPE, () -> gameContext.setCurrentState(GameState.Type.PAUSED));
-        singlePressCommands.put(KeyEvent.VK_H, () -> gameContext.setShowHitboxes(!gameContext.getShowHitboxes())); // 'H' for Hitbox
-        singlePressCommands.put(KeyEvent.VK_K, () -> gameContext.getGameContainer().getWaveManager().skipToNextBossWave()); // 'K' for Kill/Skip
+        singlePressCommands.put(KeyEvent.VK_H, () -> gameContext.setShowHitboxes(!gameContext.getShowHitboxes())); // 'H' 키는 히트박스 표시/숨기기
+        singlePressCommands.put(KeyEvent.VK_K, () -> gameContext.getGameContainer().getWaveManager().skipToNextBossWave()); // 'K' 키는 현재 웨이브 건너뛰기
         
         singlePressCommands.put(KeyEvent.VK_1, new SwitchWeaponCommand(gameContext, "DefaultGun"));
         singlePressCommands.put(KeyEvent.VK_2, new SwitchWeaponCommand(gameContext, "Shotgun"));

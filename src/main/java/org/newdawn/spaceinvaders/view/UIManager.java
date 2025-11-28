@@ -41,7 +41,7 @@ public class UIManager {
         this.staticBackgroundSprite = staticBackgroundSprite;
     }
 
-    // Getters
+    // Getter 메소드
     public GameWindow getGameWindow() {
         return gameWindow;
     }

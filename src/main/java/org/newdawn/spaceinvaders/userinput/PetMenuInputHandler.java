@@ -30,7 +30,7 @@ public class PetMenuInputHandler {
         commandMap.put(KeyEvent.VK_UP, new MenuNavigateCommand(() -> petMenuSupplier.get(), MenuNavigateCommand.Direction.UP));
         commandMap.put(KeyEvent.VK_DOWN, new MenuNavigateCommand(() -> petMenuSupplier.get(), MenuNavigateCommand.Direction.DOWN));
         commandMap.put(KeyEvent.VK_ENTER, new ToggleEquipPetCommand(gameContext, petMenuSupplier));
-        commandMap.put(KeyEvent.VK_U, new UpgradePetCommand(gameContext, petMenuSupplier)); // 'U' for Upgrade
+        commandMap.put(KeyEvent.VK_U, new UpgradePetCommand(gameContext, petMenuSupplier)); // 'U' 키는 업그레이드
         commandMap.put(KeyEvent.VK_ESCAPE, new GoToStateCommand(gameContext, GameState.Type.MAIN_MENU));
     }
 

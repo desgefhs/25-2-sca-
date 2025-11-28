@@ -21,7 +21,7 @@ public class SoundManager {
      * 게임에 필요한 모든 사운드를 메모리로 로드합니다.
      */
     public SoundManager() {
-        // Load sounds into memory
+        // 사운드를 메모리에 로드
         loadSound("gamebackground", "/sounds/GameBackground.wav");
         loadSound("gunshot", "/sounds/gunshot.wav");
         loadSound("lasershot", "/sounds/lasershot.wav");

@@ -70,7 +70,7 @@ public class BuffManager {
 
         for (ActiveBuff buff : activeBuffs) {
             if (buff.type == type) {
-                buff.startTime = System.currentTimeMillis(); // Re-apply, refresh duration
+                buff.startTime = System.currentTimeMillis(); // 재적용, 지속시간 갱신
                 return;
             }
         }

@@ -46,7 +46,7 @@ public class AuthManager {
      */
     public boolean signUp(String username, String password) {
         try {
-            // Check if username already exists
+            // 사용자 이름이 이미 존재하는지 확인
             ApiFuture<QuerySnapshot> future = usersCollection.whereEqualTo(USERNAME_KEY, username).get();
             QuerySnapshot snapshot = future.get();
             if (!snapshot.isEmpty()) {
@@ -54,10 +54,10 @@ public class AuthManager {
                 return false;
             }
 
-            // Hash the password
+            // 비밀번호 해싱
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
-            // Create a new user document
+            // 새 사용자 문서 생성
             Map<String, Object> user = new HashMap<>();
             user.put(USERNAME_KEY, username);
             user.put(HASHED_PASSWORD_KEY, hashedPassword);
@@ -81,7 +81,7 @@ public class AuthManager {
      */
     public String signIn(String username, String password) {
         try {
-            // Find user by username
+            // 사용자 이름으로 사용자 찾기
             ApiFuture<QuerySnapshot> future = usersCollection.whereEqualTo(USERNAME_KEY, username).limit(1).get();
             QuerySnapshot snapshot = future.get();
 
@@ -90,11 +90,11 @@ public class AuthManager {
                 return null;
             }
 
-            // Get user document
+            // 사용자 문서 가져오기
             DocumentSnapshot userDoc = snapshot.getDocuments().get(0);
             String hashedPasswordFromDB = userDoc.getString(HASHED_PASSWORD_KEY);
 
-            // Check password
+            // 비밀번호 확인
             if (hashedPasswordFromDB != null && BCrypt.checkpw(password, hashedPasswordFromDB)) {
                 return userDoc.getId();
             } else {

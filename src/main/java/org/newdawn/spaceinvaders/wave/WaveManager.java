@@ -37,7 +37,7 @@ public class WaveManager {
     /** 다음 스폰 이벤트가 실행될 시간 (타임스탬프). */
     private long nextSpawnTime;
 
-    // Meteor spawning fields - These seem to be part of a separate logic not fully handled here.
+    // 운석 스폰 관련 필드 - 여기에서 완전히 처리되지 않은 별도의 로직의 일부로 보임.
     private long lastMeteorSpawnTime;
     private long nextMeteorSpawnInterval;
 
@@ -195,7 +195,7 @@ public class WaveManager {
         return currentSpawnIndex >= currentWaveDefinition.getSpawns().size();
     }
 
-    // --- Getters and Setters ---
+    // --- Getter 및 Setter 메소드 ---
 
     public int getWave() {
         return wave;

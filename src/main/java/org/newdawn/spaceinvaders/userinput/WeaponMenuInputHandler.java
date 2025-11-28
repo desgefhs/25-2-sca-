@@ -30,7 +30,7 @@ public class WeaponMenuInputHandler {
         commandMap.put(KeyEvent.VK_UP, new MenuNavigateCommand(() -> weaponMenuSupplier.get(), MenuNavigateCommand.Direction.UP));
         commandMap.put(KeyEvent.VK_DOWN, new MenuNavigateCommand(() -> weaponMenuSupplier.get(), MenuNavigateCommand.Direction.DOWN));
         commandMap.put(KeyEvent.VK_ENTER, new EquipWeaponCommand(gameContext, weaponMenuSupplier));
-        commandMap.put(KeyEvent.VK_U, new UpgradeWeaponCommand(gameContext, weaponMenuSupplier)); // 'U' for Upgrade
+        commandMap.put(KeyEvent.VK_U, new UpgradeWeaponCommand(gameContext, weaponMenuSupplier)); // 'U' 키는 업그레이드
         commandMap.put(KeyEvent.VK_ESCAPE, new GoToStateCommand(gameContext, GameState.Type.MAIN_MENU));
     }
 

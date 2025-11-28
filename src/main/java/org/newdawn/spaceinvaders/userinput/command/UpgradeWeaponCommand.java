@@ -95,7 +95,7 @@ public class UpgradeWeaponCommand implements Command {
             case 3: return 2000;
             case 4: return 4000;
             case 5: return 8000;
-            default: return 999999; // Should not happen
+            default: return 999999; // 발생해서는 안 됨
         }
     }
 
@@ -110,7 +110,7 @@ public class UpgradeWeaponCommand implements Command {
             case 3: return 2000;
             case 4: return 4000;
             case 5: return 8000;
-            default: return 999999; // Should not happen
+            default: return 999999; // 발생해서는 안 됨
         }
     }
 }
