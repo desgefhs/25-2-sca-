@@ -114,7 +114,6 @@ public class MeteorEntity extends Entity {
     /**
      * 이 엔티티는 업그레이드할 수 없습니다.
      */
-    @Override
     public void upgrade() {
         // 이 엔티티는 업그레이드할 수 없습니다.
     }

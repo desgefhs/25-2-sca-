@@ -24,10 +24,10 @@ public class DefaultGun implements Weapon {
      * @param context 게임 컨텍스트
      */
     @Override
-    public void fire(GameContext context) {
+    public void fire(GameContext context, ShipEntity owner) {
         GameManager gm = (GameManager) context;
         PlayerStats stats = gm.getPlayerStats();
-        ShipEntity ship = gm.getShip();
+        ShipEntity ship = owner;
 
         long firingInterval = stats.getFiringInterval();
         int bulletDamage = stats.getBulletDamage();
