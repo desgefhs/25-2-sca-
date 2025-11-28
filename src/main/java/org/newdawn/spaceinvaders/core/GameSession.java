@@ -9,16 +9,8 @@ public class GameSession {
         collectedItems++;
     }
 
-    public boolean hasCollectedAllItems() {
-        return collectedItems >= 2;
-    }
-
     public void resetItemCollection() {
         collectedItems = 0;
-    }
-
-    public void stunPlayer(long duration) {
-        this.playerAttackDisabledUntil = System.currentTimeMillis() + duration;
     }
 
     public boolean canPlayerAttack() {

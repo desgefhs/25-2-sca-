@@ -1,5 +1,7 @@
 package org.newdawn.spaceinvaders.core;
 
+import org.newdawn.spaceinvaders.core.events.Event;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,13 +20,6 @@ public class EventBus {
         listeners.add(listener);
     }
 
-    /**
-     * Unregisters a listener.
-     * @param listener The listener to unregister.
-     */
-    public void unregister(EventListener listener) {
-        listeners.remove(listener);
-    }
 
     /**
      * Publishes an event to all registered listeners.

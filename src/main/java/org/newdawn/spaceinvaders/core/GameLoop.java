@@ -51,8 +51,4 @@ public class GameLoop {
             SystemTimer.sleep(lastLoopTime + 10 - SystemTimer.getTime());
         }
     }
-
-    public void stop() {
-        gameRunning = false;
-    }
 }

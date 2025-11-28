@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders.core;
+package org.newdawn.spaceinvaders.core.events;
 
 /**
  * A marker interface for all events that can be published on the EventBus.

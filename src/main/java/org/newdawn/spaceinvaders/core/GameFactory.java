@@ -33,6 +33,7 @@ public class GameFactory {
     private final Firestore db;
     private final AuthenticatedUser user;
 
+
     public GameFactory(Firestore db, AuthenticatedUser user) {
         this.db = db;
         this.user = user;

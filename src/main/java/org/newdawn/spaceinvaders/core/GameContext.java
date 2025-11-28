@@ -77,17 +77,9 @@ public interface GameContext {
 
         void setMessageEndTime(long time);
 
-    
-
         // --- Misc ---
 
-        boolean hasCollectedAllItems();
-
         void resetItemCollection();
-
-                void setLogicRequiredThisLoop(boolean required);
-
-        
 
                 EventBus getEventBus();
 

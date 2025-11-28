@@ -28,10 +28,6 @@ public class GameStateManager {
         }
     }
 
-    public GameState getCurrentState() {
-        return currentState;
-    }
-
     public PlayingState getPlayingState() {
         return playingState;
     }

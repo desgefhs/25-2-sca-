@@ -18,10 +18,6 @@ public class WaveDefinition {
         this.spawns = spawns;
     }
 
-    public int getWaveNumber() {
-        return waveNumber;
-    }
-
     public String getMusic() {
         return music;
     }

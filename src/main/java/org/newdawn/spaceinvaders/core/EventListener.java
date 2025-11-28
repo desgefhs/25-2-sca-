@@ -1,5 +1,7 @@
 package org.newdawn.spaceinvaders.core;
 
+import org.newdawn.spaceinvaders.core.events.Event;
+
 /**
  * An interface for classes that want to listen to events on the EventBus.
  */

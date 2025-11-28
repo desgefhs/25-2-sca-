@@ -1,6 +1,5 @@
 package org.newdawn.spaceinvaders.core.events;
 
-import org.newdawn.spaceinvaders.core.Event;
 import org.newdawn.spaceinvaders.entity.Entity;
 
 public class AlienEscapedEvent implements Event {

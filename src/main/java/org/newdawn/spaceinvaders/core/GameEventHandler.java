@@ -1,7 +1,6 @@
 package org.newdawn.spaceinvaders.core;
 
 import org.newdawn.spaceinvaders.core.events.*;
-import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.entity.EntityManager;
 import org.newdawn.spaceinvaders.player.PlayerManager;
 import org.newdawn.spaceinvaders.sound.SoundManager;

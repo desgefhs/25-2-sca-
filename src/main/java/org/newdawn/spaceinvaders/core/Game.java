@@ -8,7 +8,6 @@ import com.google.firebase.cloud.FirestoreClient;
 import org.newdawn.spaceinvaders.auth.AuthManager;
 import org.newdawn.spaceinvaders.auth.AuthenticatedUser;
 import org.newdawn.spaceinvaders.auth.LoginDialog;
-import org.newdawn.spaceinvaders.core.GameState;
 
 import java.io.IOException;
 import java.io.InputStream;
