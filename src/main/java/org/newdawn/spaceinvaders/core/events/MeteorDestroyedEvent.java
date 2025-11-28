@@ -1,7 +1,5 @@
 package org.newdawn.spaceinvaders.core.events;
 
-import org.newdawn.spaceinvaders.core.Event;
-
 /**
  * 메테오(운석)가 파괴되었을 때 발생하는 이벤트를 나타내는 클래스.
  * 파괴 시 플레이어에게 부여될 점수 값을 포함합니다.

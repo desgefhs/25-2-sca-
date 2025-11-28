@@ -4,7 +4,6 @@ import org.newdawn.spaceinvaders.core.GameContext;
 import org.newdawn.spaceinvaders.entity.Enemy.AlienEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.BombEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.BurstShooterEntity;
-import org.newdawn.spaceinvaders.entity.Enemy.MeteorEnemyEntity;
 import org.newdawn.spaceinvaders.entity.Enemy.ThreeWayShooter;
 
 /**
@@ -54,9 +53,6 @@ public class EnemyFactory {
                 break;
             case BOMB:
                 newEntity = new BombEntity(context, info.x, info.y);
-                break;
-            case METEOR_ENEMY:
-                newEntity = new MeteorEnemyEntity(context, info.x, info.y);
                 break;
             case BURST_SHOOTER:
                 newEntity = new BurstShooterEntity(context, info.x, info.y);

@@ -1,5 +1,7 @@
 package org.newdawn.spaceinvaders.core;
 
+import org.newdawn.spaceinvaders.core.events.Event;
+
 import java.util.ArrayList;
 import java.util.List;
 

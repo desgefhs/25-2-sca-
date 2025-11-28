@@ -225,11 +225,6 @@ public class GameManager implements GameContext {
 
 
     @Override
-    public boolean hasCollectedAllItems() {
-        return gameSession.hasCollectedAllItems();
-    }
-
-    @Override
     public void resetItemCollection() {
         gameSession.resetItemCollection();
     }
