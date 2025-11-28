@@ -40,18 +40,6 @@ public class GameStateManager {
         }
     }
 
-    /**
-     * 현재 게임 상태를 반환합니다.
-     * @return 현재 활성화된 GameState
-     */
-    public GameState getCurrentState() {
-        return currentState;
-    }
-
-    /**
-     * 캐시된 '플레이 중' 상태를 반환합니다.
-     * @return PlayingState 인스턴스
-     */
     public PlayingState getPlayingState() {
         return playingState;
     }

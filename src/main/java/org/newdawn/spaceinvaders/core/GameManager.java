@@ -1,6 +1,5 @@
 package org.newdawn.spaceinvaders.core;
 
-import org.newdawn.spaceinvaders.data.DatabaseManager;
 import org.newdawn.spaceinvaders.data.PlayerData;
 import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.entity.EntityManager;
@@ -13,7 +12,6 @@ import org.newdawn.spaceinvaders.player.PlayerStats;
 import org.newdawn.spaceinvaders.shop.ShopManager;
 import org.newdawn.spaceinvaders.sound.SoundManager;
 import org.newdawn.spaceinvaders.view.*;
-import org.newdawn.spaceinvaders.wave.FormationManager;
 import org.newdawn.spaceinvaders.wave.WaveManager;
 
 import java.awt.Graphics2D;
@@ -86,10 +84,7 @@ public class GameManager implements GameContext {
         this.showHitboxes = show;
     }
 
-    @Override
-    public void setLogicRequiredThisLoop(boolean required) {
-        this.logicRequiredThisLoop = required;
-    }
+
 
     @Override
     public String getMessage() {
@@ -152,26 +147,6 @@ public class GameManager implements GameContext {
         return gameContainer;
     }
 
-    public MainMenu getMainMenu() {
-        return gameContainer.getUiManager().getMainMenu();
-    }
-
-    public PauseMenu getPauseMenu() {
-        return gameContainer.getUiManager().getPauseMenu();
-    }
-
-    public GameOverMenu getGameOverMenu() {
-        return gameContainer.getUiManager().getGameOverMenu();
-    }
-
-    public ConfirmDialog getConfirmDialog() {
-        return gameContainer.getUiManager().getConfirmDialog();
-    }
-
-    public ShopMenu getShopMenu() {
-        return gameContainer.getUiManager().getShopMenu();
-    }
-
     public Sprite getStaticBackgroundSprite() {
         return gameContainer.getUiManager().getStaticBackgroundSprite();
     }
@@ -221,7 +196,6 @@ public class GameManager implements GameContext {
     @Override
     public void updatePlayingLogic(long delta) {
         gameWorld.update(delta);
-        this.setLogicRequiredThisLoop(true);
     }
 
     @Override
@@ -243,12 +217,12 @@ public class GameManager implements GameContext {
 
     public InputHandler getInputHandler() { return gameContainer.getInputHandler(); }
     public EntityManager getEntityManager() { return gameWorld.getEntityManager(); }
-    public DatabaseManager getDatabaseManager() { return gameContainer.getDatabaseManager(); }
     public PlayerData getCurrentPlayer() { return gameContainer.getPlayerManager().getCurrentPlayer(); }
     public PlayerStats getPlayerStats() { return gameContainer.getPlayerManager().getPlayerStats(); }
     public GameStateManager getGsm() { return gameContainer.getGsm(); }
     public WaveManager getWaveManager() { return gameWorld.getWaveManager(); }
     public PlayerManager getPlayerManager() { return gameContainer.getPlayerManager(); }
+
 
     @Override
     public boolean hasCollectedAllItems() {
@@ -264,7 +238,6 @@ public class GameManager implements GameContext {
     public boolean canPlayerAttack() {
         return gameSession.canPlayerAttack();
     }
-
 
     public SoundManager getSoundManager() {
         return gameContainer.getSoundManager();

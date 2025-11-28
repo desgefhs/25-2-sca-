@@ -28,18 +28,6 @@ public class WaveDefinition {
         this.spawns = spawns;
     }
 
-    /**
-     * 웨이브 번호를 반환합니다.
-     * @return 웨이브 번호
-     */
-    public int getWaveNumber() {
-        return waveNumber;
-    }
-
-    /**
-     * 배경 음악의 이름을 반환합니다.
-     * @return 배경 음악 이름
-     */
     public String getMusic() {
         return music;
     }

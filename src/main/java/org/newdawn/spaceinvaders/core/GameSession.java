@@ -18,33 +18,10 @@ public class GameSession {
         collectedItems++;
     }
 
-    /**
-     * 특정 조건(예: 웨이브 클리어)을 만족시키기 위해 모든 아이템을 수집했는지 확인합니다.
-     * @return 모든 아이템을 수집했으면 true, 그렇지 않으면 false.
-     */
-    public boolean hasCollectedAllItems() {
-        return collectedItems >= 2; // 특정 게임 모드 또는 웨이브의 요구 조건
-    }
-
-    /**
-     * 아이템 수집 카운터를 리셋합니다.
-     */
     public void resetItemCollection() {
         collectedItems = 0;
     }
 
-    /**
-     * 지정된 시간 동안 플레이어를 스턴 상태로 만들어 공격을 비활성화합니다.
-     * @param duration 스턴 지속 시간 (밀리초)
-     */
-    public void stunPlayer(long duration) {
-        this.playerAttackDisabledUntil = System.currentTimeMillis() + duration;
-    }
-
-    /**
-     * 플레이어가 현재 공격할 수 있는 상태인지 확인합니다.
-     * @return 공격 가능하면 true, 스턴 상태이면 false.
-     */
     public boolean canPlayerAttack() {
         return System.currentTimeMillis() > playerAttackDisabledUntil;
     }

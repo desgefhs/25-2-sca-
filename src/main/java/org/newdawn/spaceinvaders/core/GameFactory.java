@@ -43,6 +43,7 @@ public class GameFactory {
      * @param db Firestore 데이터베이스 인스턴스
      * @param user 인증된 사용자 객체
      */
+
     public GameFactory(Firestore db, AuthenticatedUser user) {
         this.db = db;
         this.user = user;

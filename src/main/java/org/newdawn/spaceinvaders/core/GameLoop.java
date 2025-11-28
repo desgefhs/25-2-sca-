@@ -73,12 +73,4 @@ public class GameLoop {
             SystemTimer.sleep(lastLoopTime + 10 - SystemTimer.getTime());
         }
     }
-
-    /**
-     * 게임 루프를 중지합니다.
-     * 다음 루프 반복에서 실행이 멈춥니다.
-     */
-    public void stop() {
-        gameRunning = false;
-    }
 }

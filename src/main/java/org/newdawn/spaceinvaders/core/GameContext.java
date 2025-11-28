@@ -146,28 +146,12 @@ public interface GameContext {
      */
     void setMessageEndTime(long time);
 
-    // --- 기타 ---
+        // --- Misc ---
 
-    /**
-     * 플레이어가 모든 아이템을 수집했는지 확인합니다. (특정 게임 모드용)
-     * @return 모든 아이템 수집 시 true
-     */
-    boolean hasCollectedAllItems();
+        void resetItemCollection();
 
-    /**
-     * 아이템 수집 상태를 리셋합니다.
-     */
-    void resetItemCollection();
+                EventBus getEventBus();
 
-    /**
-     * 현재 게임 루프에서 로직 업데이트가 필요한지 설정합니다.
-     * @param required 로직 업데이트가 필요하면 true
-     */
-    void setLogicRequiredThisLoop(boolean required);
+            }
 
-    /**
-     * 게임의 이벤트 버스를 반환합니다.
-     * @return 이벤트 버스 인스턴스
-     */
-    EventBus getEventBus();
-}
+    

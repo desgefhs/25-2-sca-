@@ -1,5 +1,7 @@
 package org.newdawn.spaceinvaders.core;
 
+import org.newdawn.spaceinvaders.core.events.Event;
+
 /**
  * 이벤트 버스({@link EventBus})의 이벤트를 수신(listen)하려는 클래스를 위한 인터페이스.
  */

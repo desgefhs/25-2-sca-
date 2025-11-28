@@ -20,13 +20,6 @@ public class EventBus {
         listeners.add(listener);
     }
 
-    /**
-     * 등록된 리스너를 제거합니다.
-     * @param listener 제거할 리스너
-     */
-    public void unregister(EventListener listener) {
-        listeners.remove(listener);
-    }
 
     /**
      * 등록된 모든 리스너에게 이벤트를 발행(전송)합니다.

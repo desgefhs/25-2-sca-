@@ -1,4 +1,4 @@
-package org.newdawn.spaceinvaders.core;
+package org.newdawn.spaceinvaders.core.events;
 
 /**
  * 이벤트 버스({@link EventBus})를 통해 발행될 수 있는 모든 이벤트를 위한 마커(marker) 인터페이스.
