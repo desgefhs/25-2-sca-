@@ -223,6 +223,10 @@ public class GameManager implements GameContext {
     public WaveManager getWaveManager() { return gameWorld.getWaveManager(); }
     public PlayerManager getPlayerManager() { return gameContainer.getPlayerManager(); }
 
+    @Override
+    public boolean hasCollectedAllItems() {
+        return gameSession.hasCollectedAllItems();
+    }
 
     @Override
     public void resetItemCollection() {

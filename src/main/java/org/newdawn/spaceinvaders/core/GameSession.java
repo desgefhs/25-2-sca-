@@ -18,6 +18,10 @@ public class GameSession {
         collectedItems++;
     }
 
+    public boolean hasCollectedAllItems() {
+        return collectedItems >= 2;
+    }
+
     public void resetItemCollection() {
         collectedItems = 0;
     }

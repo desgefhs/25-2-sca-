@@ -146,6 +146,8 @@ public interface GameContext {
      */
     void setMessageEndTime(long time);
 
+    boolean hasCollectedAllItems();
+
         // --- Misc ---
 
         void resetItemCollection();
