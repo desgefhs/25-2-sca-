@@ -3,6 +3,7 @@ package org.newdawn.spaceinvaders.core;
 import org.newdawn.spaceinvaders.entity.Entity;
 import org.newdawn.spaceinvaders.entity.EntityManager;
 import org.newdawn.spaceinvaders.entity.ShipEntity;
+import org.newdawn.spaceinvaders.entity.Projectile.LaserEntity;
 import org.newdawn.spaceinvaders.view.Background;
 import org.newdawn.spaceinvaders.wave.WaveManager;
 
@@ -47,6 +48,8 @@ public class GameWorld {
         entityManager.moveAll(delta);
         new CollisionDetector().checkCollisions(entityManager.getEntities());
 
+        handleGlobalLaser();
+
         // 파괴되도록 표시된 엔티티를 처리하고 이벤트를 발행합니다.
         entityLifecycleManager.processStateChanges(entityManager.getEntities(), gameContext.getEventBus(), entityManager);
 
@@ -55,6 +58,29 @@ public class GameWorld {
         // 모든 적이 처치되고 스폰이 완료되면 웨이브 클리어 처리
         if (entityManager.getAlienCount() == 0 && waveManager.hasFinishedSpawning()) {
             gameContext.onWaveCleared();
+        }
+    }
+
+    /**
+     * 전역 레이저 패턴의 데미지 로직을 처리합니다.
+     * 레이저가 존재할 때 플레이어가 모든 아이템을 수집하지 않았다면 함선을 파괴합니다.
+     */
+    private void handleGlobalLaser() {
+        boolean laserActive = false;
+        for (Entity entity : getEntities()) {
+            if (entity instanceof LaserEntity) {
+                laserActive = true;
+                break;
+            }
+        }
+
+        if (laserActive) {
+            if (!gameContext.hasCollectedAllItems()) {
+                ShipEntity ship = getShip();
+                if (ship != null) {
+                    ship.destroy();
+                }
+            }
         }
     }
 
