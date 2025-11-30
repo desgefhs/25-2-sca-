@@ -14,8 +14,8 @@ import org.newdawn.spaceinvaders.graphics.SpriteStore;
 import java.awt.Graphics;
 
 /**
- * 게임의 기본적인 외계인 적 엔티티.
- * 다양한 이동 패턴을 가지며, 주기적으로 발사체를 발사하고, 플레이어와 충돌을 처리합니다.
+ * 게임의 가장 기본적인 외계인 적을 나타내는 엔티티입니다.
+ * 다양한 이동 패턴을 가지며, 주기적으로 발사체를 발사하고, 플레이어와의 충돌을 처리합니다.
  * 
  * @author Kevin Glass (original)
  */

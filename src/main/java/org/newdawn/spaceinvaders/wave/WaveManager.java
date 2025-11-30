@@ -9,9 +9,9 @@ import org.newdawn.spaceinvaders.core.GameState;
 import org.newdawn.spaceinvaders.core.events.GameWonEvent;
 
 /**
- * 게임 내 적 웨이브의 진행을 관리하는 클래스.
+ * 게임 내 적 웨이브의 진행을 책임지는 클래스입니다.
  * 이 클래스는 "Wave Executor" 역할을 하도록 리팩토링되었습니다. {@link WaveLoader}를 사용하여
- * 웨이브 정의를 가져오고, {@link WaveDefinition}에 기술된 스폰 이벤트를 실행합니다.
+ * 웨이브 정의를 가져오고, {@link WaveDefinition}에 기술된 스폰 이벤트를 순차적으로 실행합니다.
  * 이를 통해 웨이브 데이터(무엇을)와 실행 로직(어떻게)이 분리됩니다.
  */
 public class WaveManager {
@@ -197,34 +197,66 @@ public class WaveManager {
 
     // --- Getter 및 Setter 메소드 ---
 
+    /**
+     * 현재 웨이브 번호를 반환합니다.
+     * @return 현재 웨이브 번호
+     */
     public int getWave() {
         return wave;
     }
 
+    /**
+     * 현재 웨이브에서 힐링 영역이 스폰되었는지 여부를 반환합니다.
+     * @return 힐링 영역이 스폰되었으면 true
+     */
     public boolean isHealingAreaSpawnedForWave() {
         return healingAreaSpawnedForWave;
     }
 
+    /**
+     * 현재 웨이브의 힐링 영역 스폰 상태를 설정합니다.
+     * @param healingAreaSpawnedForWave 힐링 영역 스폰 여부
+     */
     public void setHealingAreaSpawnedForWave(boolean healingAreaSpawnedForWave) {
         this.healingAreaSpawnedForWave = healingAreaSpawnedForWave;
     }
 
+    /**
+     * 게임 관리자 인스턴스를 반환합니다.
+     * @return 게임 관리자
+     */
     public GameManager getGameManager() {
         return gameManager;
     }
 
+    /**
+     * 마지막 운석이 스폰된 시간을 반환합니다.
+     * @return 마지막 운석 스폰 시간
+     */
     public long getLastMeteorSpawnTime() {
         return lastMeteorSpawnTime;
     }
 
+    /**
+     * 마지막 운석 스폰 시간을 설정합니다.
+     * @param lastMeteorSpawnTime 마지막 운석 스폰 시간
+     */
     public void setLastMeteorSpawnTime(long lastMeteorSpawnTime) {
         this.lastMeteorSpawnTime = lastMeteorSpawnTime;
     }
 
+    /**
+     * 다음 운석 스폰까지의 간격을 반환합니다.
+     * @return 다음 운석 스폰 간격
+     */
     public long getNextMeteorSpawnInterval() {
         return nextMeteorSpawnInterval;
     }
 
+    /**
+     * 다음 운석 스폰까지의 간격을 설정합니다.
+     * @param nextMeteorSpawnInterval 다음 운석 스폰 간격
+     */
     public void setNextMeteorSpawnInterval(long nextMeteorSpawnInterval) {
         this.nextMeteorSpawnInterval = nextMeteorSpawnInterval;
     }

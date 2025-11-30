@@ -74,11 +74,19 @@ public class GameManager implements GameContext {
         getEventBus().register(this.gameEventHandler);
     }
 
+    /**
+     * 히트박스 표시 여부를 반환합니다.
+     * @return 히트박스를 표시할 경우 true, 그렇지 않으면 false
+     */
     @Override
     public boolean getShowHitboxes() {
         return showHitboxes;
     }
 
+    /**
+     * 히트박스 표시 여부를 설정합니다.
+     * @param show 히트박스를 표시할 경우 true, 그렇지 않으면 false
+     */
     @Override
     public void setShowHitboxes(boolean show) {
         this.showHitboxes = show;
@@ -91,16 +99,28 @@ public class GameManager implements GameContext {
         return message;
     }
 
+    /**
+     * 화면에 표시될 메시지를 설정합니다.
+     * @param message 표시할 메시지 문자열
+     */
     @Override
     public void setMessage(String message) {
         this.message = message;
     }
 
+    /**
+     * 메시지가 화면에서 사라질 시간을 설정합니다.
+     * @param time 메시지 종료 시간 (밀리초)
+     */
     @Override
     public void setMessageEndTime(long time) {
         this.messageEndTime = time;
     }
 
+    /**
+     * 메시지가 화면에서 사라질 시간을 반환합니다.
+     * @return 메시지 종료 시간 (밀리초)
+     */
     public long getMessageEndTime() {
         return messageEndTime;
     }
@@ -177,75 +197,162 @@ public class GameManager implements GameContext {
         gameLoop.run();
     }
 
+    /**
+     * 현재 게임 상태를 즉시 변경합니다.
+     * @param stateType 새로 설정할 게임 상태의 타입
+     */
     @Override
     public void setCurrentState(GameState.Type stateType) {
         GameState newState = gameStateFactory.create(stateType, this);
         getGsm().setState(newState);
     }
 
+    /**
+     * 다음 게임 루프에서 전환될 게임 상태를 설정합니다.
+     * @param stateType 다음 프레임에 설정될 게임 상태의 타입
+     */
     @Override
     public void setNextState(GameState.Type stateType) {
         this.nextState = stateType;
     }
 
+    /**
+     * 현재 웨이브가 클리어되었을 때 호출됩니다.
+     * 다음 웨이브를 시작하도록 웨이브 관리자에게 지시합니다.
+     */
     @Override
     public void onWaveCleared() {
         getWaveManager().startNextWave();
     }
 
+    /**
+     * 게임 플레이 상태의 핵심 로직을 업데이트합니다.
+     * @param delta 마지막 프레임 이후 경과 시간 (밀리초)
+     */
     @Override
     public void updatePlayingLogic(long delta) {
         gameWorld.update(delta);
     }
 
+    /**
+     * 게임 월드에 엔티티를 추가합니다.
+     * @param entity 추가할 엔티티
+     */
     @Override
     public void addEntity(Entity entity) { gameWorld.addEntity(entity); }
+    /**
+     * 게임 월드에서 엔티티를 제거합니다.
+     * @param entity 제거할 엔티티
+     */
     @Override
     public void removeEntity(Entity entity) { gameWorld.removeEntity(entity); }
 
 
+    /**
+     * 게임 월드의 모든 엔티티 리스트를 반환합니다.
+     * @return 엔티티 리스트
+     */
     @Override
     public java.util.List<Entity> getEntities() { return gameWorld.getEntities(); }
 
+    /**
+     * 플레이어의 함선(Ship) 엔티티를 반환합니다.
+     * @return 플레이어 함선 엔티티
+     */
     @Override
     public ShipEntity getShip() { return gameWorld.getShip(); }
 
+    /**
+     * 실제 게임 플레이를 시작합니다.
+     * 플레이어 관련 설정을 초기화하고 게임 플레이 상태로 전환합니다.
+     */
     @Override
     public void startGameplay() {
         getPlayerManager().startGameplay();
     }
 
+    /**
+     * 게임의 입력 핸들러를 반환합니다.
+     * @return 입력 핸들러
+     */
     public InputHandler getInputHandler() { return gameContainer.getInputHandler(); }
+    /**
+     * 엔티티 매니저를 반환합니다.
+     * @return 엔티티 매니저
+     */
     public EntityManager getEntityManager() { return gameWorld.getEntityManager(); }
+    /**
+     * 현재 플레이어 데이터를 반환합니다.
+     * @return 현재 플레이어 데이터
+     */
     public PlayerData getCurrentPlayer() { return gameContainer.getPlayerManager().getCurrentPlayer(); }
+    /**
+     * 플레이어 통계 정보를 반환합니다.
+     * @return 플레이어 통계
+     */
     public PlayerStats getPlayerStats() { return gameContainer.getPlayerManager().getPlayerStats(); }
+    /**
+     * 게임 상태 관리자를 반환합니다.
+     * @return 게임 상태 관리자
+     */
     public GameStateManager getGsm() { return gameContainer.getGsm(); }
+    /**
+     * 웨이브 매니저를 반환합니다.
+     * @return 웨이브 매니저
+     */
     public WaveManager getWaveManager() { return gameWorld.getWaveManager(); }
+    /**
+     * 플레이어 매니저를 반환합니다.
+     * @return 플레이어 매니저
+     */
     public PlayerManager getPlayerManager() { return gameContainer.getPlayerManager(); }
 
+    /**
+     * 플레이어가 현재 스테이지의 모든 아이템을 수집했는지 확인합니다.
+     * @return 모든 아이템을 수집한 경우 true, 그렇지 않으면 false
+     */
     @Override
     public boolean hasCollectedAllItems() {
         return gameSession.hasCollectedAllItems();
     }
 
+    /**
+     * 아이템 수집 상태를 초기화합니다.
+     */
     @Override
     public void resetItemCollection() {
         gameSession.resetItemCollection();
     }
 
+    /**
+     * 플레이어가 현재 공격할 수 있는 상태인지 확인합니다.
+     * @return 공격 가능한 경우 true, 그렇지 않으면 false
+     */
     @Override
     public boolean canPlayerAttack() {
         return gameSession.canPlayerAttack();
     }
 
+    /**
+     * 사운드 관리자를 반환합니다.
+     * @return 사운드 관리자
+     */
     public SoundManager getSoundManager() {
         return gameContainer.getSoundManager();
     }
 
+    /**
+     * 게임 월드의 배경 객체를 반환합니다.
+     * @return 배경 객체
+     */
     public Background getBackground() {
         return gameWorld.getBackground();
     }
 
+    /**
+     * 게임 내 이벤트 버스를 반환합니다.
+     * @return 이벤트 버스
+     */
     @Override
     public EventBus getEventBus() {
         return eventBus;

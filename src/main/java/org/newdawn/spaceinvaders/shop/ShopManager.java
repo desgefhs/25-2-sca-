@@ -8,8 +8,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * 게임 내 상점 시스템을 관리하는 클래스.
- * 모든 업그레이드 정보를 정의하고, 아이템 뽑기(Gacha) 로직을 처리합니다.
+ * 게임 내 상점 시스템을 총괄적으로 관리하는 클래스입니다.
+ * 모든 업그레이드 정보를 정의하며, 아이템 뽑기(Gacha)와 관련된 로직을 처리합니다.
  */
 public class ShopManager {
 

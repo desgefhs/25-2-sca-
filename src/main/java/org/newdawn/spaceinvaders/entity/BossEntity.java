@@ -13,8 +13,8 @@ import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 import org.newdawn.spaceinvaders.graphics.HpRender;
 
 /**
- * 게임에 등장하는 보스 엔티티의 추상 기본 클래스.
- * 다양한 공격 패턴, 이동, 체력 관리, 충돌 처리 등 보스 엔티티의 공통적인 특성을 정의합니다.
+ * 게임에 등장하는 보스 엔티티를 위한 추상 기본 클래스입니다.
+ * 다양한 공격 패턴, 이동, 체력 관리, 충돌 처리 등 보스 엔티티의 공통적인 특성을 정의하고 있습니다.
  */
 public abstract class BossEntity extends Entity implements Enemy {
     /**

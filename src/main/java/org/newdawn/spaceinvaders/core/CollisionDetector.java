@@ -5,7 +5,7 @@ import org.newdawn.spaceinvaders.entity.Entity;
 import java.util.List;
 
 /**
- * 엔티티 간의 충돌을 감지하고, 충돌 발생 시 각 엔티티의 충돌 처리 로직을 호출하는 클래스.
+ * 엔티티 간의 충돌을 감지하며, 충돌이 발생하면 각 엔티티의 충돌 처리 로직을 호출하는 클래스입니다.
  */
 public class CollisionDetector {
 

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 게임 내 모든 사운드(효과음, 배경 음악)를 로드하고 제어하는 클래스.
+ * 게임 내 모든 사운드(효과음, 배경 음악)의 로딩과 제어를 담당하는 클래스입니다.
  * Java Sound API의 {@link Clip}을 사용하여 사운드를 메모리에 미리 로드하고 재생, 반복, 중지 기능을 제공합니다.
  */
 public class SoundManager {

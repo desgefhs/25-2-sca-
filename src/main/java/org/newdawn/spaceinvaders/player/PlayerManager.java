@@ -10,8 +10,8 @@ import org.newdawn.spaceinvaders.view.ShopMenu;
 import org.newdawn.spaceinvaders.wave.WaveManager;
 
 /**
- * 플레이어 관련 데이터와 상태를 총괄하는 클래스.
- * 플레이어 데이터 로딩, 스탯 계산, 게임 결과 저장 등의 역할을 수행합니다.
+ * 플레이어와 관련된 데이터와 상태를 총괄적으로 관리하는 클래스입니다.
+ * 플레이어 데이터 로딩, 스탯 계산, 게임 결과 저장 등의 핵심 역할을 수행합니다.
  */
 public class PlayerManager {
 

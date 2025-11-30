@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * 게임 애플리케이션의 메인 진입점.
- * Firebase 초기화, 사용자 인증, 게임 인스턴스 생성 및 게임 루프 시작을 담당합니다.
+ * Space Invaders 게임 애플리케이션의 메인 진입점입니다.
+ * Firebase 초기화, 사용자 인증, 게임 인스턴스 생성 및 전체 게임 루프의 시작을 담당합니다.
  */
 public class Game {
 

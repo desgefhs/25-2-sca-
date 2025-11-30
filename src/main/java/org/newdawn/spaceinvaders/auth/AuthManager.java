@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
- * 사용자 인증(회원가입, 로그인)을 처리하는 클래스.
- * Firestore 데이터베이스와 통신하고, jBCrypt를 사용하여 비밀번호를 해싱하고 검증합니다.
+ * 사용자 인증(회원가입, 로그인)을 전문적으로 처리하는 클래스입니다.
+ * Firestore 데이터베이스와 통신하며, jBCrypt를 사용하여 비밀번호를 해싱하고 검증하는 역할을 합니다.
  */
 public class AuthManager {
 

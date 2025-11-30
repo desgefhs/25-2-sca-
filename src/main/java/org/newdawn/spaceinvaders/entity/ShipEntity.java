@@ -16,8 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 플레이어가 조종하는 함선(Ship)을 나타내는 엔티티.
- * 이동, 발사, 체력, 버프, 충돌 등 플레이어와 관련된 모든 핵심 로직을 포함합니다.
+ * 플레이어가 직접 조종하는 함선(Ship)을 표현하는 엔티티입니다.
+ * 이동, 발사, 체력, 버프, 충돌 등 플레이어와 관련된 모든 핵심 로직을 포함하고 있습니다.
  */
 public class ShipEntity extends Entity {
     /** 게임의 전반적인 컨텍스트. */
@@ -147,6 +147,11 @@ public class ShipEntity extends Entity {
         context.getGameContainer().getSoundManager().playSound(currentWeapon.getSoundName());
     }
 
+    /**
+     * 함선을 화면에 그립니다.
+     * 쉴드, 버프, 무적 상태에 따라 시각적 효과(원, 깜빡임)를 추가로 표시합니다.
+     * @param g 그래픽 컨텍스트
+     */
     @Override
     public void draw(Graphics g) {
         int effectSize = Math.max(width, height) + 10;
@@ -212,6 +217,10 @@ public class ShipEntity extends Entity {
         invincibilityTimer = INVINCIBILITY_DURATION;
     }
 
+    /**
+     * 함선의 상태를 초기값으로 재설정합니다.
+     * 체력, 위치, 버프, 쉴드 등 모든 상태를 리셋합니다.
+     */
     @Override
     public void reset() {
         super.reset();
@@ -224,23 +233,44 @@ public class ShipEntity extends Entity {
         y = 550;
     }
 
+    /**
+     * 함선에 쉴드가 활성화되어 있는지 확인합니다.
+     * @return 쉴드가 있으면 true
+     */
     public boolean hasShield() {
         return hasShield;
     }
 
+    /**
+     * 함선의 쉴드 상태를 설정합니다.
+     * @param hasShield 쉴드 활성화 여부
+     * @param onBreak 쉴드가 파괴되었을 때 실행될 콜백
+     */
     public void setShield(boolean hasShield, Runnable onBreak) {
         this.hasShield = hasShield;
         this.onShieldBreak = onBreak;
     }
 
+    /**
+     * 함선의 버프 관리자를 반환합니다.
+     * @return 버프 관리자
+     */
     public BuffManager getBuffManager() {
         return buffManager;
     }
 
+    /**
+     * 함선의 현재 이동 속도를 반환합니다.
+     * @return 이동 속도
+     */
     public float getMoveSpeed() {
         return this.moveSpeed;
     }
 
+    /**
+     * 함선의 이동 속도를 설정합니다.
+     * @param moveSpeed 새로운 이동 속도
+     */
     public void setMoveSpeed(float moveSpeed) {
         this.moveSpeed = moveSpeed;
     }
@@ -262,6 +292,10 @@ public class ShipEntity extends Entity {
         health.increaseHealth(amount);
     }
 
+    /**
+     * 함선의 최대 체력을 반환합니다.
+     * @return 최대 체력
+     */
     public int getMaxHealth() {
         return health.getMaxHp();
     }

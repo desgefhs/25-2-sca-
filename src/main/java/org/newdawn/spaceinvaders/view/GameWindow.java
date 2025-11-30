@@ -8,8 +8,8 @@ import java.awt.image.BufferStrategy;
 import javax.swing.WindowConstants;
 
 /**
- * 게임의 메인 창(JFrame)을 생성하고 관리하는 클래스.
- * 게임 렌더링을 위한 {@link GameCanvas}를 포함합니다.
+ * 게임의 메인 창(JFrame)을 생성하고 전체적으로 관리하는 클래스입니다.
+ * 게임 렌더링을 위한 {@link GameCanvas}를 내부에 포함합니다.
  */
 public class GameWindow {
 
@@ -53,7 +53,7 @@ public class GameWindow {
     }
 
     /**
-     * 더블 버퍼링을 사용하여 게임을 그리는 데 사용되는 AWT Canvas의 구현체.
+     * 더블 버퍼링을 사용하여 게임을 그리는 데 사용되는 AWT Canvas의 커스텀 구현체입니다.
      */
     public static class GameCanvas extends Canvas {
         /** 더블 버퍼링을 위한 버퍼 전략. `transient`로 직렬화에서 제외됩니다. */

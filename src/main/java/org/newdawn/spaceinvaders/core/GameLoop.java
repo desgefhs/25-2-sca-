@@ -6,7 +6,7 @@ import org.newdawn.spaceinvaders.view.GameWindow;
 import java.awt.Graphics2D;
 
 /**
- * 게임의 메인 루프를 담당하는 클래스.
+ * 게임의 메인 루프를 책임지는 클래스입니다.
  * 정해진 주기에 따라 입력 처리, 게임 상태 업데이트, 렌더링을 반복적으로 수행합니다.
  */
 public class GameLoop {

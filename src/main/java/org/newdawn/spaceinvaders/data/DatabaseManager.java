@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Firebase Firestore 데이터베이스와의 모든 상호작용(데이터 저장, 불러오기)을 처리하는 클래스.
- * 플레이어 데이터, 랭킹 등 게임의 영구 데이터를 관리합니다.
+ * Firebase Firestore 데이터베이스와의 모든 상호작용(데이터 저장, 불러오기)을 담당하는 클래스입니다.
+ * 플레이어 데이터, 랭킹 등 게임의 영구 데이터를 처리하고 관리합니다.
  */
 public class DatabaseManager {
 
