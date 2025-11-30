@@ -32,8 +32,6 @@ public abstract class BossEntity extends Entity implements Enemy {
     /** 마지막으로 사용된 공격 패턴. */
     protected BossPattern lastUsedPattern = null;
 
-    /** 게임 컨텍스트. */
-    protected GameContext context;
     /** 마지막 발사 이후 시간. */
     private long lastFire = 0;
     /** 발사 간격 (밀리초). */

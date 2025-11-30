@@ -11,8 +11,6 @@ import java.awt.Graphics;
  * 주로 보스 공격 패턴의 일환으로 사용되며, 겹치는 모든 엔티티에 피해를 줍니다.
  */
 public class LaserEntity extends Entity {
-
-    private final GameContext context;
     /** 레이저 발사 지속 시간 (밀리초). */
     private long fireDuration = 2000; // 2초 발사
     /** 레이저가 발사되었는지 여부. */

@@ -22,8 +22,6 @@ import java.awt.Graphics;
 public class AlienEntity extends Entity implements Enemy {
 	/** 외계인의 기본 이동 속도. */
 	private final double MOVE_SPEED = 100;
-	/** 게임 컨텍스트. */
-	private final GameContext context;
 
 	/** 마지막 발사 이후 시간. */
 	private long lastFire = 0;

@@ -10,9 +10,6 @@ import org.newdawn.spaceinvaders.entity.ShipEntity;
  * 발사체는 타입, 피해량, 이동 속도, 그리고 추적 기능과 같은 속성을 가집니다.
  */
 public class ProjectileEntity extends Entity {
-
-    /** 게임 컨텍스트. */
-    private final GameContext context;
     /** 발사체의 타입 정의. */
     private final ProjectileType type;
     /** 발사체가 주는 피해량. */

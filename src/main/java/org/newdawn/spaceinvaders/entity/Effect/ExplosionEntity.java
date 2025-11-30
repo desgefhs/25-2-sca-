@@ -14,8 +14,6 @@ public class ExplosionEntity extends Entity {
     private final long lifeTime = 500; // 0.5초
     /** 엔티티가 생성된 시간 (타임스탬프). */
     private final long createdAt;
-    /** 게임 컨텍스트. */
-    private final GameContext context;
 
     /**
      * ExplosionEntity 생성자.

@@ -33,8 +33,6 @@ public class MeteorEntity extends Entity {
         }
     }
 
-    private final GameContext context;
-    /** 운석 파괴 시 획득할 점수 값. */
     private final int scoreValue;
 
     /**

@@ -20,8 +20,6 @@ import java.util.Map;
  * 이동, 발사, 체력, 버프, 충돌 등 플레이어와 관련된 모든 핵심 로직을 포함하고 있습니다.
  */
 public class ShipEntity extends Entity {
-    /** 게임의 전반적인 컨텍스트. */
-    private final GameContext context;
     /** 함선의 HP 바를 그리는 렌더러. */
     private HpRender hpRender;
     /** 다른 엔티티와 충돌 시 받는 기본 데미지. */

@@ -14,8 +14,6 @@ import org.newdawn.spaceinvaders.entity.Projectile.ProjectileType;
 public class BurstShooterEntity extends Entity implements Enemy {
     /** 기본 이동 속도. */
     private final double moveSpeed = 75;
-    /** 게임 컨텍스트. */
-    private final GameContext context;
 
     /** 마지막 버스트 공격 시간. */
     private long lastBurstTime = 0;

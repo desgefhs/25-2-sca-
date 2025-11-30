@@ -8,8 +8,6 @@ import org.newdawn.spaceinvaders.core.GameContext;
  */
 public class HealingAreaEntity extends Entity {
 
-    private final GameContext context;
-
     /**
      * HealingAreaEntity 생성자.
      * @param context 게임 컨텍스트

@@ -20,8 +20,6 @@ import java.awt.Graphics;
 public class ThreeWayShooter extends Entity implements Enemy {
     /** 수평 이동 속도. */
     private final double moveSpeed = 150;
-    /** 게임 컨텍스트. */
-    private final GameContext context;
     /** 이 슈터의 이동 패턴. */
     private MovementPattern movementPattern;
 

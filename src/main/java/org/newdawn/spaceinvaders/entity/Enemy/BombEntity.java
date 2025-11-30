@@ -21,9 +21,6 @@ public class BombEntity extends Entity implements Enemy {
     /** 폭탄의 현재 상태를 정의하는 열거형. */
     private enum State { APPROACHING, WARNING, EXPLODING }
     private State currentState = State.APPROACHING;
-
-    /** 게임 컨텍스트. */
-    private final GameContext context;
     /** 폭탄의 이동 속도. */
     private final double moveSpeed = 75; // 속도 절반으로 줄임
 

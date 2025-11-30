@@ -22,8 +22,6 @@ public class AnimatedExplosionEntity extends Entity {
     private long lastFrameChange;
     /** 현재 표시 중인 프레임 번호. */
     private int frameNumber;
-    /** 게임 컨텍스트. */
-    private final GameContext context;
 
     /**
      * AnimatedExplosionEntity 생성자.

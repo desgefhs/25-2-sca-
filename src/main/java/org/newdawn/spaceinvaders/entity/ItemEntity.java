@@ -8,8 +8,6 @@ import org.newdawn.spaceinvaders.core.GameContext;
  */
 public class ItemEntity extends Entity {
 
-    private final GameContext context;
-
     /**
      * ItemEntity 생성자.
      * @param context 게임 컨텍스트
